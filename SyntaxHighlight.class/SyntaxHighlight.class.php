@@ -408,7 +408,7 @@ class SyntaxHighlight
 			'<span class="punctuation">\\1</span>',
 			),
 		$buffer
-		).($valueStart ? '' : '<span class="punctuation">{</span><span class="value">');
+		).($valueStart ? $char : '<span class="punctuation">{</span><span class="value">');
 
 				$buffer = ($valueStart ? $char : '');
 			}
@@ -431,7 +431,7 @@ class SyntaxHighlight
 			'<span class="punctuation">\\1</span>',
 			),
 		$buffer
-		).($valueStart ? '' : '</span><span class="punctuation">}</span>');
+		).($valueStart ? $char : '</span><span class="punctuation">}</span>');
 
 				$buffer = '';
 			}
@@ -440,7 +440,6 @@ class SyntaxHighlight
 				$codeParsed.= '<span class="'.((($char == '*' && $charOld == '/')) ? 'comment' : 'value').'">'.$buffer.$char.'</span>';
 				$buffer = '';
 				$notParse = 0;
-				$valueStop = 1;
 			}
 			else
 			{
@@ -449,7 +448,6 @@ class SyntaxHighlight
 
 			$code = substr($code, 1);
 			$charOld = $char;
-			$valueStop = 0;
 		}
 
 		if ($finish && $braces)
