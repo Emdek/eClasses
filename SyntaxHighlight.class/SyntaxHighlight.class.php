@@ -12,8 +12,8 @@ class SyntaxHighlight
 
 /**
  * Highlights string for given type
- * @param string code
- * @param string mode
+ * @param string $code
+ * @param string $mode
  * @return string
  */
 
@@ -33,8 +33,8 @@ class SyntaxHighlight
 
 /**
  * Highlights file for given type
- * @param string code
- * @param string mode
+ * @param string $code
+ * @param string $mode
  * @return string
  * @throws Exception
  */
@@ -51,9 +51,9 @@ class SyntaxHighlight
 
 /**
  * Additional formatting for parsed code
- * @param string code
- * @param boolean highlight
- * @param string class
+ * @param string $code
+ * @param boolean $highlight
+ * @param string $class
  * @return string
  */
 
@@ -141,8 +141,8 @@ class SyntaxHighlight
 
 /**
  * Removes highlighting
- * @param string code
- * @param boolean entities
+ * @param string $code
+ * @param boolean $entities
  * @return string
  */
 
@@ -160,7 +160,7 @@ class SyntaxHighlight
 
 /**
  * Highlight for C
- * @param string code
+ * @param string $code
  * @return string
  */
 
@@ -171,7 +171,7 @@ class SyntaxHighlight
 
 /**
  * Highlight for C++
- * @param string code
+ * @param string $code
  * @return string
  */
 
@@ -262,7 +262,7 @@ class SyntaxHighlight
 
 /**
  * Highlight for C#
- * @param string code
+ * @param string $code
  * @return string
  */
 
@@ -357,7 +357,7 @@ class SyntaxHighlight
 
 /**
  * Highlight for CSS
- * @param string code
+ * @param string $code
  * @return string
  */
 
@@ -460,7 +460,7 @@ class SyntaxHighlight
 
 /**
  * Highlight for(X)HTML
- * @param string code
+ * @param string $code
  * @return string
  */
 
@@ -554,7 +554,7 @@ class SyntaxHighlight
 
 /**
  * Highlight for INI
- * @param string code
+ * @param string $code
  * @return string
  */
 
@@ -630,7 +630,7 @@ class SyntaxHighlight
 
 /**
  * Highlight for Java
- * @param string code
+ * @param string $code
  * @return string
  */
 
@@ -735,7 +735,7 @@ class SyntaxHighlight
 
 /**
  * Highlight for JavaDoc
- * @param string code
+ * @param string $code
  * @return string
  */
 
@@ -760,7 +760,7 @@ class SyntaxHighlight
 
 /**
  * Highlight for JavaScript
- * @param string code
+ * @param string $code
  * @return string
  */
 
@@ -852,7 +852,7 @@ class SyntaxHighlight
 
 /**
  * Highlight for Perl
- * @param string code
+ * @param string $code
  * @return string
  */
 
@@ -944,7 +944,7 @@ class SyntaxHighlight
 
 /**
  * Highlight for PHP
- * @param string code
+ * @param string $code
  * @return string
  */
 
@@ -1093,7 +1093,7 @@ class SyntaxHighlight
 
 /**
  * Highlight for PHPDoc
- * @param string code
+ * @param string $code
  * @return string
  */
 
@@ -1104,7 +1104,7 @@ class SyntaxHighlight
 			'#(\s*\*?\s*)(@(?:))(\s+)(\w+)#i',
 			'#(\s*\*?\s*)(@(?:access))(\s+)(\w+)#im',
 			'#(\s*\*?\s*)(@(?:abstract|author|copyright|date|example|final|ignore|internal|license|magic|(?:sub)?package|todo|version|deprec(?:ated)?|exception|link|see|since|throws))#i',
-			'#(\s*\*?\s*)(@(?:global|param))(\s+)([a-z\|]+)(\s+)(\$[a-z_][\w\[\]\'\"]+)#i',
+			'#(\s*\*?\s*)(@(?:global|param))(\s+)([a-z\|\[\]]+)(\s+)(\$?[a-z_][\w\[\]\'\"]+)#i',
 			'#(\s*\*?\s*)(@name)(\s+)(\w+)#i',
 			'#(\s*\*?\s*)(@return)(\s+)(\w+)#i',
 			),
@@ -1121,7 +1121,7 @@ class SyntaxHighlight
 
 /**
  * Highlight for PO(T)
- * @param string code
+ * @param string $code
  * @return string
  */
 
@@ -1188,7 +1188,7 @@ class SyntaxHighlight
 
 /**
  * Highlight for Python
- * @param string code
+ * @param string $code
  * @return string
  */
 
@@ -1280,7 +1280,7 @@ class SyntaxHighlight
 
 /**
  * Highlight for SQL
- * @param string code
+ * @param string $code
  * @return string
  */
 
@@ -1356,7 +1356,7 @@ class SyntaxHighlight
 
 /**
  * "Highlight" for plain text
- * @param string code
+ * @param string $code
  * @return string
  */
 
@@ -1367,7 +1367,7 @@ class SyntaxHighlight
 
 /**
  * Highlight for XML
- * @param string code
+ * @param string $code
  * @return string
  */
 
