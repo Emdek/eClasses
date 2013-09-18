@@ -177,7 +177,7 @@ class SyntaxHighlight
 
 	static private function highlightModeCpp($code)
 	{
-		$buffer = $codeParsed = $charOld = '';
+		$buffer = $output = $charOld = '';
 		$notParse = $comment = $value = $finish = 0;
 
 		while (!$finish)
@@ -211,7 +211,7 @@ class SyntaxHighlight
 					$buffer = substr($buffer, 0, -1);
 				}
 
-				$codeParsed.= preg_replace(
+				$output.= preg_replace(
 		array(
 			'#\b(asm|class|const_cast|dynamic_cast|enum|explicit|export|extern|false|friend|inline|namespace|new|NULL|operator|private|protected|public|reinterpret_cast|restrict|sizeof|static_cast|struct|template|this|true|typedef|typeid|type_info|typename|union|using|virtual)\b#s',
 			'#\b(as|case|catch|default|if|else|elseif|do|goto|for|break|continue|switch|throw|try|delete|return|while)\b#s',
@@ -244,7 +244,7 @@ class SyntaxHighlight
 			}
 			else if ($notParse && (($value && $char == $value && ($charOld != '\\' || substr($buffer, -2) == '\\\\')) || ($comment && (($comment == 1 && $char == "\n") || ($char == '/' && $charOld == '*' && substr($buffer, -2, 1) != '/')))))
 			{
-				$codeParsed.= '<span class="'.($comment ? 'comment' : 'value').'">'.($value ? $buffer.$char:preg_replace('#\b(FIXME|NOTICE|NOTE|TODO|WARNING)\b#i', '<span class="notice">\\1</span>', $buffer.(($char == "\n") ? '':$char))).'</span>';
+				$output.= '<span class="'.($comment ? 'comment' : 'value').'">'.($value ? $buffer.$char:preg_replace('#\b(FIXME|NOTICE|NOTE|TODO|WARNING)\b#i', '<span class="notice">\\1</span>', $buffer.(($char == "\n") ? '':$char))).'</span>';
 				$buffer = (($char == "\n") ? $char : '');
 				$notParse = $comment = $value = 0;
 			}
@@ -257,7 +257,7 @@ class SyntaxHighlight
 			$charOld = $char;
 		}
 
-		return $codeParsed;
+		return $output;
 	}
 
 /**
@@ -268,7 +268,7 @@ class SyntaxHighlight
 
 	static private function highlightModeCs($code)
 	{
-		$buffer = $codeParsed = $charOld = '';
+		$buffer = $output = $charOld = '';
 		$notParse = $comment = $value = $finish = 0;
 
 		while (!$finish)
@@ -302,7 +302,7 @@ class SyntaxHighlight
 					$buffer = substr($buffer, 0, -1);
 				}
 
-				$codeParsed.= preg_replace(
+				$output.= preg_replace(
 		array(
 			'#\b(abstract|base|class|checked|delegate|enum|event|explicit|extern|false|finally|fixed|implicit|interface|internal|is|lock|namespace|new|null|operator|out|override|params|private|protected|public|readonly|ref|sealed|sizeof|stackalloc|static|struct|this|true|typeof|unchecked|unsafe|virtual)\b#s',
 			'#(using)(\s+)(.+);#m',
@@ -339,7 +339,7 @@ class SyntaxHighlight
 			}
 			else if ($notParse && (($value && $char == $value && ($charOld != '\\' || substr($buffer, -2) == '\\\\')) || ($comment && (($comment == 1 && $char == "\n") || ($char == '/' && $charOld == '*' && substr($buffer, -2, 1) != '/')))))
 			{
-				$codeParsed.= '<span class="'.($comment ? 'comment' : 'value').'">'.($value ? $buffer.$char:preg_replace('#\b(FIXME|NOTICE|NOTE|TODO|WARNING)\b#i', '<span class="notice">\\1</span>', $buffer.(($char == "\n") ? '':$char))).'</span>';
+				$output.= '<span class="'.($comment ? 'comment' : 'value').'">'.($value ? $buffer.$char:preg_replace('#\b(FIXME|NOTICE|NOTE|TODO|WARNING)\b#i', '<span class="notice">\\1</span>', $buffer.(($char == "\n") ? '':$char))).'</span>';
 				$buffer = (($char == "\n") ? $char : '');
 				$notParse = $comment = $value = 0;
 			}
@@ -352,7 +352,7 @@ class SyntaxHighlight
 			$charOld = $char;
 		}
 
-		return $codeParsed;
+		return $output;
 	}
 
 /**
@@ -363,7 +363,7 @@ class SyntaxHighlight
 
 	static private function highlightModeCss($code)
 	{
-		$buffer = $codeParsed = $charOld = '';
+		$buffer = $output = $charOld = '';
 		$notParse = $braces = $finish = 0;
 
 		while (!$finish)
@@ -394,7 +394,7 @@ class SyntaxHighlight
 					$braces = 1;
 				}
 
-				$codeParsed.= preg_replace(
+				$output.= preg_replace(
 		array(
 			'#(\.[a-z]\w*)#si',
 			'#(?<=\n|\r|\}|,\s|,)(\#[a-z]\w*)#si',
@@ -419,7 +419,7 @@ class SyntaxHighlight
 					$braces = 0;
 				}
 
-				$codeParsed.= preg_replace(
+				$output.= preg_replace(
 		array(
 			'#((?<=^|;|\s)[a-z\-]+(?=:)|(?:!important))#si',
 			'#(?<!">)((?:(?:\+|-)\s*)?(?:\#\w{6}|\#\w{3}|(?:\d+\.)?\d+(?:px|pt|pc|ex|em|in|cm|mm|deg|grad|rad|ms|s|k?hz|\%)?))#si',
@@ -437,7 +437,7 @@ class SyntaxHighlight
 			}
 			else if ($notParse && (in_array($char, array('\'', '"')) || ($char == '/' && $charOld == '*')))
 			{
-				$codeParsed.= '<span class="'.((($char == '*' && $charOld == '/')) ? 'comment' : 'value').'">'.$buffer.$char.'</span>';
+				$output.= '<span class="'.((($char == '*' && $charOld == '/')) ? 'comment' : 'value').'">'.$buffer.$char.'</span>';
 				$buffer = '';
 				$notParse = 0;
 			}
@@ -452,10 +452,10 @@ class SyntaxHighlight
 
 		if ($finish && $braces)
 		{
-			$codeParsed.= '</span>';
+			$output.= '</span>';
 		}
 
-		return $codeParsed;
+		return $output;
 	}
 
 /**
@@ -466,7 +466,7 @@ class SyntaxHighlight
 
 	static private function highlightModeHtml($code)
 	{
-		$buffer = $codeParsed = $charOld = '';
+		$buffer = $output = $charOld = '';
 		$notParse = $comment = $value = $finish = 0;
 
 		while (!$finish)
@@ -489,7 +489,7 @@ class SyntaxHighlight
 					$buffer = substr($buffer, 0, -6);
 				}
 
-				$codeParsed.= preg_replace(
+				$output.= preg_replace(
 		array(
 			'#&lt;(.*)&gt;#iU',
 			'#&lt;(\w+)(\s+)([a-z-:]+=)$#i',
@@ -520,7 +520,7 @@ class SyntaxHighlight
 			else if ($notParse && (($value && $char == $value) || ($comment && $char == ';' && substr($buffer, -5) == '--&gt')))
 			{
 				$buffer = $buffer.$char;
-				$codeParsed.= '<span class="'.($comment ? 'comment' : 'value').'">'.($value ? $buffer : preg_replace('#\b(FIXME|NOTICE|NOTE|TODO|WARNING)\b#i', '<span class="notice">\\1</span>', $buffer)).'</span>';
+				$output.= '<span class="'.($comment ? 'comment' : 'value').'">'.($value ? $buffer : preg_replace('#\b(FIXME|NOTICE|NOTE|TODO|WARNING)\b#i', '<span class="notice">\\1</span>', $buffer)).'</span>';
 				$buffer = '';
 				$notParse = $comment = $value = 0;
 			}
@@ -533,7 +533,7 @@ class SyntaxHighlight
 			$charOld = $char;
 		}
 
-		$codeParsed = preg_replace(
+		$output = preg_replace(
 		array(
 			'#(&lt;\?xml .*\?&gt;|&lt;!DOCTYPE HTML PUBLIC .*&gt;)+#siU',
 			'#(&lt;<span class="tag">style</span>.*&gt;)(.*)(&lt;<span class="tag">/style</span>&gt;)#sieU',
@@ -546,10 +546,10 @@ class SyntaxHighlight
 			'\'<span class="borders">\'.stripslashes(\'\\1\').\'</span>\'.self::highlightModeJavaScript(self::highlightClean(stripslashes(\'\\2\'))).\'<span class="borders">\'.stripslashes(\'\\3\').\'</span>\'',
 			'self::highlightModePhp(self::highlightClean(stripslashes(\'\\1\')))',
 			),
-		$codeParsed
+		$output
 		);
 
-		return $codeParsed;
+		return $output;
 	}
 
 /**
@@ -560,7 +560,7 @@ class SyntaxHighlight
 
 	static private function highlightModeIni($code)
 	{
-		$buffer = $codeParsed = $charOld = '';
+		$buffer = $output = $charOld = '';
 		$notParse = $comment = $value = $finish = 0;
 
 		while (!$finish)
@@ -585,7 +585,7 @@ class SyntaxHighlight
 
 			if ($finish || (!$notParse && ($isComment || in_array($char, array('\'', '"')))))
 			{
-				$codeParsed.= preg_replace(
+				$output.= preg_replace(
 		array(
 			'#^(\[\w+\])$#siUm',
 			'#^([^\#;]+)(?<!<span class)= (.+)$#siUm',
@@ -612,7 +612,7 @@ class SyntaxHighlight
 			}
 			else if ($notParse && (($value && $char == $value) || ($comment && $char == "\n")))
 			{
-				$codeParsed.= '<span class="'.($comment ? 'comment' : 'value').'">'.($value ? $buffer.$char : preg_replace('#\b(FIXME|NOTICE|NOTE|TODO|WARNING)\b#i', '<span class="notice">\\1</span>', $buffer.(($char == "\n") ? '' : $char))).'</span>';
+				$output.= '<span class="'.($comment ? 'comment' : 'value').'">'.($value ? $buffer.$char : preg_replace('#\b(FIXME|NOTICE|NOTE|TODO|WARNING)\b#i', '<span class="notice">\\1</span>', $buffer.(($char == "\n") ? '' : $char))).'</span>';
 				$buffer = (($char == "\n") ? $char : '');
 				$notParse = $comment = $value = 0;
 			}
@@ -625,7 +625,7 @@ class SyntaxHighlight
 			$charOld = $char;
 		}
 
-		return $codeParsed;
+		return $output;
 	}
 
 /**
@@ -636,7 +636,7 @@ class SyntaxHighlight
 
 	static private function highlightModeJava($code)
 	{
-		$buffer = $codeParsed = $charOld = '';
+		$buffer = $output = $charOld = '';
 		$notParse = $comment = $value = $documentation = $finish = 0;
 
 		while (!$finish)
@@ -670,7 +670,7 @@ class SyntaxHighlight
 					$buffer = substr($buffer, 0, -1);
 				}
 
-				$codeParsed.= preg_replace(
+				$output.= preg_replace(
 		array(
 			'#\b(abstract|class|continue|enum|extends|false|finally|implements|instanceof|@?interface|native|new|null|private|protected|public|super|static|strictfp|synchronized|this|throws|transient|true|volatile)\b#s',
 			'#^(package|import)(\s+)(.+);#m',
@@ -717,7 +717,7 @@ class SyntaxHighlight
 					$buffer = self::highlightModeJavaDoc($buffer);
 				}
 
-				$codeParsed.= '<span class="'.($comment ? ($documentation ? 'documentation' : 'comment') : 'value').'">'.($value ? $buffer : preg_replace('#\b(FIXME|NOTICE|NOTE|TODO|WARNING)\b#i', '<span class="notice">\\1</span>', $buffer)).'</span>';
+				$output.= '<span class="'.($comment ? ($documentation ? 'documentation' : 'comment') : 'value').'">'.($value ? $buffer : preg_replace('#\b(FIXME|NOTICE|NOTE|TODO|WARNING)\b#i', '<span class="notice">\\1</span>', $buffer)).'</span>';
 				$buffer = (($char == "\n") ? $char : '');
 				$notParse = $comment = $value = $documentation = 0;
 			}
@@ -730,7 +730,7 @@ class SyntaxHighlight
 			$charOld = $char;
 		}
 
-		return $codeParsed;
+		return $output;
 	}
 
 /**
@@ -766,7 +766,7 @@ class SyntaxHighlight
 
 	static private function highlightModeJavaScript($code)
 	{
-		$buffer = $codeParsed = $charOld = '';
+		$buffer = $output = $charOld = '';
 		$notParse = $comment = $value = $finish = 0;
 
 		while (!$finish)
@@ -797,7 +797,7 @@ class SyntaxHighlight
 					$buffer = substr($buffer, 0, -1);
 				}
 
-				$codeParsed.= preg_replace(
+				$output.= preg_replace(
 		array(
 			'#\b(in|with|try|catch|finally|new|var|function|delete|true|false|void|throw|typeof|const)\b#s',
 			'#\b(onabort|onblur|onchange|onclick|onerror|onfocus|onkeypress|onkeydown|onkeyup|onload|onmousedown|onmousemove|onmouseout|onmouseover|onmouseup|onreset|onselect|onsubmit|onunload)\b#si',
@@ -834,7 +834,7 @@ class SyntaxHighlight
 			}
 			else if ($notParse && (($value && $char == $value && ($charOld != '\\' || substr($buffer, -2) == '\\\\')) || ($comment && ((($comment == '#' || $comment == '/') && $char == "\n") || ($char == '/' && $charOld == '*' && substr($buffer, -2, 1) != '/')))))
 			{
-				$codeParsed.= '<span class="'.($comment ? 'comment' : 'value').'">'.($value ? $buffer.$char : preg_replace('#\b(FIXME|NOTICE|NOTE|TODO|WARNING)\b#i', '<span class="notice">\\1</span>', $buffer.(($char == "\n") ? '' : $char))).'</span>';
+				$output.= '<span class="'.($comment ? 'comment' : 'value').'">'.($value ? $buffer.$char : preg_replace('#\b(FIXME|NOTICE|NOTE|TODO|WARNING)\b#i', '<span class="notice">\\1</span>', $buffer.(($char == "\n") ? '' : $char))).'</span>';
 				$buffer = (($char == "\n") ? $char : '');
 				$notParse = $comment = $value = 0;
 			}
@@ -847,7 +847,7 @@ class SyntaxHighlight
 			$charOld = $char;
 		}
 
-		return $codeParsed;
+		return $output;
 	}
 
 /**
@@ -858,7 +858,7 @@ class SyntaxHighlight
 
 	static private function highlightModePerl($code)
 	{
-		$buffer = $codeParsed = $charOld = '';
+		$buffer = $output = $charOld = '';
 		$notParse = $comment = $value = $finish = 0;
 
 		while (!$finish)
@@ -890,7 +890,7 @@ class SyntaxHighlight
 					$buffer = substr($buffer, 0, -1);
 				}
 
-				$codeParsed.= preg_replace(
+				$output.= preg_replace(
 		array(
 			'#(?<!<span )\b(strict|english|warnings|vars|subs|utf8|sigtrap|locale|open|less|integer|filetest|constant|bytes|diagnostics|BEGIN|END|__END__|__DATA__|__FILE__|__LINE__|__PACKAGE__)\b#',
 			'#\b(if|unless|else|elsif|while|until|for|each|foreach|next|last|break|continue|return|use|no|require|my|our|local|require|package|sub|do)\b#',
@@ -925,7 +925,7 @@ class SyntaxHighlight
 			else if ($notParse && (($value && $char == $value && ($charOld != '\\' || substr($buffer, -2) == '\\\\')) || ($comment && ((($comment == '#' || $comment == '/') && $char == "\n") || ($char == '/' && $charOld == '*' && substr($buffer, -2, 1) != '/')))))
 			{
 				$buffer = $buffer.(($char == "\n") ? '' : $char);
-				$codeParsed.= '<span class="'.($comment ? 'comment' : 'value').'">'.($value ? $buffer : preg_replace('#\b(FIXME|NOTICE|NOTE|TODO|WARNING)\b#i', '<span class="notice">\\1</span>', $buffer)).'</span>';
+				$output.= '<span class="'.($comment ? 'comment' : 'value').'">'.($value ? $buffer : preg_replace('#\b(FIXME|NOTICE|NOTE|TODO|WARNING)\b#i', '<span class="notice">\\1</span>', $buffer)).'</span>';
 				$buffer = (($char == "\n") ? $char : '');
 				$notParse = $comment = $value = 0;
 			}
@@ -938,7 +938,7 @@ class SyntaxHighlight
 			$charOld = $char;
 		}
 
-		return $codeParsed;
+		return $output;
 	}
 
 
@@ -950,7 +950,7 @@ class SyntaxHighlight
 
 	static public function highlightModePhp($code)
 	{
-		$buffer = $codeParsed = $charOld = '';
+		$buffer = $output = $charOld = '';
 		$notParse = $comment = $value = $documentation = $parse = $finish = 0;
 		$functions = get_defined_functions();
 		$functions = implode('|', $functions['internal']);
@@ -983,7 +983,7 @@ class SyntaxHighlight
 				if ($char == '?' && substr($buffer, -4) == '&lt;')
 				{
 					$parse = 1;
-					$codeParsed.= substr($buffer, 0, -4);
+					$output.= substr($buffer, 0, -4);
 
 					if (substr($code, 1, 3) == 'php')
 					{
@@ -1010,7 +1010,7 @@ class SyntaxHighlight
 
 				if ($parse || $parseStop)
 				{
-					$codeParsed.= preg_replace(
+					$output.= preg_replace(
 		array(
 			'#(?<!<span )\b(abstract|class|clone|const|exception|extends|final|function|implements|instanceof|interface|new|self|static|parent|private|protected|public|and|x?or|var|__FILE__|__LINE__|'.$constants.')\b#',
 			'#\b(as|case|catch|default|if|isset|die|exit|else|elseif|unset|empty|while|do|for(?:each)?|break|continue|switch|throw|try|declare|return|require(?:_once)?|include(?:_once)?|endif|endwhile|endfor|endforeach|endswitch)\b#',
@@ -1040,12 +1040,12 @@ class SyntaxHighlight
 				}
 				else
 				{
-					$codeParsed.= $buffer;
+					$output.= $buffer;
 				}
 
 				if ($parseStop)
 				{
-					$codeParsed = substr($codeParsed, 0, -4).'<span class="borders"><span class="tag">?</span>&gt;</span>';
+					$output = substr($output, 0, -4).'<span class="borders"><span class="tag">?</span>&gt;</span>';
 					$char = '';
 				}
 
@@ -1075,7 +1075,7 @@ class SyntaxHighlight
 					$buffer = self::highlightModePhpDoc($buffer);
 				}
 
-				$codeParsed.= ($parse ? '<span class="'.($comment ? ($documentation ? 'documentation' : 'comment') : 'value').'">' : '').($value ? $buffer : preg_replace('#\b(FIXME|NOTICE|NOTE|TODO|WARNING)\b#i', '<span class="notice">\\1</span>', $buffer)).($parse ? '</span>' : '');
+				$output.= ($parse ? '<span class="'.($comment ? ($documentation ? 'documentation' : 'comment') : 'value').'">' : '').($value ? $buffer : preg_replace('#\b(FIXME|NOTICE|NOTE|TODO|WARNING)\b#i', '<span class="notice">\\1</span>', $buffer)).($parse ? '</span>' : '');
 				$buffer = (($char == "\n") ? $char : '');
 				$notParse = $comment = $value = $documentation = 0;
 			}
@@ -1088,7 +1088,7 @@ class SyntaxHighlight
 			$charOld = $char;
 		}
 
-		return $codeParsed;
+		return $output;
 	}
 
 /**
@@ -1127,7 +1127,7 @@ class SyntaxHighlight
 
 	static public function highlightModePo($code)
 	{
-		$buffer = $codeParsed = $charOld = '';
+		$buffer = $output = $charOld = '';
 		$notParse = $comment = $value = $finish = 0;
 
 		while (!$finish)
@@ -1143,7 +1143,7 @@ class SyntaxHighlight
 
 			if ($finish || (!$notParse && (($char == '#') || (in_array($char, array('\'', '"')) && ($charOld != '\\' || substr($buffer, -2) == '\\\\')))))
 			{
-				$codeParsed.= preg_replace(
+				$output.= preg_replace(
 		array(
 			'#(msgid(?:_plural)?|msgstr)#i',
 			'#(?<!">|[a-z-_])((?:-\s*)?(?:(?:\d+\.)?\d+))\b#si',
@@ -1170,7 +1170,7 @@ class SyntaxHighlight
 			}
 			else if ($notParse && (($value && $char == $value && ($charOld != '\\' || substr($buffer, -2) == '\\\\')) || ($comment && $char == "\n")))
 			{
-				$codeParsed.= '<span class="'.($comment ? 'comment' : 'value').'">'.$buffer.($value ? $char : '').'</span>';
+				$output.= '<span class="'.($comment ? 'comment' : 'value').'">'.$buffer.($value ? $char : '').'</span>';
 				$buffer = ($comment ? $char : '');
 				$notParse = $comment = $value = 0;
 			}
@@ -1183,7 +1183,7 @@ class SyntaxHighlight
 			$charOld = $char;
 		}
 
-		return $codeParsed;
+		return $output;
 	}
 
 /**
@@ -1194,7 +1194,7 @@ class SyntaxHighlight
 
 	static public function highlightModePython($code)
 	{
-		$buffer = $codeParsed = $charOld = '';
+		$buffer = $output = $charOld = '';
 		$notParse = $comment = $value = $documentation = $finish = 0;
 
 		while (!$finish)
@@ -1219,7 +1219,7 @@ class SyntaxHighlight
 
 			if ($finish || (!$notParse && ($isComment || (in_array($char, array('\'', '"')) && ($charOld != '\\' || substr($buffer, -2) == '\\\\')))))
 			{
-				$codeParsed.= preg_replace(
+				$output.= preg_replace(
 		array(
 			'#(?<!<span )\b(None|self|True|False|NotImplemented|Ellipsis|exec|print|and|assert|in|is|not|or|class|def|del|global|lambda)\b#',
 			'#\b(break|continue|elif|else|except|finally|for|if|pass|raise|return|try|while|yield)\b#',
@@ -1262,7 +1262,7 @@ class SyntaxHighlight
 			else if ($notParse && (($value && $char == $value && ($charOld != '\\' || substr($buffer, -2) == '\\\\')) || ($comment && (($comment == '#' && $char == "\n") || ($documentation && $char == $comment && substr($buffer, -2) == $char.$char && strlen($buffer) > 2)))))
 			{
 				$buffer = $buffer.(($char == "\n") ? '' : $char);
-				$codeParsed.= '<span class="'.($comment ? ($documentation ? 'documentation' : 'comment') : 'value').'">'.($value ? $buffer : preg_replace('#\b(FIXME|NOTICE|NOTE|TODO|WARNING)\b#i', '<span class="notice">\\1</span>', $buffer)).'</span>';
+				$output.= '<span class="'.($comment ? ($documentation ? 'documentation' : 'comment') : 'value').'">'.($value ? $buffer : preg_replace('#\b(FIXME|NOTICE|NOTE|TODO|WARNING)\b#i', '<span class="notice">\\1</span>', $buffer)).'</span>';
 				$buffer = (($char == "\n") ? $char : '');
 				$notParse = $comment = $value = $documentation = 0;
 			}
@@ -1275,7 +1275,7 @@ class SyntaxHighlight
 			$charOld = $char;
 		}
 
-		return $codeParsed;
+		return $output;
 	}
 
 /**
@@ -1286,7 +1286,7 @@ class SyntaxHighlight
 
 	static private function highlightModeSql($code)
 	{
-		$buffer = $codeParsed = $charOld = '';
+		$buffer = $output = $charOld = '';
 		$notParse = $comment = $value = $finish = 0;
 
 		while (!$finish)
@@ -1304,7 +1304,7 @@ class SyntaxHighlight
 
 			if ($finish || (!$notParse && ((in_array($char, array('\'', '"', '`')) && $charOld != $char && ($charOld != '\\' || substr($buffer, -2) == '\\\\')) || ($isComment = (($char == '*' && $charOld == '/' && substr($buffer, -2, 1) != '/') || ($char == '-' && $charOld == '-'))))))
 			{
-				$codeParsed.= preg_replace(
+				$output.= preg_replace(
 		array(
 			'#(\s*FOREIGN_KEY_LIST|INDEX_INFO|INDEX_LIST|TABLE_INFO|COUNT|MIN|MAX|SUM|ABS|COALESCE|GLOB|IFNULL|LAST_INSERT_ROWID|LENGTH|LIKE|LOAD_EXTENSION|LOWER|NULLIF|QUOTE|RANDOM|ROUND|SOUNDEX|SQLITE_VERSION|SUBSTR|TYPEOF|UPPER|AVG|TOTAL|RAISE)(\s*\()#si',
 			'#(\s*)(N?VARCHAR|TEXT|INTEGER|FLOAT|(?:BOOL)?EAN|CLOB|BLOB|TIMESTAMP|NUMERIC)(\s*)#si',
@@ -1338,7 +1338,7 @@ class SyntaxHighlight
 			}
 			else if ($notParse && (($value && $char == $value && $charOld != $char && ($charOld != '\\' || substr($buffer, -2) == '\\\\')) || ($comment && $char == "\n" || ($char == '/' && $charOld == '*'))))
 			{
-				$codeParsed.= '<span class="'.($comment ? 'comment' : 'value').'">'.$buffer.$char.'</span>';
+				$output.= '<span class="'.($comment ? 'comment' : 'value').'">'.$buffer.$char.'</span>';
 				$buffer = '';
 				$notParse = $comment = $value = 0;
 			}
@@ -1351,7 +1351,7 @@ class SyntaxHighlight
 			$charOld = $char;
 		}
 
-		return $codeParsed;
+		return $output;
 	}
 
 /**
@@ -1373,7 +1373,7 @@ class SyntaxHighlight
 
 	static private function highlightModeXml($code)
 	{
-		$buffer = $codeParsed = $charOld = '';
+		$buffer = $output = $charOld = '';
 		$notParse = $comment = $value = $finish = 0;
 
 		while (!$finish)
@@ -1396,7 +1396,7 @@ class SyntaxHighlight
 					$buffer = substr($buffer, 0, -6);
 				}
 
-				$codeParsed.= preg_replace(
+				$output.= preg_replace(
 		array(
 			'#&lt;(.*)&gt;#iU',
 			'#&lt;(\w+)(\s+)([a-z0-9_\-:]+=)$#i',
@@ -1426,7 +1426,7 @@ class SyntaxHighlight
 			}
 			else if ($notParse && (($value && $char == $value) || ($comment && $char == ';' && substr($buffer, -5) == '--&gt')))
 			{
-				$codeParsed.= '<span class="'.($comment ? 'comment' : 'value').'">'.$buffer.$char.'</span>';
+				$output.= '<span class="'.($comment ? 'comment' : 'value').'">'.$buffer.$char.'</span>';
 				$buffer = '';
 				$notParse = $comment = $value = 0;
 			}
@@ -1439,9 +1439,9 @@ class SyntaxHighlight
 			$charOld = $char;
 		}
 
-		$codeParsed = preg_replace('#(&lt;\?xml .*\?&gt;|&lt;!DOCTYPE .*&gt;)+#siU', '<span class="doctype">\\1</span>', $codeParsed);
+		$output = preg_replace('#(&lt;\?xml .*\?&gt;|&lt;!DOCTYPE .*&gt;)+#siU', '<span class="doctype">\\1</span>', $output);
 
-		return $codeParsed;
+		return $output;
 	}
 }
 ?>
