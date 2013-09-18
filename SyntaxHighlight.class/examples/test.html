@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-type" content="text/html; charset=utf-8">
+<meta name="author" content="Emdek">
+<title>SyntaxHighlight.class :: example</title>
+<style type="text/css">
+.highlight
+{
+	height:auto;
+	margin:5px auto;
+	padding:3px;
+	overflow:auto;
+	border:1px solid #8C8C8C;
+	background:#FFF;
+}
+.highlight *
+{
+	font:14px \15px monospace !important;
+}
+.highlight a
+{
+	text-decoration:none;
+}
+.highlight a:hover
+{
+	border-bottom:1px dashed #313197;
+}
+</style>
+</head>
+<body>
+<!--
+NOTICE
+<b>Comment</b>
+-->
+<h1>Test page</h1>
+<p>
+Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, <strong title="test...">quis</strong> nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+</p>
+<script type="text/javascript" src="script.js"></script>
+<script type="text/javascript">
+var test = new Array();
+</script>
+<?php
+require ('../SyntaxHighlight.class.php');
+$Highlighter = new SyntaxHighlight();
+?>
+</body>
+</html>
