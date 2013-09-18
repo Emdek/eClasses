@@ -408,7 +408,7 @@ class SyntaxHighlight
 			'<span class="punctuation">\\1</span>',
 			),
 		$buffer
-		).($valueStart ? $char : '<span class="punctuation">{</span><span class="value">');
+		).($valueStart ? '' : '<span class="punctuation">{</span><span class="value">');
 
 				$buffer = ($valueStart ? $char : '');
 			}
@@ -542,9 +542,9 @@ class SyntaxHighlight
 			),
 		array(
 			'<span class="doctype">\\1</span>',
-			'\'<span class="borders">\'.stripslashes(\'\\1\').\'</span>\'.self::highlightModeCss(self::highlightClean(stripslashes(\'\\2\'))).\'<span class="borders">\'.stripslashes(\'\\3\').\'</span>\'',
-			'\'<span class="borders">\'.stripslashes(\'\\1\').\'</span>\'.self::highlightModeJavaScript(self::highlightClean(stripslashes(\'\\2\'))).\'<span class="borders">\'.stripslashes(\'\\3\').\'</span>\'',
-			'self::highlightModePhp(self::highlightClean(stripslashes(\'\\1\')))',
+			'\'<span class="borders">\'.stripslashes(\'\\1\').\'</span>\'.self::highlightModeCss(self::highlightClean(\'\\2\')).\'<span class="borders">\'.stripslashes(\'\\3\').\'</span>\'',
+			'\'<span class="borders">\'.stripslashes(\'\\1\').\'</span>\'.self::highlightModeJavaScript(self::highlightClean(\'\\2\')).\'<span class="borders">\'.stripslashes(\'\\3\').\'</span>\'',
+			'self::highlightModePhp(self::highlightClean(\'\\1\'))',
 			),
 		$output
 		);
