@@ -1103,7 +1103,7 @@ class SyntaxHighlight
 		array(
 			'#(\s*\*?\s*)(@(?:))(\s+)(\w+)#i',
 			'#(\s*\*?\s*)(@(?:access))(\s+)(\w+)#im',
-			'#(\s*\*?\s*)(@(?:abstract|author|copyright|example|final|ignore|internal|license|magic|(?:sub)?package|todo|version|deprec(?:ated)?|exception|link|see|since|throws))#i',
+			'#(\s*\*?\s*)(@(?:abstract|author|copyright|date|example|final|ignore|internal|license|magic|(?:sub)?package|todo|version|deprec(?:ated)?|exception|link|see|since|throws))#i',
 			'#(\s*\*?\s*)(@(?:global|param))(\s+)([a-z\|]+)(\s+)(\$[a-z_][\w\[\]\'\"]+)#i',
 			'#(\s*\*?\s*)(@name)(\s+)(\w+)#i',
 			'#(\s*\*?\s*)(@return)(\s+)(\w+)#i',
