@@ -480,9 +480,9 @@ class SyntaxHighlight
 				$char = substr($code, 0, 1);
 			}
 
-			$isComment = 0;
+			$isComment = ($char == '-' && substr($buffer, -6) == '&lt;!-');
 
-			if ($finish || (!$notParse && (in_array($char, array('\'', '"'))  || ($isComment = ($char == '-' && substr($buffer, -6) == '&lt;!-')))))
+			if ($finish || (!$notParse && (in_array($char, array('\'', '"')) || $isComment)))
 			{
 				if ($isComment)
 				{
@@ -491,12 +491,14 @@ class SyntaxHighlight
 
 				$output.= preg_replace(
 		array(
+			'#(&lt;\?xml .*\?&gt;|&lt;!DOCTYPE html.*&gt;)+#siU',
 			'#&lt;(.*)&gt;#iU',
 			'#&lt;(\w+)(\s+)([a-z-:]+=)$#i',
 			'#(?<!span)(\s+)([a-z-:]+=)$#i',
 			'#(&amp;\w{2,5};)#iU',
 			),
 		array(
+			'<span class="doctype">\\1</span>',
 			'&lt;<span class="tag">\\1</span>&gt;',
 			'&lt;<span class="tag">\\1</span>\\2<span class="attribute">\\3</span>',
 			'\\1<span class="attribute">\\2</span>',
@@ -535,13 +537,11 @@ class SyntaxHighlight
 
 		$output = preg_replace(
 		array(
-			'#(&lt;\?xml .*\?&gt;|&lt;!DOCTYPE HTML PUBLIC .*&gt;)+#siU',
 			'#(&lt;<span class="tag">style</span>.*&gt;)(.*)(&lt;<span class="tag">/style</span>&gt;)#sieU',
 			'#(&lt;<span class="tag">script</span>.*&gt;)(.*)(&lt;<span class="tag">/script</span>&gt;)#sieU',
 			'#(&lt;\?(?:php)?(?!xml)(?U).+\?&gt;)#sie',
 			),
 		array(
-			'<span class="doctype">\\1</span>',
 			'\'<span class="borders">\'.stripslashes(\'\\1\').\'</span>\'.self::highlightModeCss(self::highlightClean(\'\\2\')).\'<span class="borders">\'.stripslashes(\'\\3\').\'</span>\'',
 			'\'<span class="borders">\'.stripslashes(\'\\1\').\'</span>\'.self::highlightModeJavaScript(self::highlightClean(\'\\2\')).\'<span class="borders">\'.stripslashes(\'\\3\').\'</span>\'',
 			'self::highlightModePhp(self::highlightClean(\'\\1\'))',
