@@ -244,7 +244,7 @@ class SyntaxHighlight
 			}
 			else if ($notParse && (($value && $char == $value && ($charOld != '\\' || substr($buffer, -2) == '\\\\')) || ($comment && (($comment == 1 && $char == "\n") || ($char == '/' && $charOld == '*' && substr($buffer, -2, 1) != '/')))))
 			{
-				$output.= '<span class="'.($comment ? 'comment' : 'value').'">'.($value ? $buffer.$char:preg_replace('#\b(FIXME|NOTICE|NOTE|TODO|WARNING)\b#i', '<span class="notice">\\1</span>', $buffer.(($char == "\n") ? '':$char))).'</span>';
+				$output.= '<span class="'.($comment ? 'comment' : 'value').'">'.($value ? $buffer.$char : preg_replace('#\b(FIXME|NOTICE|NOTE|TODO|WARNING)\b#i', '<span class="notice">\\1</span>', $buffer.(($char == "\n") ? '':$char))).'</span>';
 				$buffer = (($char == "\n") ? $char : '');
 				$notParse = $comment = $value = 0;
 			}
@@ -339,7 +339,7 @@ class SyntaxHighlight
 			}
 			else if ($notParse && (($value && $char == $value && ($charOld != '\\' || substr($buffer, -2) == '\\\\')) || ($comment && (($comment == 1 && $char == "\n") || ($char == '/' && $charOld == '*' && substr($buffer, -2, 1) != '/')))))
 			{
-				$output.= '<span class="'.($comment ? 'comment' : 'value').'">'.($value ? $buffer.$char:preg_replace('#\b(FIXME|NOTICE|NOTE|TODO|WARNING)\b#i', '<span class="notice">\\1</span>', $buffer.(($char == "\n") ? '':$char))).'</span>';
+				$output.= '<span class="'.($comment ? 'comment' : 'value').'">'.($value ? $buffer.$char : preg_replace('#\b(FIXME|NOTICE|NOTE|TODO|WARNING)\b#i', '<span class="notice">\\1</span>', $buffer.(($char == "\n") ? '':$char))).'</span>';
 				$buffer = (($char == "\n") ? $char : '');
 				$notParse = $comment = $value = 0;
 			}
@@ -1012,8 +1012,8 @@ class SyntaxHighlight
 				{
 					$output.= preg_replace(
 		array(
-			'#(?<!\$)\b(abstract|(?<!<span )class|clone|const|exception|extends|final|function|implements|instanceof|interface|new|self|static|parent|private|protected|public|and|x?or|var|__FILE__|__LINE__|'.$constants.')\b#',
-			'#\b(as|case|catch|default|if|isset|die|exit|else|elseif|unset|empty|while|do|for(?:each)?|break|continue|switch|throw|try|declare|return|require(?:_once)?|include(?:_once)?|endif|endwhile|endfor|endforeach|endswitch)\b#',
+			'#(?<!\$)\b(abstract|(?<!<span )class|clone|const|exception|extends|final|function|implements|instanceof|interface|new|self|static|parent|private|protected|public|use|and|x?or|var|__FILE__|__LINE__|'.$constants.')\b#',
+			'#\b(as|case|catch|default|if|isset|die|exit|else|elseif|unset|empty|while|do|for(?:each)?|break|continue|switch|throw|try|finally|yield|declare|return|require(?:_once)?|include(?:_once)?|endif|endwhile|endfor|endforeach|endswitch)\b#',
 			'#\b(Exception)\b#',
 			'#\b(__autoload|__call|__clone|__construct|__destruct|__get|__isset|__set(?:_state)?|__sleep|__toString|__unset|__wakeup)\b#',
 			'#\b(?<!\$|function</span>\s|->)('.$functions.'|array)\b(\s*\()#i',
