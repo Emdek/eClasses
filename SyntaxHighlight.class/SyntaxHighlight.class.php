@@ -63,12 +63,12 @@ class SyntaxHighlight
 		{
 			$code = preg_replace(
 		array(
+			'#(\s)*$#m',
 			'#(\t)#',
-			'#( |\t)( |\t)*$#m',
 			),
 		array(
+			'<span class="stray">\\0</span>',
 			'<span class="whitespace">\\1</span>',
-			'<span class="whitespace">\\1</span>\\2',
 			),
 		$code
 			);

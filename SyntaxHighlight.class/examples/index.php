@@ -28,9 +28,9 @@
 }
 .highlight .numbers
 {
-	width:35px;
+	display:inline-block;
 	margin:0;
-	padding:0 2px;
+	padding:0 3px;
 	border:1px solid #B7B7B7;
 	float:left;
 	background:#F1F1F1;
@@ -156,10 +156,15 @@
 	background:#F7E6E6;
 	color:#BF0303;
 }
+.highlight .stray
+{
+	background:#EE3434;
+}
 .highlight .whitespace
 {
 	border-right:1px dotted #B7B7B7;
-}.highlight .whitespace:hover
+}
+.highlight .whitespace:hover
 {
 	background:#F3F3F3;
 }
@@ -180,14 +185,11 @@ require ('../SyntaxHighlight.class.php');
 ?>
 <h2>Example: CSS</h2>
 <?php
-echo SyntaxHighlight::highlightFormat(SyntaxHighlight::highlightString('.highlight
-{
-	margin:5px auto;
+echo SyntaxHighlight::highlightFormat(SyntaxHighlight::highlightString('.highlight 		'."\n".'{    '."\n".'	margin:5px auto;
 	padding:3px;
 	border:1px #8C8C8C solid;
 	font:14px monospace !important;
-	line-height:15px !important;
-	background:white;
+	line-height:15px !important; '."\n".'	background:white;
 }
 .highlight < div
 {
