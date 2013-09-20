@@ -12,7 +12,7 @@
 	padding:0;
 	overflow:auto;
 	border:1px solid #8C8C8C;
-	background:#FFF url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAAeCAYAAADtlXTHAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH3QkUEwYdmyPRngAAAAh0RVh0Q29tbWVudAD2zJa/AAAAFklEQVQI12NgoCLI/czDxMDAwEAxAQBrcQGJkpQTKgAAAABJRU5ErkJggg==') top;
+	background:#FFF url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAAgCAYAAADT5RIaAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAACHRFWHRDb21tZW50APbMlr8AAAARSURBVAhbY2CgNsj9zE5FAgB9dRZxBYoY7AAAAABJRU5ErkJggg==') top;
 }
 .highlight a
 {
@@ -29,7 +29,7 @@
 	padding:0 3px;
 	border-right:1px solid #B7B7B7;
 	float:left;
-	font:12px /15px monospace !important;
+	font:12px /16px monospace !important;
 	background:#F1F1F1;
 	color:#777;
 }
@@ -38,7 +38,7 @@
 	margin:0;
 	padding:0 2px;
 	overflow:auto;
-	font:14px /15px monospace !important;
+	font:14px /16px monospace !important;
 	color:#444;
 }
 .highlight .borders
