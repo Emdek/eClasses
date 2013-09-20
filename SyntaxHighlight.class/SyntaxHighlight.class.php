@@ -130,7 +130,7 @@ class SyntaxHighlight
 	'perl' => 'Perl',
 	'php' => 'PHP',
 	'phpdoc' => 'PHPDoc',
-	'po' => 'PO(T)',
+	'gettext' => 'Gettext',
 	'python' => 'Python',
 	'sql' => 'SQL',
 	'xml' => 'XML',
@@ -1118,12 +1118,12 @@ class SyntaxHighlight
 	}
 
 /**
- * Highlight for PO(T)
+ * Highlight for Gettext files
  * @param string $code
  * @return string
  */
 
-	static public function highlightModePo($code)
+	static public function highlightModeGettext($code)
 	{
 		$buffer = $output = $charOld = '';
 		$notParse = $comment = $value = $finish = 0;
