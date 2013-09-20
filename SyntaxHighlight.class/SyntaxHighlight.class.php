@@ -68,7 +68,7 @@ class SyntaxHighlight
 			),
 		array(
 			'<span class="stray">\\0</span>',
-			'<span class="whitespace">\\1</span>',
+			'<span class="tab">\\1</span>',
 			),
 		$code
 			);

@@ -160,13 +160,13 @@
 {
 	background:#EE3434;
 }
-.highlight .whitespace
+.highlight .tab
 {
-	border-right:1px dotted #B7B7B7;
+	background:url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAcAAAAHCAYAAADEUlfTAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAOxAAADsQBlSsOGwAAAB1JREFUCJljOHl8138GKEBmM2ATpLICKkowMDAAAGFnLf/ZmZ/YAAAAAElFTkSuQmCC') no-repeat 2px center;
 }
-.highlight .whitespace:hover
+.highlight .tab:hover
 {
-	background:#F3F3F3;
+	background-color:#F3F3F3;
 }
 .highlight .highlightrange
 {
