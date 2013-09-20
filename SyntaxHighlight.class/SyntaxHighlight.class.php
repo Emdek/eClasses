@@ -19,14 +19,13 @@ class SyntaxHighlight
 
 	static public function highlightString($code, $mode)
 	{
+		$code = str_replace(array('&', '<', '>', "\r\n", "\r"), array('&amp;', '&lt;', '&gt;', "\n", "\n"), $code);
 		$method = 'highlightMode'.ucfirst(strtolower($mode));
 
 		if (!method_exists('SyntaxHighlight', $method))
 		{
-			$method = 'highlightModeTxt';
+			return $code;
 		}
-
-		$code = str_replace(array('&', '<', '>', "\r\n", "\r"), array('&amp;', '&lt;', '&gt;', "\n", "\n"), $code);
 
 		return self::$method($code);
 	}
@@ -119,7 +118,6 @@ class SyntaxHighlight
 	static public function highlightModes()
 	{
 		return array(
-	'txt' => 'Plain text',
 	'c' => 'C',
 	'cpp' => 'C++',
 	'cs' => 'C#',
@@ -1352,17 +1350,6 @@ class SyntaxHighlight
 		}
 
 		return $output;
-	}
-
-/**
- * "Highlight" for plain text
- * @param string $code
- * @return string
- */
-
-	static private function highlightModeTxt($code)
-	{
-		return $code;
 	}
 
 /**
