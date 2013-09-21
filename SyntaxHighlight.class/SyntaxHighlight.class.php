@@ -17,8 +17,69 @@ class SyntaxHighlight
  * @return string
  */
 
-	static public function highlightString($code, $mode)
+	static public function highlightString($code, $mode = '')
 	{
+		if (empty($mode))
+		{
+			$sample = ltrim(substr($code, 0, 200), "\r\n\t ");
+
+			if (substr($sample, 0, 5) == '<?xml')
+			{
+				if (stristr($sample, '<html') !== FALSE)
+				{
+					$mode = 'html';
+				}
+				else
+				{
+					$mode = 'xml';
+				}
+			}
+			else if (substr($sample, 0, 2) == '<?')
+			{
+				$mode = 'php';
+			}
+			else if (stristr($sample, '<html') !== FALSE)
+			{
+				$mode = 'html';
+			}
+			else if (preg_match('#^import java#msi', $sample))
+			{
+				$mode = 'java';
+			}
+			else if (preg_match('#^using [a-z]#msi', $sample))
+			{
+				$mode = 'cs';
+			}
+			else if (preg_match('#^use [a-z]#msi', $sample))
+			{
+				$mode = 'perl';
+			}
+			else if (preg_match('#^import [a-z]#msi', $sample))
+			{
+				$mode = 'python';
+			}
+			else if (preg_match('#^\#include\s*("|<)#msi', $sample))
+			{
+				$mode = 'cpp';
+			}
+			else if (preg_match('#(^|;)\s*(CREATE|SELECT|DELETE|UPDATE|ALTER)\s+#msi', $sample))
+			{
+				$mode = 'sql';
+			}
+			else if (preg_match('#(if\s*\(|for\s*\()#msi', $sample))
+			{
+				$mode = 'javascript';
+			}
+			else if (preg_match('#{.*[a-z]:.*}#msi', $sample))
+			{
+				$mode = 'css';
+			}
+			else if (stristr($sample, 'msgid ""') !== FALSE)
+			{
+				$mode = 'gettext';
+			}
+		}
+
 		$code = str_replace(array('&', '<', '>', "\r\n", "\r"), array('&amp;', '&lt;', '&gt;', "\n", "\n"), $code);
 		$method = 'highlightMode'.ucfirst(strtolower($mode));
 
@@ -38,7 +99,7 @@ class SyntaxHighlight
  * @throws Exception
  */
 
-	static public function highlightFile($fileName, $mode)
+	static public function highlightFile($fileName, $mode = '')
 	{
 		if (!file_exists($fileName))
 		{
