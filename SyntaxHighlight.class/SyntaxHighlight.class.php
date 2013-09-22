@@ -118,7 +118,7 @@ const FORMAT_EMBEDDED = 16;
 		}
 
 		$code = str_replace(array('&', '<', '>', "\r\n", "\r"), array('&amp;', '&lt;', '&gt;', "\n", "\n"), $code);
-		$method = 'highlightMode'.ucfirst(strtolower($mode));
+		$method = 'mode'.ucfirst(strtolower($mode));
 
 		if (!method_exists('SyntaxHighlight', $method))
 		{
@@ -152,7 +152,7 @@ const FORMAT_EMBEDDED = 16;
  * @return array
  */
 
-	static public function highlightModes()
+	static public function getModes()
 	{
 		return array(
 	'c' => 'C',
@@ -181,7 +181,7 @@ const FORMAT_EMBEDDED = 16;
  * @return string
  */
 
-	static private function highlightClean($code, $entities = 0)
+	static private function removeHighlighting($code, $entities = 0)
 	{
 		$code = preg_replace('#<(?:span|a href=".*") class="(?:[a-z]*)">(.*)</(?:span|a)>#sU', '\\1', $code);
 
@@ -200,7 +200,7 @@ const FORMAT_EMBEDDED = 16;
  * @return string
  */
 
-	static private function highlightFormat($code, $options)
+	static private function formatCode($code, $options)
 	{
 		if ($options & self::FORMAT_WHITESPACE)
 		{
@@ -275,9 +275,9 @@ const FORMAT_EMBEDDED = 16;
  * @return string
  */
 
-	static private function highlightModeC($code, $options)
+	static private function modeC($code, $options)
 	{
-		return self::highlightModeCpp($code, $options);
+		return self::modeCpp($code, $options);
 	}
 
 /**
@@ -287,7 +287,7 @@ const FORMAT_EMBEDDED = 16;
  * @return string
  */
 
-	static private function highlightModeCpp($code, $options)
+	static private function modeCpp($code, $options)
 	{
 		$buffer = $output = $charOld = '';
 		$notParse = $comment = $value = $finish = 0;
@@ -369,7 +369,7 @@ const FORMAT_EMBEDDED = 16;
 			$charOld = $char;
 		}
 
-		return self::highlightFormat($output, $options);
+		return self::formatCode($output, $options);
 	}
 
 /**
@@ -379,7 +379,7 @@ const FORMAT_EMBEDDED = 16;
  * @return string
  */
 
-	static private function highlightModeCs($code, $options)
+	static private function modeCs($code, $options)
 	{
 		$buffer = $output = $charOld = '';
 		$notParse = $comment = $value = $finish = 0;
@@ -465,7 +465,7 @@ const FORMAT_EMBEDDED = 16;
 			$charOld = $char;
 		}
 
-		return self::highlightFormat($output, $options);
+		return self::formatCode($output, $options);
 	}
 
 /**
@@ -475,7 +475,7 @@ const FORMAT_EMBEDDED = 16;
  * @return string
  */
 
-	static private function highlightModeCss($code, $options)
+	static private function modeCss($code, $options)
 	{
 		$buffer = $output = $charOld = '';
 		$notParse = $braces = $finish = 0;
@@ -569,7 +569,7 @@ const FORMAT_EMBEDDED = 16;
 			$output.= '</span>';
 		}
 
-		return self::highlightFormat($output, $options);
+		return self::formatCode($output, $options);
 	}
 
 /**
@@ -579,7 +579,7 @@ const FORMAT_EMBEDDED = 16;
  * @return string
  */
 
-	static private function highlightModeHtml($code, $options)
+	static private function modeHtml($code, $options)
 	{
 		$buffer = $output = $charOld = '';
 		$notParse = $comment = $value = $finish = 0;
@@ -657,14 +657,14 @@ const FORMAT_EMBEDDED = 16;
 			'#(&lt;\?(?:php)?(?!xml)(?U).+\?&gt;)#Ssie',
 			),
 		array(
-			'\'<span class="borders">\'.stripslashes(\'\\1\').\'</span>\'.self::highlightModeCss(self::highlightClean(\'\\2\'), ($options | self::FORMAT_EMBEDDED)).\'<span class="borders">\'.stripslashes(\'\\3\').\'</span>\'',
-			'\'<span class="borders">\'.stripslashes(\'\\1\').\'</span>\'.self::highlightModeJavaScript(self::highlightClean(\'\\2\'), ($options | self::FORMAT_EMBEDDED)).\'<span class="borders">\'.stripslashes(\'\\3\').\'</span>\'',
-			'self::highlightModePhp(self::highlightClean(\'\\1\'), ($options | self::FORMAT_EMBEDDED))',
+			'\'<span class="borders">\'.stripslashes(\'\\1\').\'</span>\'.self::modeCss(self::removeHighlighting(\'\\2\'), ($options | self::FORMAT_EMBEDDED)).\'<span class="borders">\'.stripslashes(\'\\3\').\'</span>\'',
+			'\'<span class="borders">\'.stripslashes(\'\\1\').\'</span>\'.self::modeJavaScript(self::removeHighlighting(\'\\2\'), ($options | self::FORMAT_EMBEDDED)).\'<span class="borders">\'.stripslashes(\'\\3\').\'</span>\'',
+			'self::modePhp(self::removeHighlighting(\'\\1\'), ($options | self::FORMAT_EMBEDDED))',
 			),
 		$output
 		);
 
-		return self::highlightFormat($output, $options);
+		return self::formatCode($output, $options);
 	}
 
 /**
@@ -674,7 +674,7 @@ const FORMAT_EMBEDDED = 16;
  * @return string
  */
 
-	static private function highlightModeIni($code, $options)
+	static private function modeIni($code, $options)
 	{
 		$buffer = $output = $charOld = '';
 		$notParse = $comment = $value = $finish = 0;
@@ -741,7 +741,7 @@ const FORMAT_EMBEDDED = 16;
 			$charOld = $char;
 		}
 
-		return self::highlightFormat($output, $options);
+		return self::formatCode($output, $options);
 	}
 
 /**
@@ -751,7 +751,7 @@ const FORMAT_EMBEDDED = 16;
  * @return string
  */
 
-	static private function highlightModeJava($code, $options)
+	static private function modeJava($code, $options)
 	{
 		$buffer = $output = $charOld = '';
 		$notParse = $comment = $value = $documentation = $finish = 0;
@@ -831,7 +831,7 @@ const FORMAT_EMBEDDED = 16;
 
 				if ($documentation)
 				{
-					$buffer = self::highlightModeJavaDoc($buffer, $options);
+					$buffer = self::modeJavaDoc($buffer, $options);
 				}
 
 				$output.= '<span class="'.($comment ? ($documentation ? 'documentation' : 'comment') : 'value').'">'.($value ? $buffer : preg_replace('#\b(FIXME|NOTICE|NOTE|TODO|WARNING)\b#i', '<span class="notice">\\1</span>', $buffer)).'</span>';
@@ -847,7 +847,7 @@ const FORMAT_EMBEDDED = 16;
 			$charOld = $char;
 		}
 
-		return self::highlightFormat($output, $options);
+		return self::formatCode($output, $options);
 	}
 
 /**
@@ -857,7 +857,7 @@ const FORMAT_EMBEDDED = 16;
  * @return string
  */
 
-	static private function highlightModeJavaDoc($code, $options)
+	static private function modeJavaDoc($code, $options)
 	{
 		return (preg_replace(
 		array(
@@ -883,7 +883,7 @@ const FORMAT_EMBEDDED = 16;
  * @return string
  */
 
-	static private function highlightModeJavaScript($code, $options)
+	static private function modeJavaScript($code, $options)
 	{
 		$buffer = $output = $charOld = '';
 		$notParse = $comment = $value = $finish = 0;
@@ -966,7 +966,7 @@ const FORMAT_EMBEDDED = 16;
 			$charOld = $char;
 		}
 
-		return self::highlightFormat($output, $options);
+		return self::formatCode($output, $options);
 	}
 
 /**
@@ -976,7 +976,7 @@ const FORMAT_EMBEDDED = 16;
  * @return string
  */
 
-	static private function highlightModePerl($code, $options)
+	static private function modePerl($code, $options)
 	{
 		$buffer = $output = $charOld = '';
 		$notParse = $comment = $value = $finish = 0;
@@ -1058,7 +1058,7 @@ const FORMAT_EMBEDDED = 16;
 			$charOld = $char;
 		}
 
-		return self::highlightFormat($output, $options);
+		return self::formatCode($output, $options);
 	}
 
 /**
@@ -1068,7 +1068,7 @@ const FORMAT_EMBEDDED = 16;
  * @return string
  */
 
-	static public function highlightModePhp($code, $options)
+	static public function modePhp($code, $options)
 	{
 		$buffer = $output = $charOld = '';
 		$notParse = $comment = $value = $documentation = $parse = $finish = 0;
@@ -1192,7 +1192,7 @@ const FORMAT_EMBEDDED = 16;
 
 				if ($documentation)
 				{
-					$buffer = self::highlightModePhpDoc($buffer, $options);
+					$buffer = self::modePhpDoc($buffer, $options);
 				}
 
 				$output.= ($parse ? '<span class="'.($comment ? ($documentation ? 'documentation' : 'comment') : 'value').'">' : '').($value ? $buffer : preg_replace('#\b(FIXME|NOTICE|NOTE|TODO|WARNING)\b#i', '<span class="notice">\\1</span>', $buffer)).($parse ? '</span>' : '');
@@ -1208,7 +1208,7 @@ const FORMAT_EMBEDDED = 16;
 			$charOld = $char;
 		}
 
-		return self::highlightFormat($output, $options);
+		return self::formatCode($output, $options);
 	}
 
 /**
@@ -1218,7 +1218,7 @@ const FORMAT_EMBEDDED = 16;
  * @return string
  */
 
-	static private function highlightModePhpDoc($code, $options)
+	static private function modePhpDoc($code, $options)
 	{
 		return preg_replace(
 		array(
@@ -1246,7 +1246,7 @@ const FORMAT_EMBEDDED = 16;
  * @return string
  */
 
-	static public function highlightModeGettext($code, $options)
+	static public function modeGettext($code, $options)
 	{
 		$buffer = $output = $charOld = '';
 		$notParse = $comment = $value = $finish = 0;
@@ -1304,7 +1304,7 @@ const FORMAT_EMBEDDED = 16;
 			$charOld = $char;
 		}
 
-		return self::highlightFormat($output, $options);
+		return self::formatCode($output, $options);
 	}
 
 /**
@@ -1314,7 +1314,7 @@ const FORMAT_EMBEDDED = 16;
  * @return string
  */
 
-	static public function highlightModePython($code, $options)
+	static public function modePython($code, $options)
 	{
 		$buffer = $output = $charOld = '';
 		$notParse = $comment = $value = $documentation = $finish = 0;
@@ -1397,7 +1397,7 @@ const FORMAT_EMBEDDED = 16;
 			$charOld = $char;
 		}
 
-		return self::highlightFormat($output, $options);
+		return self::formatCode($output, $options);
 	}
 
 /**
@@ -1407,7 +1407,7 @@ const FORMAT_EMBEDDED = 16;
  * @return string
  */
 
-	static private function highlightModeSql($code, $options)
+	static private function modeSql($code, $options)
 	{
 		$buffer = $output = $charOld = '';
 		$notParse = $comment = $value = $finish = 0;
@@ -1474,7 +1474,7 @@ const FORMAT_EMBEDDED = 16;
 			$charOld = $char;
 		}
 
-		return self::highlightFormat($output, $options);
+		return self::formatCode($output, $options);
 	}
 
 /**
@@ -1484,7 +1484,7 @@ const FORMAT_EMBEDDED = 16;
  * @return string
  */
 
-	static private function highlightModeXml($code, $options)
+	static private function modeXml($code, $options)
 	{
 		$buffer = $output = $charOld = '';
 		$notParse = $comment = $value = $finish = 0;
@@ -1554,7 +1554,7 @@ const FORMAT_EMBEDDED = 16;
 
 		$output = preg_replace('#(&lt;\?xml .*\?&gt;|&lt;!DOCTYPE .*&gt;)+#siU', '<span class="doctype">\\1</span>', $output);
 
-		return self::highlightFormat($output, $options);
+		return self::formatCode($output, $options);
 	}
 }
 ?>
