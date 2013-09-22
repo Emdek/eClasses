@@ -204,17 +204,8 @@ const FORMAT_EMBEDDED = 16;
 	{
 		if ($options & self::FORMAT_WHITESPACE)
 		{
-			$code = preg_replace(
-		array(
-			'#(\s)*$#m',
-			'#(\t)#',
-			),
-		array(
-			'<span class="stray">\\0</span>',
-			'<span class="tab">\\1</span>',
-			),
-		$code
-			);
+			$code = preg_replace_callback('#(\s)+$#m', 'self::markStray', $code);
+			$code = preg_replace('#(?<!<span class="tab">)(\t)#', '<span class="tab">\\1</span>', $code);
 		}
 
 		$code = str_replace(
@@ -266,6 +257,36 @@ const FORMAT_EMBEDDED = 16;
 </pre>
 </div>
 ';
+	}
+
+/**
+ * Mark stray whitespace
+ * @param array $matches
+ * @return string
+ */
+
+	static private function markStray($matches)
+	{
+		$array = str_split($matches[0]);
+		$string = '';
+
+		for ($i = 0, $c = count($array); $i < $c; ++$i)
+		{
+			if ($array[$i] == ' ')
+			{
+				$string.= '<span class="space"> </span>';
+			}
+			else if ($array[$i] == "\t")
+			{
+				$string.= '<span class="tab">	</span>';
+			}
+			else
+			{
+				$string.= $array[$i];
+			}
+		}
+
+		return '<span class="stray">'.$string.'</span>';
 	}
 
 /**
