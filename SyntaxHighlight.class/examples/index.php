@@ -12,7 +12,7 @@ require ('../SyntaxHighlight.class.php');
 ?>
 <h2>Example: CSS</h2>
 <?php
-echo SyntaxHighlight::highlightFormat(SyntaxHighlight::highlightString('.highlight 		'."\n".'{    '."\n".'	margin:5px auto;
+echo SyntaxHighlight::highlightString('.highlight 		'."\n".'{    '."\n".'	margin:5px auto;
 	padding:3px;
 	border:1px #8C8C8C solid;
 	font:14px monospace !important;
@@ -36,21 +36,21 @@ echo SyntaxHighlight::highlightFormat(SyntaxHighlight::highlightString('.highlig
 #code:hover
 {
 	background:url(\'./images/background.png\') no-repeat;
-}', 'css'), 1);
+}', 'css');
 ?>
 <h2>Example: SQL</h2>
 <?php
-echo SyntaxHighlight::highlightFormat(SyntaxHighlight::highlightString('SELECT "test", SUM("test2") FROM "table" WHERE "name" LIKE \'value%\' ORDER BY "test" DESC;
+echo SyntaxHighlight::highlightString('SELECT "test", SUM("test2") FROM "table" WHERE "name" LIKE \'value%\' ORDER BY "test" DESC;
 INSERT INTO "table2" VALUES(\'value\');
-CREATE TABLE "table3" ("field" TEXT, "field2" INTEGER(1, 2), "field3" FLOAT DEFAULT 3.3);', 'sql'), 1);
+CREATE TABLE "table3" ("field" TEXT, "field2" INTEGER(1, 2), "field3" FLOAT DEFAULT 3.3);', 'sql');
 ?>
 <h2>Example: (X)HTML</h2>
 <?php
-echo SyntaxHighlight::highlightFormat(SyntaxHighlight::highlightFile('test.html', 'html'));
+echo SyntaxHighlight::highlightFile('test.html', 'html');
 ?>
 <h2>Example: PHP</h2>
 <?php
-echo SyntaxHighlight::highlightFormat(SyntaxHighlight::highlightFile('../SyntaxHighlight.class.php', 'php'), 1);
+echo SyntaxHighlight::highlightFile('../SyntaxHighlight.class.php', 'php');
 ?>
 </body>
 </html>

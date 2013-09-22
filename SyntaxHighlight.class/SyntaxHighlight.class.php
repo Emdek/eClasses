@@ -11,13 +11,50 @@ class SyntaxHighlight
 {
 
 /**
+ * Formatting: add line numbers
+ */
+
+const FORMAT_LINENUMBERS = 1;
+
+/**
+ * Formatting: mark tabs and stray whitespace
+ */
+
+const FORMAT_WHITESPACE = 2;
+
+/**
+ * Formatting: allow to highlight ranges
+ */
+
+const FORMAT_RANGES = 4;
+
+/**
+ * Formatting: allow to fold code blocks
+ */
+
+const FORMAT_FOLDING = 8;
+
+/**
+ * Formatting: apply all of above options
+ */
+
+const FORMAT_ALL = 15;
+
+/**
+ * Formatting: special case for embedding code of different type
+ */
+
+const FORMAT_EMBEDDED = 16;
+
+/**
  * Highlights string for given type
  * @param string $code
  * @param string $mode
+ * @param integer $options
  * @return string
  */
 
-	static public function highlightString($code, $mode = '')
+	static public function highlightString($code, $mode = '', $options = self::FORMAT_ALL)
 	{
 		if (empty($mode))
 		{
@@ -88,87 +125,26 @@ class SyntaxHighlight
 			return $code;
 		}
 
-		return self::$method($code);
+		return self::$method($code, $options);
 	}
 
 /**
  * Highlights file for given type
- * @param string $code
+ * @param string $path
  * @param string $mode
+ * @param integer $options
  * @return string
  * @throws Exception
  */
 
-	static public function highlightFile($fileName, $mode = '')
+	static public function highlightFile($path, $mode = '', $options = self::FORMAT_ALL)
 	{
-		if (!file_exists($fileName))
+		if (!file_exists($path))
 		{
 			throw new Exception('File does not exists!');
 		}
 
-		return self::highlightString(file_get_contents($fileName), $mode);
-	}
-
-/**
- * Additional formatting for parsed code
- * @param string $code
- * @param boolean $highlight
- * @param string $class
- * @return string
- */
-
-	static public function highlightFormat($code, $highlight = 0, $class = '')
-	{
-		if ($highlight)
-		{
-			$code = preg_replace(
-		array(
-			'#(\s)*$#m',
-			'#(\t)#',
-			),
-		array(
-			'<span class="stray">\\0</span>',
-			'<span class="tab">\\1</span>',
-			),
-		$code
-			);
-
-			$code = str_replace(
-		array(
-			'<span class="punctuation">{</span>',
-			'<span class="punctuation">}</span>',
-			'<span class="punctuation">(</span>',
-			'<span class="punctuation">)</span>',
-			'<span class="punctuation">[</span>',
-			'<span class="punctuation">]</span>',
-			),
-		array(
-			'<span><span class="punctuation switcher" onmouseover="this.parentNode.className = \'highlightrange\'" onmouseout="this.parentNode.className = \'\'" onclick="this.nextSibling.style.visibility = ((this.nextSibling.style.visibility == \'hidden\') ? \'visible\' : \'hidden\')">{</span><span>',
-			'<span class="punctuation" onmouseover="this.parentNode.parentNode.className = \'highlightrange\'" onmouseout="this.parentNode.parentNode.className = \'\'">}</span></span></span>',
-			'<span><span class="punctuation" onmouseover="this.parentNode.className = \'highlightrange\'" onmouseout="this.parentNode.className = \'\'">(</span>',
-			'<span class="punctuation" onmouseover="this.parentNode.className = \'highlightrange\'" onmouseout="this.parentNode.className = \'\'">)</span></span>',
-			'<span><span class="punctuation" onmouseover="this.parentNode.className = \'highlightrange\'" onmouseout="this.parentNode.className = \'\'">[</span>',
-			'<span class="punctuation" onmouseover="this.parentNode.className = \'highlightrange\'" onmouseout="this.parentNode.className = \'\'">]</span></span>',
-			),
-		$code
-			);
-		}
-
-		$numbers = '';
-		$lines = (substr_count($code, ((substr_count($code, "\r") > substr_count($code, "\n")) ? "\r" : "\n")) + 2);
-
-		for ($i = 1; $i < $lines; ++$i)
-		{
-			$numbers.= $i.'
-';
-		}
-
-		return '<div class="highlight">
-<pre class="numbers">'.$numbers.'</pre>
-<pre class="code'.($class ? ' '.$class : '').'">'.$code.'
-</pre>
-</div>
-';
+		return self::highlightString(file_get_contents($path), $mode, $options);
 	}
 
 /**
@@ -218,23 +194,100 @@ class SyntaxHighlight
 	}
 
 /**
- * Highlight for C
+ * Additional formatting for parsed code
  * @param string $code
+ * @param integer $options
  * @return string
  */
 
-	static private function highlightModeC($code)
+	static private function highlightFormat($code, $options)
 	{
-		return self::highlightModeCpp($code);
+		if ($options & self::FORMAT_WHITESPACE)
+		{
+			$code = preg_replace(
+		array(
+			'#(\s)*$#m',
+			'#(\t)#',
+			),
+		array(
+			'<span class="stray">\\0</span>',
+			'<span class="tab">\\1</span>',
+			),
+		$code
+			);
+		}
+
+		$code = str_replace(
+		array(
+			'<span class="punctuation">{</span>',
+			'<span class="punctuation">}</span>',
+			'<span class="punctuation">(</span>',
+			'<span class="punctuation">)</span>',
+			'<span class="punctuation">[</span>',
+			'<span class="punctuation">]</span>',
+			),
+		array(
+			'<span><span class="punctuation'.(($options & self::FORMAT_FOLDING) ? ' switcher' : '').'"'.(($options & self::FORMAT_RANGES) ? ' onmouseover="this.parentNode.className = \'highlightrange\'" onmouseout="this.parentNode.className = \'\'"' : '').(($options & self::FORMAT_FOLDING) ? ' onclick="this.nextSibling.style.visibility = ((this.nextSibling.style.visibility == \'hidden\') ? \'visible\' : \'hidden\')"' : '').'>{</span>'.(($options & self::FORMAT_FOLDING) ? '<span>' : ''),
+			'<span class="punctuation"'.(($options & self::FORMAT_RANGES) ? ' onmouseover="this.parentNode.parentNode.className = \'highlightrange\'" onmouseout="this.parentNode.parentNode.className = \'\'"' : '').'>}</span></span>'.(($options & self::FORMAT_FOLDING) ? '</span>' : ''),
+			'<span><span class="punctuation"'.(($options & self::FORMAT_RANGES) ? ' onmouseover="this.parentNode.className = \'highlightrange\'" onmouseout="this.parentNode.className = \'\'"' : '').'>(</span>',
+			'<span class="punctuation"'.(($options & self::FORMAT_RANGES) ? ' onmouseover="this.parentNode.className = \'highlightrange\'" onmouseout="this.parentNode.className = \'\'"' : '').'>)</span></span>',
+			'<span><span class="punctuation"'.(($options & self::FORMAT_RANGES) ? ' onmouseover="this.parentNode.className = \'highlightrange\'" onmouseout="this.parentNode.className = \'\'"' : '').'>[</span>',
+			'<span class="punctuation"'.(($options & self::FORMAT_RANGES) ? ' onmouseover="this.parentNode.className = \'highlightrange\'" onmouseout="this.parentNode.className = \'\'"' : '').'>]</span></span>',
+			),
+		$code
+		);
+
+		if ($options & self::FORMAT_EMBEDDED)
+		{
+			return $code;
+		}
+
+		if ($options & self::FORMAT_LINENUMBERS)
+		{
+			$numbers = '';
+			$lines = (substr_count($code, ((substr_count($code, "\r") > substr_count($code, "\n")) ? "\r" : "\n")) + 2);
+
+			for ($i = 1; $i < $lines; ++$i)
+			{
+				$numbers.= $i.'
+';
+			}
+
+			return '<div class="highlight">
+<pre class="numbers">'.$numbers.'</pre>
+<pre class="code">'.$code.'
+</pre>
+</div>
+';
+		}
+
+		return '<div class="highlight">
+<pre class="code">'.$code.'
+</pre>
+</div>
+';
+	}
+
+/**
+ * Highlight for C
+ * @param string $code
+ * @param integer $options
+ * @return string
+ */
+
+	static private function highlightModeC($code, $options)
+	{
+		return self::highlightModeCpp($code, $options);
 	}
 
 /**
  * Highlight for C++
  * @param string $code
+ * @param integer $options
  * @return string
  */
 
-	static private function highlightModeCpp($code)
+	static private function highlightModeCpp($code, $options)
 	{
 		$buffer = $output = $charOld = '';
 		$notParse = $comment = $value = $finish = 0;
@@ -316,16 +369,17 @@ class SyntaxHighlight
 			$charOld = $char;
 		}
 
-		return $output;
+		return self::highlightFormat($output, $options);
 	}
 
 /**
  * Highlight for C#
  * @param string $code
+ * @param integer $options
  * @return string
  */
 
-	static private function highlightModeCs($code)
+	static private function highlightModeCs($code, $options)
 	{
 		$buffer = $output = $charOld = '';
 		$notParse = $comment = $value = $finish = 0;
@@ -411,16 +465,17 @@ class SyntaxHighlight
 			$charOld = $char;
 		}
 
-		return $output;
+		return self::highlightFormat($output, $options);
 	}
 
 /**
  * Highlight for CSS
  * @param string $code
+ * @param integer $options
  * @return string
  */
 
-	static private function highlightModeCss($code)
+	static private function highlightModeCss($code, $options)
 	{
 		$buffer = $output = $charOld = '';
 		$notParse = $braces = $finish = 0;
@@ -514,16 +569,17 @@ class SyntaxHighlight
 			$output.= '</span>';
 		}
 
-		return $output;
+		return self::highlightFormat($output, $options);
 	}
 
 /**
  * Highlight for(X)HTML
  * @param string $code
+ * @param integer $options
  * @return string
  */
 
-	static private function highlightModeHtml($code)
+	static private function highlightModeHtml($code, $options)
 	{
 		$buffer = $output = $charOld = '';
 		$notParse = $comment = $value = $finish = 0;
@@ -601,23 +657,24 @@ class SyntaxHighlight
 			'#(&lt;\?(?:php)?(?!xml)(?U).+\?&gt;)#Ssie',
 			),
 		array(
-			'\'<span class="borders">\'.stripslashes(\'\\1\').\'</span>\'.self::highlightModeCss(self::highlightClean(\'\\2\')).\'<span class="borders">\'.stripslashes(\'\\3\').\'</span>\'',
-			'\'<span class="borders">\'.stripslashes(\'\\1\').\'</span>\'.self::highlightModeJavaScript(self::highlightClean(\'\\2\')).\'<span class="borders">\'.stripslashes(\'\\3\').\'</span>\'',
-			'self::highlightModePhp(self::highlightClean(\'\\1\'))',
+			'\'<span class="borders">\'.stripslashes(\'\\1\').\'</span>\'.self::highlightModeCss(self::highlightClean(\'\\2\'), ($options | self::FORMAT_EMBEDDED)).\'<span class="borders">\'.stripslashes(\'\\3\').\'</span>\'',
+			'\'<span class="borders">\'.stripslashes(\'\\1\').\'</span>\'.self::highlightModeJavaScript(self::highlightClean(\'\\2\'), ($options | self::FORMAT_EMBEDDED)).\'<span class="borders">\'.stripslashes(\'\\3\').\'</span>\'',
+			'self::highlightModePhp(self::highlightClean(\'\\1\'), ($options | self::FORMAT_EMBEDDED))',
 			),
 		$output
 		);
 
-		return $output;
+		return self::highlightFormat($output, $options);
 	}
 
 /**
  * Highlight for INI
  * @param string $code
+ * @param integer $options
  * @return string
  */
 
-	static private function highlightModeIni($code)
+	static private function highlightModeIni($code, $options)
 	{
 		$buffer = $output = $charOld = '';
 		$notParse = $comment = $value = $finish = 0;
@@ -684,16 +741,17 @@ class SyntaxHighlight
 			$charOld = $char;
 		}
 
-		return $output;
+		return self::highlightFormat($output, $options);
 	}
 
 /**
  * Highlight for Java
  * @param string $code
+ * @param integer $options
  * @return string
  */
 
-	static private function highlightModeJava($code)
+	static private function highlightModeJava($code, $options)
 	{
 		$buffer = $output = $charOld = '';
 		$notParse = $comment = $value = $documentation = $finish = 0;
@@ -773,7 +831,7 @@ class SyntaxHighlight
 
 				if ($documentation)
 				{
-					$buffer = self::highlightModeJavaDoc($buffer);
+					$buffer = self::highlightModeJavaDoc($buffer, $options);
 				}
 
 				$output.= '<span class="'.($comment ? ($documentation ? 'documentation' : 'comment') : 'value').'">'.($value ? $buffer : preg_replace('#\b(FIXME|NOTICE|NOTE|TODO|WARNING)\b#i', '<span class="notice">\\1</span>', $buffer)).'</span>';
@@ -789,16 +847,17 @@ class SyntaxHighlight
 			$charOld = $char;
 		}
 
-		return $output;
+		return self::highlightFormat($output, $options);
 	}
 
 /**
  * Highlight for JavaDoc
  * @param string $code
+ * @param integer $options
  * @return string
  */
 
-	static private function highlightModeJavaDoc($code)
+	static private function highlightModeJavaDoc($code, $options)
 	{
 		return (preg_replace(
 		array(
@@ -820,10 +879,11 @@ class SyntaxHighlight
 /**
  * Highlight for JavaScript
  * @param string $code
+ * @param integer $options
  * @return string
  */
 
-	static private function highlightModeJavaScript($code)
+	static private function highlightModeJavaScript($code, $options)
 	{
 		$buffer = $output = $charOld = '';
 		$notParse = $comment = $value = $finish = 0;
@@ -906,16 +966,17 @@ class SyntaxHighlight
 			$charOld = $char;
 		}
 
-		return $output;
+		return self::highlightFormat($output, $options);
 	}
 
 /**
  * Highlight for Perl
  * @param string $code
+ * @param integer $options
  * @return string
  */
 
-	static private function highlightModePerl($code)
+	static private function highlightModePerl($code, $options)
 	{
 		$buffer = $output = $charOld = '';
 		$notParse = $comment = $value = $finish = 0;
@@ -997,17 +1058,17 @@ class SyntaxHighlight
 			$charOld = $char;
 		}
 
-		return $output;
+		return self::highlightFormat($output, $options);
 	}
-
 
 /**
  * Highlight for PHP
  * @param string $code
+ * @param integer $options
  * @return string
  */
 
-	static public function highlightModePhp($code)
+	static public function highlightModePhp($code, $options)
 	{
 		$buffer = $output = $charOld = '';
 		$notParse = $comment = $value = $documentation = $parse = $finish = 0;
@@ -1131,7 +1192,7 @@ class SyntaxHighlight
 
 				if ($documentation)
 				{
-					$buffer = self::highlightModePhpDoc($buffer);
+					$buffer = self::highlightModePhpDoc($buffer, $options);
 				}
 
 				$output.= ($parse ? '<span class="'.($comment ? ($documentation ? 'documentation' : 'comment') : 'value').'">' : '').($value ? $buffer : preg_replace('#\b(FIXME|NOTICE|NOTE|TODO|WARNING)\b#i', '<span class="notice">\\1</span>', $buffer)).($parse ? '</span>' : '');
@@ -1147,16 +1208,17 @@ class SyntaxHighlight
 			$charOld = $char;
 		}
 
-		return $output;
+		return self::highlightFormat($output, $options);
 	}
 
 /**
  * Highlight for PHPDoc
  * @param string $code
+ * @param integer $options
  * @return string
  */
 
-	static private function highlightModePhpDoc($code)
+	static private function highlightModePhpDoc($code, $options)
 	{
 		return preg_replace(
 		array(
@@ -1184,7 +1246,7 @@ class SyntaxHighlight
  * @return string
  */
 
-	static public function highlightModeGettext($code)
+	static public function highlightModeGettext($code, $options)
 	{
 		$buffer = $output = $charOld = '';
 		$notParse = $comment = $value = $finish = 0;
@@ -1242,16 +1304,17 @@ class SyntaxHighlight
 			$charOld = $char;
 		}
 
-		return $output;
+		return self::highlightFormat($output, $options);
 	}
 
 /**
  * Highlight for Python
  * @param string $code
+ * @param integer $options
  * @return string
  */
 
-	static public function highlightModePython($code)
+	static public function highlightModePython($code, $options)
 	{
 		$buffer = $output = $charOld = '';
 		$notParse = $comment = $value = $documentation = $finish = 0;
@@ -1334,16 +1397,17 @@ class SyntaxHighlight
 			$charOld = $char;
 		}
 
-		return $output;
+		return self::highlightFormat($output, $options);
 	}
 
 /**
  * Highlight for SQL
  * @param string $code
+ * @param integer $options
  * @return string
  */
 
-	static private function highlightModeSql($code)
+	static private function highlightModeSql($code, $options)
 	{
 		$buffer = $output = $charOld = '';
 		$notParse = $comment = $value = $finish = 0;
@@ -1410,16 +1474,17 @@ class SyntaxHighlight
 			$charOld = $char;
 		}
 
-		return $output;
+		return self::highlightFormat($output, $options);
 	}
 
 /**
  * Highlight for XML
  * @param string $code
+ * @param integer $options
  * @return string
  */
 
-	static private function highlightModeXml($code)
+	static private function highlightModeXml($code, $options)
 	{
 		$buffer = $output = $charOld = '';
 		$notParse = $comment = $value = $finish = 0;
@@ -1489,7 +1554,7 @@ class SyntaxHighlight
 
 		$output = preg_replace('#(&lt;\?xml .*\?&gt;|&lt;!DOCTYPE .*&gt;)+#siU', '<span class="doctype">\\1</span>', $output);
 
-		return $output;
+		return self::highlightFormat($output, $options);
 	}
 }
 ?>
