@@ -183,20 +183,12 @@ static public function getModes()
 /**
  * Removes highlighting
  * @param string $code
- * @param boolean $entities
  * @return string
  */
 
-static private function removeHighlighting($code, $entities = 0)
+static private function removeHighlighting($code)
 {
-	$code = preg_replace('#<(?:span|a href=".*") class="(?:[a-z]*)">(.*)</(?:span|a)>#sU', '\\1', $code);
-
-	if ($entities)
-	{
-		$code = str_replace(array('&amp;', '&lt;', '&gt;'), array('&', '<', '>'), $code);
-	}
-
-	return $code;
+	return preg_replace('#<(?:span|a href=".*") class="(?:[a-z]*)">(.*)</(?:span|a)>#sU', '\\1', $code);
 }
 
 /**
