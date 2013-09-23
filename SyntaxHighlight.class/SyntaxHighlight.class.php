@@ -206,25 +206,39 @@ static private function formatCode($code, $options)
 		$code = preg_replace('#(?<!<span class="tab">)(\t)#', '<span class="tab">\\1</span>', $code);
 	}
 
-	$code = str_replace(
+	if ($options & self::FORMAT_FOLDING || $options & self::FORMAT_RANGES)
+	{
+		$code = str_replace(
 	array(
 		'<span class="punctuation">{</span>',
 		'<span class="punctuation">}</span>',
+		),
+	array(
+		'<span><span class="punctuation'.(($options & self::FORMAT_FOLDING) ? ' switcher' : '').'"'.(($options & self::FORMAT_RANGES) ? ' onmouseover="this.parentNode.className = \'highlightrange\'" onmouseout="this.parentNode.className = \'\'"' : '').(($options & self::FORMAT_FOLDING) ? ' onclick="this.nextSibling.style.visibility = ((this.nextSibling.style.visibility == \'hidden\') ? \'visible\' : \'hidden\')"' : '').'>{</span>'.(($options & self::FORMAT_FOLDING) ? '<span>' : ''),
+		'<span class="punctuation"'.(($options & self::FORMAT_RANGES) ? ' onmouseover="this.parentNode.parentNode.className = \'highlightrange\'" onmouseout="this.parentNode.parentNode.className = \'\'"' : '').'>}</span></span>'.(($options & self::FORMAT_FOLDING) ? '</span>' : ''),
+		),
+	$code
+	);
+	}
+
+	if ($options & self::FORMAT_RANGES)
+	{
+		$code = str_replace(
+	array(
 		'<span class="punctuation">(</span>',
 		'<span class="punctuation">)</span>',
 		'<span class="punctuation">[</span>',
 		'<span class="punctuation">]</span>',
 		),
 	array(
-		'<span><span class="punctuation'.(($options & self::FORMAT_FOLDING) ? ' switcher' : '').'"'.(($options & self::FORMAT_RANGES) ? ' onmouseover="this.parentNode.className = \'highlightrange\'" onmouseout="this.parentNode.className = \'\'"' : '').(($options & self::FORMAT_FOLDING) ? ' onclick="this.nextSibling.style.visibility = ((this.nextSibling.style.visibility == \'hidden\') ? \'visible\' : \'hidden\')"' : '').'>{</span>'.(($options & self::FORMAT_FOLDING) ? '<span>' : ''),
-		'<span class="punctuation"'.(($options & self::FORMAT_RANGES) ? ' onmouseover="this.parentNode.parentNode.className = \'highlightrange\'" onmouseout="this.parentNode.parentNode.className = \'\'"' : '').'>}</span></span>'.(($options & self::FORMAT_FOLDING) ? '</span>' : ''),
-		'<span><span class="punctuation"'.(($options & self::FORMAT_RANGES) ? ' onmouseover="this.parentNode.className = \'highlightrange\'" onmouseout="this.parentNode.className = \'\'"' : '').'>(</span>',
-		'<span class="punctuation"'.(($options & self::FORMAT_RANGES) ? ' onmouseover="this.parentNode.className = \'highlightrange\'" onmouseout="this.parentNode.className = \'\'"' : '').'>)</span></span>',
-		'<span><span class="punctuation"'.(($options & self::FORMAT_RANGES) ? ' onmouseover="this.parentNode.className = \'highlightrange\'" onmouseout="this.parentNode.className = \'\'"' : '').'>[</span>',
-		'<span class="punctuation"'.(($options & self::FORMAT_RANGES) ? ' onmouseover="this.parentNode.className = \'highlightrange\'" onmouseout="this.parentNode.className = \'\'"' : '').'>]</span></span>',
+		'<span><span class="punctuation" onmouseover="this.parentNode.className = \'highlightrange\'" onmouseout="this.parentNode.className = \'\'">(</span>',
+		'<span class="punctuation" onmouseover="this.parentNode.className = \'highlightrange\'" onmouseout="this.parentNode.className = \'\'">)</span></span>',
+		'<span><span class="punctuation" onmouseover="this.parentNode.className = \'highlightrange\'" onmouseout="this.parentNode.className = \'\'">[</span>',
+		'<span class="punctuation" onmouseover="this.parentNode.className = \'highlightrange\'" onmouseout="this.parentNode.className = \'\'">]</span></span>',
 		),
 	$code
 	);
+	}
 
 	if ($options & self::FORMAT_EMBEDDED)
 	{
@@ -517,7 +531,7 @@ static private function modeCs($code, $options)
 static private function modeCss($code, $options)
 {
 	$buffer = $output = $charOld = '';
-	$notParse = $braces = $finish = 0;
+	$notParse = $media = $definition = $finish = 0;
 
 	while (!$finish)
 	{
@@ -540,51 +554,71 @@ static private function modeCss($code, $options)
 			$valueStart = 0;
 		}
 
-		if ((!$notParse || ($notParse && $valueStart)) && !$braces && ($valueStart || $char == '{'))
+		if ((!$notParse || ($notParse && $valueStart)) && !$definition && ($valueStart || $char == '{'))
 		{
 			if (!$valueStart)
 			{
-				$braces = 1;
+				if (stristr($buffer, '@media'))
+				{
+					$media = 1;
+				}
+				else
+				{
+					$definition = 1;
+				}
 			}
 
 			$output.= preg_replace(
 	array(
+		'#@(charset|import|media|page|font-face|namespace)#Ssi',
 		'#(\.[a-z]\w*)#Ssi',
 		'#(?<=\n|\r|\}|,\s|,)(\#[a-z]\w*)#Ssi',
-		'#:(link|visited|active|hover|focus|lang|first-child|first-line|first-letter|before|after)#Ssi',
-		'#(?<!class|">|"|span)(:|~|\*|=|,|\(|\)|\/|&lt;|&gt;|\[|\])(?!/?span)#Ssi',
+		'#(:{1,2})(link|visited|active|hover|focus|lang|nth-child|nth-last-child|nth-of-type|nth-last-of-type|first-child|last-child|first-of-type|last-of-type|only-child|only-of-type|root|empty|target|enabled|disabled|checked|not|first-line|first-letter|before|after|selection)#Ssi',
+		'#([a-z]+)(\s*\()#Ssi',
+		'#(?<!class|">|"|span)(~|\*|=|,|\(|\)|\/|&lt;|&gt;|\[|\])(?!/?span)#Ssi',
 		),
 	array(
+		'<span class="control">@\\1</span>',
 		'<span class="class">\\1</span>',
-		'<span class="identify">\\1</span>',
-		':<span class="pseudoclass">\\1</span>',
+		'<span class="identifier">\\1</span>',
+		'<span class="pseudoclass">\\1\\2</span>',
+		'<span class="function">\\1</span>\\2',
 		'<span class="punctuation">\\1</span>',
 		),
 	$buffer
-	).($valueStart ? '' : '<span class="punctuation">{</span><span class="value">');
+	).($valueStart ? '' : '<span class="punctuation">{</span>'.($definition ? '<span class="definition">' : ''));
 
 			$buffer = ($valueStart ? $char : '');
 		}
-		else if ((!$notParse || ($notParse && $valueStart)) && $braces && ($valueStart || $char == '}'))
+		else if ((!$notParse || ($notParse && $valueStart)) && ($media || $definition) && ($valueStart || $char == '}'))
 		{
-			if (!$valueStart)
-			{
-				$braces = 0;
-			}
-
 			$output.= preg_replace(
 	array(
+		'#([a-z]+)(\s*\()#Ssi',
 		'#((?<=^|;|\s)[a-z\-]+(?=:)|(?:!important))#Ssi',
 		'#(?<!">)((?:(?:\+|-)\s*)?(?:\#\w{6}|\#\w{3}|(?:\d+\.)?\d+(?:px|pt|pc|ex|em|in|cm|mm|deg|grad|rad|ms|s|k?hz|\%)?))#Ssi',
 		'#(?<!class|">|"|span)(:|;|=|\*|,|\(|\)|\/|&lt;|&gt;)(?!/?span)#Ssi',
 		),
 	array(
+		'<span class="function">\\1</span>\\2',
 		'<span class="keyword">\\1</span>',
 		'<span class="number">\\1</span>',
 		'<span class="punctuation">\\1</span>',
 		),
 	$buffer
-	).($valueStart ? $char : '</span><span class="punctuation">}</span>');
+	).($valueStart ? $char : ($definition ? '</span>' : '').'<span class="punctuation">}</span>');
+
+			if (!$valueStart)
+			{
+				if ($definition)
+				{
+					$definition = 0;
+				}
+				else
+				{
+					$media = 0;
+				}
+			}
 
 			$buffer = '';
 		}
@@ -603,7 +637,7 @@ static private function modeCss($code, $options)
 		$charOld = $char;
 	}
 
-	if ($finish && $braces)
+	if ($definition)
 	{
 		$output.= '</span>';
 	}

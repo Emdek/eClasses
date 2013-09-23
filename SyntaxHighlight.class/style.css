@@ -68,17 +68,21 @@
 {
 	color:#000;
 }
-.highlight .class, .highlight .identify
+.highlight .class, .highlight .identifier
 {
-	color:#8C1A8C;
+	color:#C4B15F;
 }
-.highlight .identify
+.highlight .identifier
 {
 	font-weight:bold;
 }
 .highlight .pseudoclass
 {
 	color:#4747FB;
+}
+.highlight .definition
+{
+	color:#549FA3;
 }
 .highlight .doctype, .highlight .doctype *
 {
