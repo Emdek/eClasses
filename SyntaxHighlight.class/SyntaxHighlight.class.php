@@ -202,7 +202,7 @@ static private function formatCode($code, $options)
 {
 	if ($options & self::FORMAT_WHITESPACE)
 	{
-		$code = preg_replace_callback('#(\s)+$#m', 'self::markStray', $code);
+		$code = preg_replace_callback('#( |\t)+$#m', 'self::markStray', $code);
 		$code = preg_replace('#(?<!<span class="tab">)(\t)#', '<span class="tab">\\1</span>', $code);
 	}
 
