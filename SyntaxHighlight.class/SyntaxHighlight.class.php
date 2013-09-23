@@ -47,6 +47,12 @@ const FORMAT_ALL = 15;
 const FORMAT_EMBEDDED = 16;
 
 /**
+ * Variable for storing formatting options for embedded code
+ */
+
+static private $options = 0;
+
+/**
  * Highlights string for given type
  * @param string $code
  * @param string $mode
@@ -260,7 +266,7 @@ static private function formatCode($code, $options)
 }
 
 /**
- * Mark stray whitespace
+ * Marks stray whitespace
  * @param array $matches
  * @return string
  */
@@ -287,6 +293,26 @@ static private function markStray($matches)
 	}
 
 	return '<span class="stray">'.$string.'</span>';
+}
+
+/**
+ * Highlight for embedded code
+ * @param array $matches
+ * @return string
+ */
+
+static private function highlightEmbedded($matches)
+{
+	if (count($matches) == 2)
+	{
+		return self::modePhp(self::removeHighlighting($matches[1]), (self::$options | self::FORMAT_EMBEDDED));
+	}
+	else if (substr($matches[1], 0, 34) == '&lt;<span class="tag">style</span>')
+	{
+		return '<span class="borders">'.$matches[1].'</span>'.self::modeCss(self::removeHighlighting($matches[2]), (self::$options | self::FORMAT_EMBEDDED)).'<span class="borders">'.$matches[3].'</span>';
+	}
+
+	return '<span class="borders">'.$matches[1].'</span>'.self::modeJavaScript(self::removeHighlighting($matches[2]), (self::$options | self::FORMAT_EMBEDDED)).'<span class="borders">'.$matches[3].'</span>';
 }
 
 /**
@@ -671,19 +697,9 @@ static private function modeHtml($code, $options)
 		$charOld = $char;
 	}
 
-	$output = preg_replace(
-	array(
-		'#(&lt;<span class="tag">style</span>.*&gt;)(.*)(&lt;<span class="tag">/style</span>&gt;)#SsieU',
-		'#(&lt;<span class="tag">script</span>.*&gt;)(.*)(&lt;<span class="tag">/script</span>&gt;)#SsieU',
-		'#(&lt;\?(?:php)?(?!xml)(?U).+\?&gt;)#Ssie',
-		),
-	array(
-		'\'<span class="borders">\'.stripslashes(\'\\1\').\'</span>\'.self::modeCss(self::removeHighlighting(\'\\2\'), ($options | self::FORMAT_EMBEDDED)).\'<span class="borders">\'.stripslashes(\'\\3\').\'</span>\'',
-		'\'<span class="borders">\'.stripslashes(\'\\1\').\'</span>\'.self::modeJavaScript(self::removeHighlighting(\'\\2\'), ($options | self::FORMAT_EMBEDDED)).\'<span class="borders">\'.stripslashes(\'\\3\').\'</span>\'',
-		'self::modePhp(self::removeHighlighting(\'\\1\'), ($options | self::FORMAT_EMBEDDED))',
-		),
-	$output
-	);
+	self::$options = &$options;
+
+	$output = preg_replace_callback(array('#(&lt;<span class="tag">style</span>.*&gt;)(.*)(&lt;<span class="tag">/style</span>&gt;)#siU', '#(&lt;<span class="tag">script</span>.*&gt;)(.*)(&lt;<span class="tag">/script</span>&gt;)#siU', '#(&lt;\?(?:php)?(?!xml)(?U).+\?&gt;)#si'), 'self::highlightEmbedded', $output);
 
 	return self::formatCode($output, $options);
 }
