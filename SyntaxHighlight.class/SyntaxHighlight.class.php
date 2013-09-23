@@ -200,10 +200,27 @@ static private function removeHighlighting($code)
 
 static private function formatCode($code, $options)
 {
+	$script = '';
+
 	if ($options & self::FORMAT_WHITESPACE)
 	{
 		$code = preg_replace_callback('#( |\t)+$#m', 'self::markStray', $code);
 		$code = preg_replace('#(?<!<span class="tab">)(\t)#', '<span class="tab">\\1</span>', $code);
+	}
+
+	if ($options & self::FORMAT_FOLDING)
+	{
+		$script.= '
+var switchers = parent.getElementsByClassName(\'switcher\');
+
+for (var i = 0; i < switchers.length; ++i)
+{
+	switchers[i].addEventListener(\'click\', function()
+	{
+		this.nextSibling.style.visibility = ((this.nextSibling.style.visibility == \'hidden\') ? \'visible\' : \'hidden\');
+	});
+}
+';
 	}
 
 	if ($options & self::FORMAT_FOLDING || $options & self::FORMAT_RANGES)
@@ -214,8 +231,8 @@ static private function formatCode($code, $options)
 		'<span class="punctuation">}</span>',
 		),
 	array(
-		'<span><span class="punctuation'.(($options & self::FORMAT_FOLDING) ? ' switcher' : '').'"'.(($options & self::FORMAT_RANGES) ? ' onmouseover="this.parentNode.className = \'highlightrange\'" onmouseout="this.parentNode.className = \'\'"' : '').(($options & self::FORMAT_FOLDING) ? ' onclick="this.nextSibling.style.visibility = ((this.nextSibling.style.visibility == \'hidden\') ? \'visible\' : \'hidden\')"' : '').'>{</span>'.(($options & self::FORMAT_FOLDING) ? '<span>' : ''),
-		'<span class="punctuation"'.(($options & self::FORMAT_RANGES) ? ' onmouseover="this.parentNode.parentNode.className = \'highlightrange\'" onmouseout="this.parentNode.parentNode.className = \'\'"' : '').'>}</span></span>'.(($options & self::FORMAT_FOLDING) ? '</span>' : ''),
+		'<span><span class="punctuation'.(($options & self::FORMAT_RANGES) ? ' range' : '').(($options & self::FORMAT_FOLDING) ? ' switcher' : '').'">{</span>'.(($options & self::FORMAT_FOLDING) ? '<span>' : ''),
+		'<span class="punctuation'.(($options & self::FORMAT_RANGES) ? ' range' : '').'">}</span></span>'.(($options & self::FORMAT_FOLDING) ? '</span>' : ''),
 		),
 	$code
 	);
@@ -231,18 +248,42 @@ static private function formatCode($code, $options)
 		'<span class="punctuation">]</span>',
 		),
 	array(
-		'<span><span class="punctuation" onmouseover="this.parentNode.className = \'highlightrange\'" onmouseout="this.parentNode.className = \'\'">(</span>',
-		'<span class="punctuation" onmouseover="this.parentNode.className = \'highlightrange\'" onmouseout="this.parentNode.className = \'\'">)</span></span>',
-		'<span><span class="punctuation" onmouseover="this.parentNode.className = \'highlightrange\'" onmouseout="this.parentNode.className = \'\'">[</span>',
-		'<span class="punctuation" onmouseover="this.parentNode.className = \'highlightrange\'" onmouseout="this.parentNode.className = \'\'">]</span></span>',
+		'<span><span class="punctuation range">(</span>',
+		'<span class="punctuation range">)</span></span>',
+		'<span><span class="punctuation range">[</span>',
+		'<span class="punctuation range">]</span></span>',
 		),
 	$code
 	);
+
+		$script.= '
+var ranges = parent.getElementsByClassName(\'range\');
+
+for (var i = 0; i < ranges.length; ++i)
+{
+	ranges[i].addEventListener(\'mouseover\', function()
+	{
+		this.parentNode.className = \'highlightrange\';
+	});
+	ranges[i].addEventListener(\'mouseout\', function()
+	{
+		this.parentNode.className = \'\';
+	});
+}
+';
 	}
 
 	if ($options & self::FORMAT_EMBEDDED)
 	{
 		return $code;
+	}
+
+	if (!empty($script))
+	{
+		$script = '
+var scripts = document.getElementsByTagName(\'script\');
+var parent = scripts[scripts.length - 1].parentNode;
+'.$script;
 	}
 
 	if ($options & self::FORMAT_LINENUMBERS)
@@ -260,14 +301,18 @@ static private function formatCode($code, $options)
 <pre class="numbers">'.$numbers.'</pre>
 <pre class="code">'.$code.'
 </pre>
-</div>
+'.($script ? '<script type="text/javascript">'
+.$script.'</script>
+' : '').'</div>
 ';
 	}
 
 	return '<div class="highlight">
 <pre class="code">'.$code.'
 </pre>
-</div>
+'.($script ? '<script type="text/javascript">'
+.$script.'</script>
+' : '').'</div>
 ';
 }
 
