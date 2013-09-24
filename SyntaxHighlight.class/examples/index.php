@@ -5,6 +5,7 @@
 <meta name="author" content="Emdek">
 <link href="../style.css" rel="stylesheet" type="text/css">
 <title>SyntaxHighlight.class :: example</title>
+<script type="text/javascript" src="../script.js"></script>
 </head>
 <body>
 <?php

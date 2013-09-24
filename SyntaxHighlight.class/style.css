@@ -16,23 +16,26 @@
 }
 .highlight pre
 {
-	margin:0;
-	padding:3px;
 	font:14px /16px monospace;
 }
 .highlight .numbers
 {
 	display:inline-block;
+	margin:0;
+	padding:3px;
 	border-right:1px solid #B7B7B7;
 	float:left;
 	font-size:12px;
 	background:#F1F1F1;
 	color:#777;
+	cursor:default;
 }
 .highlight .code
 {
+	margin:3px 0;
+	padding:0 3px;
 	overflow:auto;
-	background:url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAAgCAYAAADT5RIaAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAACHRFWHRDb21tZW50APbMlr8AAAARSURBVAhbY2CgNsj9zE5FAgB9dRZxBYoY7AAAAABJRU5ErkJggg==') 0 2px;
+	background:url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAAgCAYAAADT5RIaAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAACHRFWHRDb21tZW50APbMlr8AAAARSURBVAhbY2CgNsj9zE5FAgB9dRZxBYoY7AAAAABJRU5ErkJggg==') 0 0;
 	color:#444;
 }
 .highlight .borders
