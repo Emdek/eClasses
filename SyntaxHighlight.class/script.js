@@ -20,14 +20,14 @@ window.addEventListener('load', function()
 	{
 		var backgrounds = [];
 
-		if (element.hasAttribute('data-active'))
+		if (element.hasAttribute('data-activeline'))
 		{
-			backgrounds.push('url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAAQCAYAAADXnxW3AAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAACHRFWHRDb21tZW50APbMlr8AAAAQSURBVAgdY7izxUGSgXoEANz0HpFLae3eAAAAAElFTkSuQmCC\') repeat-x 0 ' + (element.getAttribute('data-active') * 16) + 'px');
+			backgrounds.push('url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAAQCAYAAADXnxW3AAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAACHRFWHRDb21tZW50APbMlr8AAAAQSURBVAgdY7izxUGSgXoEANz0HpFLae3eAAAAAElFTkSuQmCC\') repeat-x 0 ' + (element.getAttribute('data-activeline') * 16) + 'px');
 		}
 
-		if (element.hasAttribute('data-marked') && element.getAttribute('data-marked') !== '')
+		if (element.hasAttribute('data-marklines') && element.getAttribute('data-marklines') !== '')
 		{
-			var marked = element.getAttribute('data-marked').split(',');
+			var marked = element.getAttribute('data-marklines').split(',');
 
 			for (var i = 0; i < marked.length; ++i)
 			{
@@ -52,7 +52,7 @@ window.addEventListener('load', function()
 			elements[i].addEventListener('click', function(event)
 			{
 				var line = getLine(this).toString();
-				var marked = ((this.hasAttribute('data-marked') && this.getAttribute('data-marked') !== '') ? this.getAttribute('data-marked').split(',') : []);
+				var marked = ((this.hasAttribute('data-marklines') && this.getAttribute('data-marklines') !== '') ? this.getAttribute('data-marklines').split(',') : []);
 				var position = marked.indexOf(line);
 
 				if (position >= 0)
@@ -64,7 +64,7 @@ window.addEventListener('load', function()
 					marked.push(line);
 				}
 
-				this.setAttribute('data-marked', marked.join(','));
+				this.setAttribute('data-marklines', marked.join(','));
 
 				updateBackground(this);
 			});
@@ -74,13 +74,13 @@ window.addEventListener('load', function()
 		{
 			elements[i].addEventListener('mousemove', function(event)
 			{
-				this.setAttribute('data-active',  getLine(this));
+				this.setAttribute('data-activeline', getLine(this));
 
 				updateBackground(this);
 			});
 			elements[i].addEventListener('mouseout', function(event)
 			{
-				this.removeAttribute('data-active');
+				this.removeAttribute('data-activeline');
 
 				updateBackground(this);
 			});
