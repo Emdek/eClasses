@@ -2,8 +2,8 @@
 /**
  * Syntax highlighting class
  * @author Emdek <http://emdek.pl>
- * @version v0.9.05
- * @date 2010-08-31 12:20:46
+ * @version v0.9.06
+ * @date 2013-09-24 22:18:21
  * @license LGPL
  */
 
