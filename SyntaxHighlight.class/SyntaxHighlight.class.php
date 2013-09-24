@@ -41,16 +41,22 @@ const FORMAT_FOLDING = 8;
 const FORMAT_ACTIVELINE = 16;
 
 /**
+ * Formatting: allow to mark lines by clicking
+ */
+
+const FORMAT_MARKLINES = 32;
+
+/**
  * Formatting: apply all of above options
  */
 
-const FORMAT_ALL = 31;
+const FORMAT_ALL = 63;
 
 /**
  * Formatting: special case for embedding code of different type
  */
 
-const FORMAT_EMBEDDED = 32;
+const FORMAT_EMBEDDED = 64;
 
 /**
  * Variable for storing formatting options for embedded code
@@ -232,6 +238,11 @@ static private function formatCode($code, $options)
 	if ($options & self::FORMAT_ACTIVELINE)
 	{
 		$script[] = 'activeline';
+	}
+
+	if ($options & self::FORMAT_MARKLINES)
+	{
+		$script[] = 'marklines';
 	}
 
 	if ($options & self::FORMAT_FOLDING)
