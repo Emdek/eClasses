@@ -35,16 +35,22 @@ const FORMAT_RANGES = 4;
 const FORMAT_FOLDING = 8;
 
 /**
+ * Formatting: highlight active (hovered) line
+ */
+
+const FORMAT_ACTIVELINE = 16;
+
+/**
  * Formatting: apply all of above options
  */
 
-const FORMAT_ALL = 15;
+const FORMAT_ALL = 31;
 
 /**
  * Formatting: special case for embedding code of different type
  */
 
-const FORMAT_EMBEDDED = 16;
+const FORMAT_EMBEDDED = 32;
 
 /**
  * Variable for storing formatting options for embedded code
@@ -221,6 +227,11 @@ static private function formatCode($code, $options)
 		),
 	$code
 	);
+	}
+
+	if ($options & self::FORMAT_ACTIVELINE)
+	{
+		$script[] = 'activeline';
 	}
 
 	if ($options & self::FORMAT_FOLDING)
