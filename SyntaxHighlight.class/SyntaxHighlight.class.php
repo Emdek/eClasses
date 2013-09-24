@@ -1165,9 +1165,6 @@ static public function modePhp($code, $options)
 {
 	$buffer = $output = $charOld = '';
 	$notParse = $comment = $value = $documentation = $parse = $finish = 0;
-	$functions = get_defined_functions();
-	$functions = implode('|', $functions['internal']);
-	$constants = implode('|', array_keys(get_defined_constants()));
 
 	while (!$finish)
 	{
@@ -1225,16 +1222,15 @@ static public function modePhp($code, $options)
 			{
 				$output.= preg_replace(
 	array(
-		'#(?<!\$)\b(abstract|(?<!<span )class|clone|const|exception|extends|final|function|implements|instanceof|interface|new|self|static|parent|private|protected|public|use|and|x?or|var|__FILE__|__LINE__|'.$constants.')\b#S',
+		'#(?<!\$)\b(abstract|(?<!<span )class|clone|const|exception|extends|final|function|implements|instanceof|interface|new|self|static|parent|private|protected|public|use|and|x?or|var|__FILE__|__LINE__)\b#S',
 		'#\b(as|case|catch|default|if|isset|die|exit|else|elseif|unset|empty|while|do|for(?:each)?|break|continue|switch|throw|try|finally|yield|declare|return|require(?:_once)?|include(?:_once)?|endif|endwhile|endfor|endforeach|endswitch)\b#S',
 		'#\b(Exception)\b#S',
 		'#\b(__autoload|__call|__clone|__construct|__destruct|__get|__isset|__set(?:_state)?|__sleep|__toString|__unset|__wakeup)\b#S',
-		'#\b(?<!\$|function</span>\s|->)('.$functions.'|array)\b(\s*\()#i',
+		'#(?<!\$|function</span>\s|->)\b([a-z0-9_\-]+)\b(\s*\()#Ssi',
 		'#(\(\s*)(int(?:teger)?|bool(?:ean)?|float|real|double|string|binary|array|object|unset)(\s*\))#Si',
 		'#(\$[a-z_][\w-]*)\b#Si',
 		'#(?<!">|[a-z-_])((?:-\s*)?(?:(?:\d+\.)?\d+)|0x[0-9a-f]+)\b#Si',
 		'#(?<!class|">|"|span|&lt|&gt)(:|;|-|\||\+|=|\*|!|~|\.|,|\(|\)|\/|@|\%|&lt;|&gt;|&amp;|\{|\}|\[|\])(?!/?span)#Ssi',
-		'#<span class="function">(.*)</span>#SU'
 		),
 	array(
 		'<span class="keyword">\\1</span>',
@@ -1246,7 +1242,6 @@ static public function modePhp($code, $options)
 		'<span class="variable">\\1</span>',
 		'<span class="number">\\1</span>',
 		'<span class="punctuation">\\1</span>',
-		'<a href="http://php.net/\\1" class="function">\\1</a>',
 		),
 	$buffer
 	);
