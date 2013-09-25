@@ -1230,7 +1230,7 @@ static public function modePhp($code, $options)
 		'#(\(\s*)(int(?:teger)?|bool(?:ean)?|float|real|double|string|binary|array|object|unset)(\s*\))#Si',
 		'#(\$[a-z_][\w-]*)\b#Si',
 		'#(?<!">|[a-z-_])((?:-\s*)?(?:(?:\d+\.)?\d+)|0x[0-9a-f]+)\b#Si',
-		'#(?<!class|">|"|span|&lt|&gt)(:|;|-|\||\+|=|\*|!|~|\.|,|\(|\)|\/|@|\%|&lt;|&gt;|&amp;|\{|\}|\[|\])(?!/?span)#Ssi',
+		'#(?<!class|">|"|span|&lt|&gt)((?::|;|-|\||\+|=|\*|!|~|\.|,|\(|\)|\/|@|\%|&lt;|&gt;|&amp;|\{|\}|\[|\])+)(?!/?span)#Ssi',
 		),
 	array(
 		'<span class="keyword">\\1</span>',
