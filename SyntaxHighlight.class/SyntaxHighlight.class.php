@@ -62,6 +62,12 @@ const FORMAT_EMBEDDED = 64;
  * Variable for storing formatting options for embedded code
  */
 
+const STATE_NONE = 0;
+const STATE_CODE = 1;
+const STATE_VALUE = 2;
+const STATE_DOCUMENTATION = 3;
+const STATE_COMMENT = 4;
+
 static private $options = 0;
 
 /**
@@ -1163,62 +1169,59 @@ static private function modePerl($code, $options)
 
 static public function modePhp($code, $options)
 {
-	$buffer = $output = $charOld = '';
-	$notParse = $comment = $value = $documentation = $parse = $finish = 0;
+	$buffer = $output = '';
+	$state = self::STATE_NONE;
 
-	while (!$finish)
+	while (TRUE)
 	{
-		if (strlen($code) == 0)
+		$char = (empty($code) ? '' : substr($code, 0, 1));
+		$code = substr($code, 1);
+		$oldState = $state;
+
+		if ($state == self::STATE_NONE && $char == '?' && substr($buffer, -4) == '&lt;')
 		{
-			$finish = 1;
+			if (substr($code, 0, 3) == 'php')
+			{
+				$char.= 'php';
+				$code = substr($code, 3);
+			}
+
+			$output.= substr($buffer, 0, -4).'<span class="region">'.substr($buffer, -4).'<span class="tag">'.$char.'</span></span>';
+			$buffer = $char = '';
+			$state = self::STATE_CODE;
 		}
-		else
+		else if ($state == self::STATE_CODE)
 		{
-			$char = substr($code, 0, 1);
-		}
-
-		$parseStop = 0;
-
-		if (!$notParse)
-		{
-			if ($char == '#' || ($char == '/' && $charOld == '/') || ($char == '*' && $charOld == '/'))
+			if ($char == ';' && substr($buffer, -4) == '?&gt')
 			{
-				$isComment = 1;
+				$buffer = substr($buffer, 0, -4);
+				$state = self::STATE_NONE;
 			}
-			else
+			else if ($char == '#' || ($char == '/'&& (substr($code, 0, 1) == '/' || substr($code, 0, 1) == '*')))
 			{
-				$isComment = 0;
+				$state = (($char == '/' && substr($code, 0, 2) == '**') ? self::STATE_DOCUMENTATION : self::STATE_COMMENT);
 			}
-
-			if ($char == '?' && substr($buffer, -4) == '&lt;')
+			else if (($char == '\'' || $char ==  '"') && (substr($buffer, -1) != '\\' || substr($buffer, -2) == '\\\\'))
 			{
-				$parse = 1;
-				$output.= substr($buffer, 0, -4);
-
-				if (substr($code, 1, 3) == 'php')
-				{
-					$char.= 'php';
-					$code = substr($code, 3);
-				}
-
-				$buffer = '<span class="region">'.substr($buffer, -4).'<span class="tag">'.$char.'</span></span>';
-				$char = '';
-			}
-			else if ($char == ';' && $charOld == 't' && substr($buffer, -4) == '?&gt')
-			{
-				$parse = 0;
-				$parseStop = 1;
+				$state = self::STATE_VALUE;
 			}
 		}
-
-		if ($finish || $parseStop || (!$notParse && ($isComment || (in_array($char, array('\'', '"')) && ($charOld != '\\' || substr($buffer, -2) == '\\\\')))))
+		else if ($state == self::STATE_DOCUMENTATION && $char == '/' && substr($buffer, -1) == '*')
 		{
-			if ($isComment && $char != '#')
-			{
-				$buffer = substr($buffer, 0, -1);
-			}
+			$state = self::STATE_CODE;
+		}
+		else if ($state == self::STATE_COMMENT && (($char == "\n" && (substr($buffer, 0, 1) == '#' || substr($buffer, 0, 2) == '//')) || ($char == '/' && substr($buffer, 0, 2) == '/*' && substr($buffer, -1) == '*')))
+		{
+			$state = self::STATE_CODE;
+		}
+		else if ($state == self::STATE_VALUE && ($char == '\'' || $char ==  '"') && $char == substr($buffer, 0, 1) && (substr($buffer, -1) != '\\' || substr($buffer, -2) == '\\\\'))
+		{
+			$state = self::STATE_CODE;
+		}
 
-			if ($parse || $parseStop)
+		if ($state !== $oldState)
+		{
+			if ($oldState == self::STATE_CODE)
 			{
 				$output.= preg_replace(
 	array(
@@ -1247,55 +1250,43 @@ static public function modePhp($code, $options)
 		),
 	$buffer
 	);
-			}
-			else
-			{
-				$output.= $buffer;
-			}
 
-			if ($parseStop)
+				if ($state == self::STATE_NONE)
+				{
+					$output.= '<span class="region"><span class="tag">?</span>&gt;</span>';
+				}
+			}
+			else if ($oldState == self::STATE_COMMENT)
 			{
-				$output = substr($output, 0, -4).'<span class="region"><span class="tag">?</span>&gt;</span>';
+				if ($char == "\n")
+				{
+					$code = "\n".$code;
+					$char = '';
+				}
+
+				$output.= '<span class="comment">'.preg_replace('#\b(FIXME|NOTICE|NOTE|TODO|WARNING)\b#i', '<span class="notice">\\1</span>', $buffer.$char).'</span>';
+				$char = '';
+			}
+			else if ($oldState == self::STATE_DOCUMENTATION)
+			{
+				$output.= '<span class="documentation">'.self::modePhpDoc($buffer.$char, ($options | self::FORMAT_EMBEDDED)).'</span>';
+				$char = '';
+			}
+			else if ($oldState == self::STATE_VALUE)
+			{
+				$output.= '<span class="value">'.$buffer.$char.'</span>';
 				$char = '';
 			}
 
-			if ($isComment)
-			{
-				$comment = $char;
-
-				if ($char == '*' && $charOld == '/' && substr($code, 1, 1) == '*')
-				{
-					$documentation = 1;
-				}
-			}
-			else
-			{
-				$value = $char;
-			}
-
-			$notParse = 1;
-			$buffer = (($isComment && $char != '#') ? $charOld : '').$char;
+			$buffer = '';
 		}
-		else if ($notParse && (($value && $char == $value && ($charOld != '\\' || substr($buffer, -2) == '\\\\')) || ($comment && ((($comment == '#' || $comment == '/') && $char == "\n") || ($char == '/' && $charOld == '*' && substr($buffer, -2, 1) != '/')))))
+
+		$buffer.= $char;
+
+		if (empty($code))
 		{
-			$buffer = $buffer.(($char == "\n") ? '' : $char);
-
-			if ($documentation)
-			{
-				$buffer = self::modePhpDoc($buffer, $options);
-			}
-
-			$output.= ($parse ? '<span class="'.($comment ? ($documentation ? 'documentation' : 'comment') : 'value').'">' : '').($value ? $buffer : preg_replace('#\b(FIXME|NOTICE|NOTE|TODO|WARNING)\b#i', '<span class="notice">\\1</span>', $buffer)).($parse ? '</span>' : '');
-			$buffer = (($char == "\n") ? $char : '');
-			$notParse = $comment = $value = $documentation = 0;
+			break;
 		}
-		else
-		{
-			$buffer.= $char;
-		}
-
-		$code = substr($code, 1);
-		$charOld = $char;
 	}
 
 	return self::formatCode($output, $options);
