@@ -346,10 +346,10 @@ static private function highlightEmbedded($matches)
 	}
 	else if (substr($matches[1], 0, 34) == '&lt;<span class="tag">style</span>')
 	{
-		return '<span class="borders">'.$matches[1].'</span>'.self::modeCss(self::removeHighlighting($matches[2]), (self::$options | self::FORMAT_EMBEDDED)).'<span class="borders">'.$matches[3].'</span>';
+		return '<span class="region">'.$matches[1].'</span>'.self::modeCss(self::removeHighlighting($matches[2]), (self::$options | self::FORMAT_EMBEDDED)).'<span class="region">'.$matches[3].'</span>';
 	}
 
-	return '<span class="borders">'.$matches[1].'</span>'.self::modeJavaScript(self::removeHighlighting($matches[2]), (self::$options | self::FORMAT_EMBEDDED)).'<span class="borders">'.$matches[3].'</span>';
+	return '<span class="region">'.$matches[1].'</span>'.self::modeJavaScript(self::removeHighlighting($matches[2]), (self::$options | self::FORMAT_EMBEDDED)).'<span class="region">'.$matches[3].'</span>';
 }
 
 /**
@@ -1201,7 +1201,7 @@ static public function modePhp($code, $options)
 					$code = substr($code, 3);
 				}
 
-				$buffer = '<span class="borders">'.substr($buffer, -4).'<span class="tag">'.$char.'</span></span>';
+				$buffer = '<span class="region">'.substr($buffer, -4).'<span class="tag">'.$char.'</span></span>';
 				$char = '';
 			}
 			else if ($char == ';' && $charOld == 't' && substr($buffer, -4) == '?&gt')
@@ -1255,7 +1255,7 @@ static public function modePhp($code, $options)
 
 			if ($parseStop)
 			{
-				$output = substr($output, 0, -4).'<span class="borders"><span class="tag">?</span>&gt;</span>';
+				$output = substr($output, 0, -4).'<span class="region"><span class="tag">?</span>&gt;</span>';
 				$char = '';
 			}
 

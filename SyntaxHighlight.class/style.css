@@ -30,7 +30,7 @@
 	background:url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAAgCAYAAADT5RIaAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAACHRFWHRDb21tZW50APbMlr8AAAARSURBVAhbY2CgNsj9zE5FAgB9dRZxBYoY7AAAAABJRU5ErkJggg==') 0 0;
 	color:#444;
 }
-.highlight .borders
+.highlight .region
 {
 	font-weight:bold;
 	background:#D5E8F8;
