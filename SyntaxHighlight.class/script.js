@@ -1,6 +1,6 @@
 window.addEventListener('load', function()
 {
-	function getLine(element)
+	function getLine(element, event)
 	{
 		var offset = 0;
 
@@ -51,7 +51,7 @@ window.addEventListener('load', function()
 		{
 			elements[i].addEventListener('click', function(event)
 			{
-				var line = getLine(this).toString();
+				var line = getLine(this, event).toString();
 				var marked = ((this.hasAttribute('data-marklines') && this.getAttribute('data-marklines') !== '') ? this.getAttribute('data-marklines').split(',') : []);
 				var position = marked.indexOf(line);
 
@@ -74,7 +74,7 @@ window.addEventListener('load', function()
 		{
 			elements[i].addEventListener('mousemove', function(event)
 			{
-				this.setAttribute('data-activeline', getLine(this));
+				this.setAttribute('data-activeline', getLine(this, event));
 
 				updateBackground(this);
 			});

@@ -1222,7 +1222,7 @@ static public function modePhp($code, $options)
 			{
 				$output.= preg_replace(
 	array(
-		'#(?<!\$)\b(abstract|(?<!<span )class|clone|const|exception|extends|final|function|implements|instanceof|interface|new|self|static|parent|private|protected|public|use|and|x?or|var|__FILE__|__LINE__)\b#S',
+		'#(?<!\$)\b(abstract|(?<!<span )class|clone|const|exception|extends|final|function|implements|instanceof|interface|new|self|static|parent|private|protected|public|use|and|x?or|var|FALSE|TRUE|NULL|DEFAULT_INCLUDE_PATH|__(?:FILE|LINE|DIR|FUNCTION|CLASS|TRAIT|NAMESPACE|COMPILER_HALT_OFFSET)__|E_(?:ERROR|WARNING|PARSE|NOTICE|DEPRECATED|STRICT|ALL|CORE_(?:ERROR|WARNING)|COMPILE_(?:ERROR|WARNING)|USER_(ERROR|WARNING|NOTICE|DEPRECATED))|(?:PHP|PEAR)_[A-Z0-9_]+)\b#Si',
 		'#\b(as|case|catch|default|if|isset|die|exit|else|elseif|unset|empty|while|do|for(?:each)?|break|continue|switch|throw|try|finally|yield|declare|return|require(?:_once)?|include(?:_once)?|endif|endwhile|endfor|endforeach|endswitch)\b#S',
 		'#\b(Exception)\b#S',
 		'#\b(__autoload|__call|__clone|__construct|__destruct|__get|__isset|__set(?:_state)?|__sleep|__toString|__unset|__wakeup)\b#S',
