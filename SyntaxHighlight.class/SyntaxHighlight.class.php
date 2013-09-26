@@ -226,21 +226,6 @@ static private function formatCode($code, $options)
 		$code = preg_replace('#(?<!<span class="tab">)(\t)#', '<span class="tab">\\1</span>', $code);
 	}
 
-	if ($options & self::FORMAT_FOLDING || $options & self::FORMAT_RANGES)
-	{
-		$code = str_replace(
-	array(
-		'<span class="punctuation">{</span>',
-		'<span class="punctuation">}</span>',
-		),
-	array(
-		'<span><span class="punctuation'.(($options & self::FORMAT_RANGES) ? ' range' : '').(($options & self::FORMAT_FOLDING) ? ' switcher' : '').'">{</span>'.(($options & self::FORMAT_FOLDING) ? '<span>' : ''),
-		'<span class="punctuation'.(($options & self::FORMAT_RANGES) ? ' range' : '').'">}</span></span>'.(($options & self::FORMAT_FOLDING) ? '</span>' : ''),
-		),
-	$code
-	);
-	}
-
 	if ($options & self::FORMAT_ACTIVELINE)
 	{
 		$script[] = 'activeline';
@@ -258,22 +243,6 @@ static private function formatCode($code, $options)
 
 	if ($options & self::FORMAT_RANGES)
 	{
-		$code = str_replace(
-	array(
-		'<span class="punctuation">(</span>',
-		'<span class="punctuation">)</span>',
-		'<span class="punctuation">[</span>',
-		'<span class="punctuation">]</span>',
-		),
-	array(
-		'<span><span class="punctuation range">(</span>',
-		'<span class="punctuation range">)</span></span>',
-		'<span><span class="punctuation range">[</span>',
-		'<span class="punctuation range">]</span></span>',
-		),
-	$code
-	);
-
 		$script[] = 'ranges';
 	}
 
@@ -1167,7 +1136,7 @@ static private function modePerl($code, $options)
 * @return string
 */
 
-static public function modePhp($code, $options)
+static private function modePhp($code, $options)
 {
 	$buffer = $output = '';
 	$state = self::STATE_NONE;
