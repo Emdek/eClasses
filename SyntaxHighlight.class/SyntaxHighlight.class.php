@@ -220,12 +220,6 @@ static private function formatCode($code, $options)
 {
 	$script = array();
 
-	if ($options & self::FORMAT_WHITESPACE)
-	{
-		$code = preg_replace_callback('#( |\t)+$#m', 'self::markStray', $code);
-		$code = preg_replace('#(?<!<span class="tab">)(\t)#', '<span class="tab">\\1</span>', $code);
-	}
-
 	if ($options & self::FORMAT_ACTIVELINE)
 	{
 		$script[] = 'activeline';
@@ -244,6 +238,12 @@ static private function formatCode($code, $options)
 	if ($options & self::FORMAT_RANGES)
 	{
 		$script[] = 'ranges';
+	}
+
+	if ($options & self::FORMAT_WHITESPACE)
+	{
+		$code = preg_replace_callback('#( |\t)+$#m', 'self::markStray', $code);
+		$code = preg_replace('#(?<!<span class="tab">)(\t)#', '<span class="tab">\\1</span>', $code);
 	}
 
 	if ($options & self::FORMAT_EMBEDDED)
@@ -324,7 +324,7 @@ static private function highlightEmbedded($matches)
 		return '<span class="region">'.$matches[1].'</span>'.self::modeCss(self::removeHighlighting($matches[2]), (self::$options | self::FORMAT_EMBEDDED)).'<span class="region">'.$matches[3].'</span>';
 	}
 
-	return '<span class="region">'.$matches[1].'</span>'.self::modeJavaScript(self::removeHighlighting($matches[2]), (self::$options | self::FORMAT_EMBEDDED)).'<span class="region">'.$matches[3].'</span>';
+	return '<span class="region">'.$matches[1].'</span>'.self::modeJavascript(self::removeHighlighting($matches[2]), (self::$options | self::FORMAT_EMBEDDED)).'<span class="region">'.$matches[3].'</span>';
 }
 
 /**
@@ -900,7 +900,7 @@ static private function modeJava($code, $options)
 
 			if ($documentation)
 			{
-				$buffer = self::modeJavaDoc($buffer, $options);
+				$buffer = self::modeJavadoc($buffer, $options);
 			}
 
 			$output.= '<span class="'.($comment ? ($documentation ? 'documentation' : 'comment') : 'value').'">'.($value ? $buffer : preg_replace('#\b(FIXME|NOTICE|NOTE|TODO|WARNING)\b#i', '<span class="notice">\\1</span>', $buffer)).'</span>';
@@ -926,7 +926,7 @@ static private function modeJava($code, $options)
 * @return string
 */
 
-static private function modeJavaDoc($code, $options)
+static private function modeJavadoc($code, $options)
 {
 	return preg_replace(
 	array(
@@ -951,7 +951,7 @@ static private function modeJavaDoc($code, $options)
 * @return string
 */
 
-static private function modeJavaScript($code, $options)
+static private function modeJavascript($code, $options)
 {
 	$buffer = $output = $charOld = '';
 	$notParse = $comment = $value = $finish = 0;
@@ -1259,7 +1259,7 @@ static private function modePhp($code, $options)
 			}
 			else if ($oldState == self::STATE_DOCUMENTATION)
 			{
-				$output.= '<span class="documentation">'.self::modePhpDoc($buffer.$char, ($options | self::FORMAT_EMBEDDED)).'</span>';
+				$output.= '<span class="documentation">'.self::modePhpdoc($buffer.$char, ($options | self::FORMAT_EMBEDDED)).'</span>';
 				$char = '';
 			}
 			else if ($oldState == self::STATE_VALUE)
@@ -1289,7 +1289,7 @@ static private function modePhp($code, $options)
 * @return string
 */
 
-static private function modePhpDoc($code, $options)
+static private function modePhpdoc($code, $options)
 {
 	return preg_replace(
 	array(
