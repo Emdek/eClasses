@@ -1218,15 +1218,13 @@ static public function modePhp($code, $options)
 			{
 				++$levels[$char];
 
-				$switcher = ($options & self::FORMAT_FOLDING && $char == '{');
-				$char = (($options & self::FORMAT_RANGES || $switcher) ? '<span>' : '').'<span class="punctuation'.(($options & self::FORMAT_RANGES) ? ' range' : '').($switcher ? ' switcher' : '').'">'.$char.'</span>'.($switcher ? '<span>' : '');
+				$char = (($options & self::FORMAT_RANGES || ($options & self::FORMAT_FOLDING && $char == '{')) ? '<span>' : '').'<span class="punctuation'.(($options & self::FORMAT_RANGES) ? ' range' : '').(($options & self::FORMAT_FOLDING && $char == '{') ? ' fold' : '').'">'.$char.'</span>';
 			}
 			else if (isset($map[$char]))
 			{
 				--$levels[$map[$char]];
 
-				$switcher = ($options & self::FORMAT_FOLDING && $char == '}' && $levels[$map[$char]] >= 0);
-				$char = '<span class="punctuation'.(($options & self::FORMAT_RANGES && $levels[$map[$char]] >= 0) ? ' range' : '').'">'.$char.'</span>'.((($options & self::FORMAT_RANGES && $levels[$map[$char]] >= 0) || $switcher) ? '</span>'.($switcher ? '</span>' : '') : '');
+				$char = '<span class="punctuation'.(($options & self::FORMAT_RANGES && $levels[$map[$char]] >= 0) ? ' range' : '').'">'.$char.'</span>'.(((($options & self::FORMAT_RANGES || ($options & self::FORMAT_FOLDING && $char == '}')) && $levels[$map[$char]] >= 0)) ? '</span>' : '');
 			}
 		}
 		else if ($state == self::STATE_DOCUMENTATION && $char == '/' && substr($buffer, -1) == '*')

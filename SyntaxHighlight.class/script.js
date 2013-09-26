@@ -1,6 +1,6 @@
 window.addEventListener('load', function()
 {
-	function getLine(element, event)
+	function getOffset(element)
 	{
 		var offset = 0;
 
@@ -13,7 +13,12 @@ window.addEventListener('load', function()
 			while (element = element.offsetParent);
 		}
 
-		return Math.floor((((event.pageX === undefined) ? (event.clientY + document.body.scrollTop - document.body.clientTop) : event.pageY) - offset) / 16);
+		return offset;
+	}
+
+	function getLine(element, event)
+	{
+		return Math.floor((((event.pageX === undefined) ? (event.clientY + document.body.scrollTop - document.body.clientTop) : event.pageY) - getOffset(element)) / 16);
 	}
 
 	function updateBackground(element)
@@ -88,14 +93,30 @@ window.addEventListener('load', function()
 
 		if (options.indexOf('folding') >= 0)
 		{
-			var switchers = elements[i].getElementsByClassName('switcher');
+			var folds = elements[i].getElementsByClassName('fold');
+ 			var container = elements[i].getElementsByClassName('numbers')[0];
+ 			var offset = getOffset(container);
 
-			for (var j = 0; j < switchers.length; ++j)
+			for (var j = 0; j < folds.length; ++j)
 			{
-				switchers[j].addEventListener('click', function()
+				var fold = document.createElement('span');
+				fold.setAttribute('class', 'foldrange');
+				fold.setAttribute('data-range', j);
+				fold.style.top = ((getOffset(folds[j]) - offset) + 'px');
+
+				fold.addEventListener('click', function(event)
 				{
-					this.nextSibling.style.visibility = ((this.nextSibling.style.visibility == 'hidden') ? 'visible' : 'hidden');
+					var range = this.parentNode.parentNode.getElementsByClassName('fold')[parseInt(this.getAttribute('data-range'))].parentNode;
+					var show = (range.style.visibility == 'hidden');
+
+					range.style.visibility = (show ? 'inherit' : 'hidden');
+
+					this.setAttribute('class', (show ? 'foldrange' : 'unfoldrange'));
+
+					event.stopPropagation();
 				});
+
+				container.appendChild(fold);
 			}
 		}
 
