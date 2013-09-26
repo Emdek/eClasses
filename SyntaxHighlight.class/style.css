@@ -171,6 +171,10 @@
 	opacity:0.75;
 	background:#DDE3EA;
 }
+.highlight .highlightrange > .range
+{
+	color:red;
+}
 .highlight .foldrange, .highlight .unfoldrange
 {
 	display:block;
