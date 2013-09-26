@@ -1171,6 +1171,8 @@ static public function modePhp($code, $options)
 {
 	$buffer = $output = '';
 	$state = self::STATE_NONE;
+	$levels = array();
+	$map = array('}' => '{', ')' => '(', ']' => '[');
 
 	while (TRUE)
 	{
@@ -1189,12 +1191,19 @@ static public function modePhp($code, $options)
 			$output.= substr($buffer, 0, -4).'<span class="region">'.substr($buffer, -4).'<span class="tag">'.$char.'</span></span>';
 			$buffer = $char = '';
 			$state = self::STATE_CODE;
+			$levels = array('{' => 0, '(' => 0, '[' => 0);
 		}
 		else if ($state == self::STATE_CODE)
 		{
 			if ($char == ';' && substr($buffer, -4) == '?&gt')
 			{
 				$buffer = substr($buffer, 0, -4);
+
+				if ($options & self::FORMAT_RANGES || $options & self::FORMAT_FOLDING)
+				{
+					$buffer.= str_repeat('</span>', (array_sum($levels) + (($options & self::FORMAT_FOLDING) ? $levels['{'] : 0)));
+				}
+
 				$state = self::STATE_NONE;
 			}
 			else if ($char == '#' || ($char == '/'&& (substr($code, 0, 1) == '/' || substr($code, 0, 1) == '*')))
@@ -1204,6 +1213,20 @@ static public function modePhp($code, $options)
 			else if (($char == '\'' || $char ==  '"') && (substr($buffer, -1) != '\\' || substr($buffer, -2) == '\\\\'))
 			{
 				$state = self::STATE_VALUE;
+			}
+			else if (isset($levels[$char]))
+			{
+				++$levels[$char];
+
+				$switcher = ($options & self::FORMAT_FOLDING && $char == '{');
+				$char = (($options & self::FORMAT_RANGES || $switcher) ? '<span>' : '').'<span class="punctuation'.(($options & self::FORMAT_RANGES) ? ' range' : '').($switcher ? ' switcher' : '').'">'.$char.'</span>'.($switcher ? '<span>' : '');
+			}
+			else if (isset($map[$char]))
+			{
+				--$levels[$map[$char]];
+
+				$switcher = ($options & self::FORMAT_FOLDING && $char == '}' && $levels[$map[$char]] >= 0);
+				$char = '<span class="punctuation'.(($options & self::FORMAT_RANGES && $levels[$map[$char]] >= 0) ? ' range' : '').'">'.$char.'</span>'.((($options & self::FORMAT_RANGES && $levels[$map[$char]] >= 0) || $switcher) ? '</span>'.($switcher ? '</span>' : '') : '');
 			}
 		}
 		else if ($state == self::STATE_DOCUMENTATION && $char == '/' && substr($buffer, -1) == '*')
@@ -1233,7 +1256,7 @@ static public function modePhp($code, $options)
 		'#(\(\s*)(int(?:teger)?|bool(?:ean)?|float|real|double|string|binary|array|object|unset)(\s*\))#Si',
 		'#(\$[a-z_][\w-]*)\b#Si',
 		'#(?<!">|[a-z-_])((?:-\s*)?(?:(?:\d+\.)?\d+)|0x[0-9a-f]+)\b#Si',
-		'#(?<!class|">|"|span|&lt|&gt)((?::|;|-|\||\+|=|\*|!|~|\.|,|\(|\)|\/|@|\%|&lt;|&gt;|&amp;|\{|\}|\[|\])+)(?!/?span)#Ssi',
+		'#(?<!class|">|"|span|&lt|&gt)((?::|;|-|\||\+|=|\*|!|~|\.|,|\/|@|\%|&lt;|&gt;|&amp;)+)(?!/?span)#Ssi',
 		'#(<span class="keyword">function</span>\s+)<span class="function">([a-z0-9_]+)</span>#Ssi',
 		),
 	array(
