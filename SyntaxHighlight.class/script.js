@@ -100,8 +100,8 @@ window.addEventListener('load', function()
 			for (var j = 0; j < folds.length; ++j)
 			{
 				var fold = document.createElement('span');
-				fold.setAttribute('class', 'foldrange');
 				fold.setAttribute('data-range', j);
+				fold.className = 'foldrange';
 				fold.style.top = ((getOffset(folds[j]) - offset) + 'px');
 
 				fold.addEventListener('click', function(event)
@@ -111,9 +111,17 @@ window.addEventListener('load', function()
 
 					range.style.visibility = (show ? 'inherit' : 'hidden');
 
-					this.setAttribute('class', (show ? 'foldrange' : 'unfoldrange'));
+					this.className = (show ? 'foldrange' : 'unfoldrange');
 
 					event.stopPropagation();
+				});
+				fold.addEventListener('mouseover', function(event)
+				{
+					this.parentNode.parentNode.getElementsByClassName('fold')[parseInt(this.getAttribute('data-range'))].parentNode.className = 'highlightrange';
+				});
+				fold.addEventListener('mouseout', function(event)
+				{
+					this.parentNode.parentNode.getElementsByClassName('fold')[parseInt(this.getAttribute('data-range'))].parentNode.className = '';
 				});
 
 				container.appendChild(fold);
