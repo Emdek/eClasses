@@ -1149,7 +1149,13 @@ static private function modePhp($code, $options)
 		$code = substr($code, 1);
 		$oldState = $state;
 
-		if ($state == self::STATE_NONE && $char == '?' && substr($buffer, -4) == '&lt;')
+		if (empty($code) && !($char == ';' && substr($buffer, -4) == '?&gt'))
+		{
+			$buffer.= $char;
+			$char = '';
+			$state = self::STATE_NONE;
+		}
+		else if ($state == self::STATE_NONE && $char == '?' && substr($buffer, -4) == '&lt;')
 		{
 			if (substr($code, 0, 3) == 'php')
 			{
@@ -1167,12 +1173,7 @@ static private function modePhp($code, $options)
 			if ($char == ';' && substr($buffer, -4) == '?&gt')
 			{
 				$buffer = substr($buffer, 0, -4);
-
-				if ($options & self::FORMAT_RANGES || $options & self::FORMAT_FOLDING)
-				{
-					$buffer.= str_repeat('</span>', (array_sum($levels) + (($options & self::FORMAT_FOLDING) ? $levels['{'] : 0)));
-				}
-
+				$char = '<span class="region"><span class="tag">?</span>&gt;</span>';
 				$state = self::STATE_NONE;
 			}
 			else if ($char == '#' || ($char == '/'&& (substr($code, 0, 1) == '/' || substr($code, 0, 1) == '*')))
@@ -1241,9 +1242,9 @@ static private function modePhp($code, $options)
 	$buffer
 	);
 
-				if ($state == self::STATE_NONE)
+				if ($state == self::STATE_NONE && ($options & self::FORMAT_RANGES || $options & self::FORMAT_FOLDING))
 				{
-					$output.= '<span class="region"><span class="tag">?</span>&gt;</span>';
+					$buffer.= str_repeat('</span>', (array_sum($levels) + (($options & self::FORMAT_FOLDING) ? $levels['{'] : 0)));
 				}
 			}
 			else if ($oldState == self::STATE_COMMENT)
@@ -1275,6 +1276,8 @@ static private function modePhp($code, $options)
 
 		if (empty($code))
 		{
+			$output.= $buffer;
+
 			break;
 		}
 	}
