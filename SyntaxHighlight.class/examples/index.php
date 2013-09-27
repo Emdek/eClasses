@@ -34,6 +34,17 @@ echo SyntaxHighlight::highlightString('.highlight 		'."\n".'{    '."\n".'	margin
 	overflow:auto;
 	color:#0000BB;
 }
+@media screen, print
+{
+	body
+	{
+		line-height:1.2;
+	}
+	.highlight < div
+	{
+		width:50px;
+	}
+}
 #code:hover
 {
 	background:url(\'./images/background.png\') no-repeat;

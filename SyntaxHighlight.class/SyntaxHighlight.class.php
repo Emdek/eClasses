@@ -67,6 +67,7 @@ const STATE_CODE = 1;
 const STATE_VALUE = 2;
 const STATE_DOCUMENTATION = 3;
 const STATE_COMMENT = 4;
+const STATE_SELECTORS = 5;
 
 static private $options = 0;
 
@@ -536,45 +537,80 @@ static private function modeCs($code, $options)
 
 static private function modeCss($code, $options)
 {
-	$buffer = $output = $charOld = '';
-	$notParse = $media = $definition = $finish = 0;
+	$buffer = $output = '';
+	$state = self::STATE_NONE;
+	$levels = array('{' => 0, '(' => 0,  '[' => 0, 'def' => 0);
+	$map = array('}' => '{', ')' => '(', ']' => '[');
 
-	while (!$finish)
+	while (TRUE)
 	{
-		if (strlen($code) == 0)
+		$char = (empty($code) ? '' : substr($code, 0, 1));
+		$code = substr($code, 1);
+		$oldState = $state;
+
+		if ($state == self::STATE_NONE && !empty($code))
 		{
-			$finish = 1;
-		}
-		else
-		{
-			$char = substr($code, 0, 1);
+			$state = self::STATE_SELECTORS;
 		}
 
-		if ($finish || (!$notParse && (in_array($char, array('\'', '"')) || ($char == '*' && $charOld == '/'))))
+		if (empty($code) && $char !== '}')
 		{
-			$notParse = 1;
-			$valueStart = 1;
+			$buffer.= $char;
+			$char = '';
+			$state = self::STATE_NONE;
 		}
-		else
+		else if ($state == self::STATE_CODE || $state == self::STATE_SELECTORS)
 		{
-			$valueStart = 0;
-		}
-
-		if ((!$notParse || ($notParse && $valueStart)) && !$definition && ($valueStart || $char == '{'))
-		{
-			if (!$valueStart)
+			if ($char == '/' && substr($code, 0, 1) == '*')
 			{
-				if (stristr($buffer, '@media'))
-				{
-					$media = 1;
-				}
-				else
-				{
-					$definition = 1;
-				}
+				$state = self::STATE_COMMENT;
 			}
+			else if (($char == '\'' || $char ==  '"') && (substr($buffer, -1) != '\\' || substr($buffer, -2) == '\\\\'))
+			{
+				$state = self::STATE_VALUE;
+			}
+			else if (isset($levels[$char]))
+			{
+				++$levels[$char];
 
-			$output.= preg_replace(
+				if ($char == '{' && (!stristr($buffer, '@media') || $levels['{'] > 1))
+				{
+					++$levels['def'];
+
+					$state = self::STATE_CODE;
+				}
+
+				$char = (($options & self::FORMAT_RANGES || ($options & self::FORMAT_FOLDING && $char == '{')) ? '<span>' : '').'<span class="punctuation'.(($options & self::FORMAT_RANGES) ? ' range' : '').(($options & self::FORMAT_FOLDING && $char == '{') ? ' fold' : '').'">'.$char.'</span>'.(($char == '{' && $levels['def'] == 1) ? '<span class="definition">' : '');
+			}
+			else if (isset($map[$char]))
+			{
+				--$levels[$map[$char]];
+
+				if ($char == '}' && $levels['def'] > 0)
+				{
+					--$levels['def'];
+
+					$buffer.= '</span>';
+					$state = self::STATE_SELECTORS;
+				}
+
+				$char = '<span class="punctuation'.(($options & self::FORMAT_RANGES && $levels[$map[$char]] >= 0) ? ' range' : '').'">'.$char.'</span>'.(((($options & self::FORMAT_RANGES || ($options & self::FORMAT_FOLDING && $char == '}')) && $levels[$map[$char]] >= 0)) ? '</span>' : '');
+			}
+		}
+		else if ($state == self::STATE_COMMENT && $char == '/' && substr($buffer, -1) == '*')
+		{
+			$state = self::STATE_CODE;
+		}
+		else if ($state == self::STATE_VALUE && ($char == '\'' || $char ==  '"') && $char == substr($buffer, 0, 1) && (substr($buffer, -1) != '\\' || substr($buffer, -2) == '\\\\'))
+		{
+			$state = self::STATE_CODE;
+		}
+
+		if ($state !== $oldState)
+		{
+			if ($oldState == self::STATE_SELECTORS)
+			{
+				$output.= preg_replace(
 	array(
 		'#@(charset|import|media|page|font-face|namespace)#Ssi',
 		'#(\.[a-z]\w*)#Ssi',
@@ -592,13 +628,11 @@ static private function modeCss($code, $options)
 		'<span class="punctuation">\\1</span>',
 		),
 	$buffer
-	).($valueStart ? '' : '<span class="punctuation">{</span>'.($definition ? '<span class="definition">' : ''));
-
-			$buffer = ($valueStart ? $char : '');
-		}
-		else if ((!$notParse || ($notParse && $valueStart)) && ($media || $definition) && ($valueStart || $char == '}'))
-		{
-			$output.= preg_replace(
+	);
+			}
+			else if ($oldState == self::STATE_CODE)
+			{
+				$output.= preg_replace(
 	array(
 		'#([a-z]+)(\s*\()#Ssi',
 		'#((?<=^|;|\s)[a-z\-]+(?=:)|(?:!important))#Ssi',
@@ -610,42 +644,32 @@ static private function modeCss($code, $options)
 		'<span class="keyword">\\1</span>',
 		'<span class="number">\\1</span>',
 		'<span class="punctuation">\\1</span>',
-		),
+	),
 	$buffer
-	).($valueStart ? $char : ($definition ? '</span>' : '').'<span class="punctuation">}</span>');
-
-			if (!$valueStart)
+	);
+			}
+			else if ($oldState == self::STATE_COMMENT)
 			{
-				if ($definition)
-				{
-					$definition = 0;
-				}
-				else
-				{
-					$media = 0;
-				}
+				$output.= '<span class="comment">'.preg_replace('#\b(FIXME|NOTICE|NOTE|TODO|WARNING)\b#i', '<span class="notice">\\1</span>', $buffer.$char).'</span>';
+				$char = '';
+			}
+			else if ($oldState == self::STATE_VALUE)
+			{
+				$output.= '<span class="value">'.$buffer.$char.'</span>';
+				$char = '';
 			}
 
 			$buffer = '';
 		}
-		else if ($notParse && (in_array($char, array('\'', '"')) || ($char == '/' && $charOld == '*')))
-		{
-			$output.= '<span class="'.((($char == '*' && $charOld == '/')) ? 'comment' : 'value').'">'.$buffer.$char.'</span>';
-			$buffer = '';
-			$notParse = 0;
-		}
-		else
-		{
-			$buffer.= $char;
-		}
 
-		$code = substr($code, 1);
-		$charOld = $char;
-	}
+		$buffer.= $char;
 
-	if ($definition)
-	{
-		$output.= '</span>';
+		if (empty($code))
+		{
+			$output.= $buffer.str_repeat('</span>', (($options & self::FORMAT_FOLDING && !($options & self::FORMAT_RANGES)) ? ($levels['{'] + $levels['def']) : array_sum($levels)));
+
+			break;
+		}
 	}
 
 	return self::formatCode($output, $options);
@@ -1244,7 +1268,7 @@ static private function modePhp($code, $options)
 
 				if ($state == self::STATE_NONE && ($options & self::FORMAT_RANGES || $options & self::FORMAT_FOLDING))
 				{
-					$buffer.= str_repeat('</span>', (array_sum($levels) + (($options & self::FORMAT_FOLDING) ? $levels['{'] : 0)));
+					$buffer.= str_repeat('</span>', (($options & self::FORMAT_FOLDING && !($options & self::FORMAT_RANGES)) ? $levels['{'] : array_sum($levels)));
 				}
 			}
 			else if ($oldState == self::STATE_COMMENT)
