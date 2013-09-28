@@ -666,7 +666,7 @@ static private function modeCss($code, $options)
 
 		if (empty($code))
 		{
-			$output.= $buffer.str_repeat('</span>', (($options & self::FORMAT_FOLDING && !($options & self::FORMAT_RANGES)) ? ($levels['{'] + $levels['def']) : array_sum($levels)));
+			$output.= $buffer.str_repeat('</span>', (($options & self::FORMAT_RANGES) ? array_sum($levels) : ((($options & self::FORMAT_FOLDING) ? $levels['{'] : 0) + $levels['def'])));
 
 			break;
 		}
@@ -1268,7 +1268,7 @@ static private function modePhp($code, $options)
 
 				if ($state == self::STATE_NONE && ($options & self::FORMAT_RANGES || $options & self::FORMAT_FOLDING))
 				{
-					$buffer.= str_repeat('</span>', (($options & self::FORMAT_FOLDING && !($options & self::FORMAT_RANGES)) ? $levels['{'] : array_sum($levels)));
+					$buffer.= str_repeat('</span>', (($options & self::FORMAT_RANGES) ? array_sum($levels) : $levels['{']));
 				}
 			}
 			else if ($oldState == self::STATE_COMMENT)
