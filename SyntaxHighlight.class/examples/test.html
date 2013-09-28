@@ -40,10 +40,17 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor i
 <script type="text/javascript" src="script.js"></script>
 <script type="text/javascript">
 var test = new Array();
+test.push('string');
+
+//WARNING comment
+alert(test[0]);
 </script>
 <?php
 require ('../SyntaxHighlight.class.php');
-$Highlighter = new SyntaxHighlight();
+
+$code = SyntaxHighlight::highlightFile('../SyntaxHighlight.class.php', 'php');
+
+echo $code;
 ?>
 </body>
 </html>
