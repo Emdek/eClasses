@@ -373,7 +373,7 @@ static private function modeCpp($code, $options)
 		}
 		else if ($state == self::STATE_CODE)
 		{
-			if ($char == '/'&& (substr($code, 0, 1) == '/' || substr($code, 0, 1) == '*'))
+			if ($char == '/' && (substr($code, 0, 1) == '/' || substr($code, 0, 1) == '*'))
 			{
 				$state = self::STATE_COMMENT;
 			}
@@ -947,7 +947,7 @@ static private function modeJava($code, $options)
 		}
 		else if ($state == self::STATE_CODE)
 		{
-			if ($char == '/'&& (substr($code, 0, 1) == '/' || substr($code, 0, 1) == '*'))
+			if ($char == '/' && (substr($code, 0, 1) == '/' || substr($code, 0, 1) == '*'))
 			{
 				$state = (($char == '/' && substr($code, 0, 2) == '**') ? self::STATE_DOCUMENTATION : self::STATE_COMMENT);
 			}
@@ -1108,7 +1108,7 @@ static private function modeJavascript($code, $options)
 		}
 		else if ($state == self::STATE_CODE)
 		{
-			if ($char == '/'&& (substr($code, 0, 1) == '/' || substr($code, 0, 1) == '*'))
+			if ($char == '/' && (substr($code, 0, 1) == '/' || substr($code, 0, 1) == '*'))
 			{
 				$state = self::STATE_COMMENT;
 			}
@@ -1213,46 +1213,72 @@ static private function modeJavascript($code, $options)
 
 static private function modePerl($code, $options)
 {
-	$buffer = $output = $charOld = '';
-	$notParse = $comment = $value = $finish = 0;
+	$buffer = $output = '';
+	$state = self::STATE_NONE;
+	$levels = array('{' => 0, '(' => 0, '[' => 0);
+	$map = array('}' => '{', ')' => '(', ']' => '[');
 
-	while (!$finish)
+	while (TRUE)
 	{
-		if (strlen($code) == 0)
+		$char = (empty($code) ? '' : substr($code, 0, 1));
+		$code = substr($code, 1);
+		$oldState = $state;
+
+		if ($state == self::STATE_NONE && !empty($code))
 		{
-			$finish = 1;
-		}
-		else
-		{
-			$char = substr($code, 0, 1);
+			$state = self::STATE_CODE;
 		}
 
-		if (!$notParse)
+		if (empty($code))
 		{
-			if ($char == '#' || ($char == '/' && $charOld == '/') || ($char == '*' && $charOld == '/'))
+			$buffer.= $char;
+			$char = '';
+			$state = self::STATE_NONE;
+		}
+		else if ($state == self::STATE_CODE)
+		{
+			if ($char =='#' || ($char == '/' && (substr($code, 0, 1) == '/' || substr($code, 0, 1) == '*')))
 			{
-				$isComment = 1;
+				$state = self::STATE_COMMENT;
 			}
-			else
+			else if (($char == '\'' || $char ==  '"') && (substr($buffer, -1) != '\\' || substr($buffer, -2) == '\\\\'))
 			{
-				$isComment = 0;
+				$state = self::STATE_VALUE;
+			}
+			else if (isset($levels[$char]))
+			{
+				++$levels[$char];
+
+				$char = (($options & self::FORMAT_RANGES || ($options & self::FORMAT_FOLDING && $char == '{')) ? '<span>' : '').'<span class="punctuation'.(($options & self::FORMAT_RANGES) ? ' range' : '').(($options & self::FORMAT_FOLDING && $char == '{') ? ' fold' : '').'">'.$char.'</span>';
+			}
+			else if (isset($map[$char]))
+			{
+				--$levels[$map[$char]];
+
+				$char = '<span class="punctuation'.(($options & self::FORMAT_RANGES && $levels[$map[$char]] >= 0) ? ' range' : '').'">'.$char.'</span>'.(((($options & self::FORMAT_RANGES || ($options & self::FORMAT_FOLDING && $char == '}')) && $levels[$map[$char]] >= 0)) ? '</span>' : '');
 			}
 		}
-		if ($finish || (!$notParse && ($isComment || (in_array($char, array('\'', '"')) && ($charOld != '\\' || substr($buffer, -2) == '\\\\')))))
+		else if ($state == self::STATE_COMMENT && (($char == "\n" && (substr($buffer, 0, 1) == '#' || substr($buffer, 0, 2) == '//')) || ($char == '/' && substr($buffer, 0, 2) == '/*' && substr($buffer, -1) == '*')))
 		{
-			if ($isComment && $char != '#')
-			{
-				$buffer = substr($buffer, 0, -1);
-			}
+			$state = self::STATE_CODE;
+		}
+		else if ($state == self::STATE_VALUE && ($char == '\'' || $char ==  '"') && $char == substr($buffer, 0, 1) && (substr($buffer, -1) != '\\' || substr($buffer, -2) == '\\\\'))
+		{
+			$state = self::STATE_CODE;
+		}
 
-			$output.= preg_replace(
+		if ($state !== $oldState)
+		{
+			if ($oldState == self::STATE_CODE)
+			{
+				$output.= preg_replace(
 	array(
 		'#(?<!<span )\b(strict|english|warnings|vars|subs|utf8|sigtrap|locale|open|less|integer|filetest|constant|bytes|diagnostics|BEGIN|END|__END__|__DATA__|__FILE__|__LINE__|__PACKAGE__)\b#',
 		'#\b(if|unless|else|elsif|while|until|for|each|foreach|next|last|break|continue|return|use|no|require|my|our|local|require|package|sub|do)\b#',
 		'#\b(?<!\$)(abs|accept|alarm|atan2|bind|binmode|bless|caller|chdir|chmod|chomp|chop|chown|chr|chroot|close|closedir|connect|cos|crypt|dbmclose|dbmopen|defined|delete|die|dump|endgrent|endhostent|endnetent|endprotoent|endpwent|endservent|eof|eval|exec|exists|exit|exp|fcntl|fileno|flock|fork|format|formline|getc|getgrent|getgrgid|getgrnam|gethostbyaddr|gethostbyname|gethostent|getlogin|getnetbyaddr|getnetbyname|getnetent|getpeername|getpgrp|getppid|getpriority|getprotobyname|getprotobynumber|getprotoent|getpwent|getpwnam|getpwuid|getservbyname|getservbyport|getservent|getsockname|getsockopt|glob|gmtime|goto|grep|hex|import|index|int|ioctl|join|keys|kill|last|lc|lcfirst|length|link|listen|localtime|lock|log|lstat|map|mkdir|msgctl|msgget|msgrcv|msgsnd|oct|open|opendir|ord|pack|package|pipe|pop|pos|print|printf|prototype|push|quotemeta|rand|read|readdir|readline|readlink|recv|redo|ref|rename|reset|return|reverse|rewinddir|rindex|rmdir|scalar|seek(?:dir)?|select|semctl|semget|semop|send|setgrent|sethostent|setnetent|setpgrp|setpriority|setprotoent|setpwent|setservent|setsockopt|shift|shmctl|shmget|shmread|shmwrite|shutdown|sin|sleep|socket|socketpair|sort|splice|split|sprintf|sqrt|srand|stat|study|sub|substr|symlink|syscall|sysread|sysseek|system|syswrite|tell|telldir|tie|time|times|truncate|uc(?:first)?|umask|undef|unlink|unpack|unshift|untie|utime|values|vec|wait|waitpid|wantarray|warn|write)\b#i',
 		'#((?:\$|%|&|@)(?!lt;|gt;)[a-z_][\w-]*)\b#i',
 		'#(?<!">|[a-z-_])((?:-\s*)?(?:(?:\d+\.)?\d+)|0x[0-9a-f]+)\b#Ssi',
-		'#(?<!class|">|"|span|&lt|&gt)(:|;|-|\||\\|\+|=|\*|!|~|\.|,|\(|\)|\/|@|\%|&lt;|&gt;|&amp;|::|\band\b|\bor\b|\bnot\b|\beq\b|\bne\b|\{|\}|\[|\])(?!/?span)#Ssi',
+		'#(?<!class|">|"|span|&lt|&gt)(:|;|-|\||\\|\+|=|\*|!|~|\.|,|\/|@|\%|&lt;|&gt;|&amp;|::|\band\b|\bor\b|\bnot\b|\beq\b|\bne\b)(?!/?span)#Ssi',
 		),
 	array(
 		'<span class="keyword">\\1</span>',
@@ -1264,33 +1290,40 @@ static private function modePerl($code, $options)
 		),
 	$buffer
 	);
-
-			if ($isComment)
-			{
-				$comment = $char;
 			}
-			else
+			else if ($oldState == self::STATE_COMMENT)
 			{
-				$value = $char;
+				if ($char == "\n")
+				{
+					$code = "\n".$code;
+					$char = '';
+				}
+
+				$output.= '<span class="comment">'.preg_replace('#\b(FIXME|NOTICE|NOTE|TODO|WARNING)\b#i', '<span class="notice">\\1</span>', $buffer.$char).'</span>';
+				$char = '';
+			}
+			else if ($oldState == self::STATE_VALUE)
+			{
+				$output.= '<span class="value">'.$buffer.$char.'</span>';
+				$char = '';
 			}
 
-			$notParse = 1;
-			$buffer = (($isComment && $char != '#') ? $charOld : '').$char;
-		}
-		else if ($notParse && (($value && $char == $value && ($charOld != '\\' || substr($buffer, -2) == '\\\\')) || ($comment && ((($comment == '#' || $comment == '/') && $char == "\n") || ($char == '/' && $charOld == '*' && substr($buffer, -2, 1) != '/')))))
-		{
-			$buffer = $buffer.(($char == "\n") ? '' : $char);
-			$output.= '<span class="'.($comment ? 'comment' : 'value').'">'.($value ? $buffer : preg_replace('#\b(FIXME|NOTICE|NOTE|TODO|WARNING)\b#i', '<span class="notice">\\1</span>', $buffer)).'</span>';
-			$buffer = (($char == "\n") ? $char : '');
-			$notParse = $comment = $value = 0;
-		}
-		else
-		{
-			$buffer.= $char;
+			$buffer = '';
 		}
 
-		$code = substr($code, 1);
-		$charOld = $char;
+		$buffer.= $char;
+
+		if (empty($code))
+		{
+			if ($options & self::FORMAT_RANGES || $options & self::FORMAT_FOLDING)
+			{
+				$buffer.= str_repeat('</span>', (($options & self::FORMAT_RANGES) ? array_sum($levels) : $levels['{']));
+			}
+
+			$output.= $buffer;
+
+			break;
+		}
 	}
 
 	return self::formatCode($output, $options);
@@ -1343,7 +1376,7 @@ static private function modePhp($code, $options)
 				$char = '<span class="region"><span class="tag">?</span>&gt;</span>';
 				$state = self::STATE_NONE;
 			}
-			else if ($char == '#' || ($char == '/'&& (substr($code, 0, 1) == '/' || substr($code, 0, 1) == '*')))
+			else if ($char == '#' || ($char == '/' && (substr($code, 0, 1) == '/' || substr($code, 0, 1) == '*')))
 			{
 				$state = (($char == '/' && substr($code, 0, 2) == '**') ? self::STATE_DOCUMENTATION : self::STATE_COMMENT);
 			}
