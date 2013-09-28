@@ -1507,32 +1507,72 @@ static public function modePython($code, $options)
 
 static private function modeSql($code, $options)
 {
-	$buffer = $output = $charOld = '';
-	$notParse = $comment = $value = $finish = 0;
+	$buffer = $output = '';
+	$state = self::STATE_NONE;
+	$levels = array('{' => 0, '(' => 0,  '[' => 0);
+	$map = array('}' => '{', ')' => '(', ']' => '[');
 
-	while (!$finish)
+	while (TRUE)
 	{
-		if (strlen($code) == 0)
+		$char = (empty($code) ? '' : substr($code, 0, 1));
+		$code = substr($code, 1);
+		$oldState = $state;
+
+		if ($state == self::STATE_NONE && !empty($code))
 		{
-			$finish = 1;
-		}
-		else
-		{
-			$char = substr($code, 0, 1);
+			$state = self::STATE_CODE;
 		}
 
-		$isComment = 0;
-
-		if ($finish || (!$notParse && ((in_array($char, array('\'', '"', '`')) && $charOld != $char && ($charOld != '\\' || substr($buffer, -2) == '\\\\')) || ($isComment = (($char == '*' && $charOld == '/' && substr($buffer, -2, 1) != '/') || ($char == '-' && $charOld == '-'))))))
+		if (empty($code))
 		{
-			$output.= preg_replace(
+			$buffer.= $char;
+			$char = '';
+			$state = self::STATE_NONE;
+		}
+		else if ($state == self::STATE_CODE)
+		{
+			if (($char == '/' && substr($code, 0, 1) == '*') || ($char == '-' && substr($code, 0, 1) == '-'))
+			{
+				$state = self::STATE_COMMENT;
+			}
+			else if (($char == '\'' || $char ==  '"' || $char ==  '`') && (substr($buffer, -1) != '\\' || substr($buffer, -2) == '\\\\'))
+			{
+				$state = self::STATE_VALUE;
+			}
+			else if (isset($levels[$char]))
+			{
+				++$levels[$char];
+
+				$char = (($options & self::FORMAT_RANGES) ? '<span>' : '').'<span class="punctuation'.(($options & self::FORMAT_RANGES) ? ' range' : '').'">'.$char.'</span>';
+			}
+			else if (isset($map[$char]))
+			{
+				--$levels[$map[$char]];
+
+				$char = '<span class="punctuation'.(($options & self::FORMAT_RANGES && $levels[$map[$char]] >= 0) ? ' range' : '').'">'.$char.'</span>'.(((($options & self::FORMAT_RANGES) && $levels[$map[$char]] >= 0)) ? '</span>' : '');
+			}
+		}
+		else if ($state == self::STATE_COMMENT && $char == '/' && substr($buffer, -1) == '*')
+		{
+			$state = self::STATE_CODE;
+		}
+		else if ($state == self::STATE_VALUE && ($char == '\'' || $char ==  '"' || $char ==  '`') && $char == substr($buffer, 0, 1) && (substr($buffer, -1) != '\\' || substr($buffer, -2) == '\\\\'))
+		{
+			$state = self::STATE_CODE;
+		}
+
+		if ($state !== $oldState)
+		{
+			if ($oldState == self::STATE_CODE)
+			{
+				$output.= preg_replace(
 	array(
 		'#(\s*FOREIGN_KEY_LIST|INDEX_INFO|INDEX_LIST|TABLE_INFO|COUNT|MIN|MAX|SUM|ABS|COALESCE|GLOB|IFNULL|LAST_INSERT_ROWID|LENGTH|LIKE|LOAD_EXTENSION|LOWER|NULLIF|QUOTE|RANDOM|ROUND|SOUNDEX|SQLITE_VERSION|SUBSTR|TYPEOF|UPPER|AVG|TOTAL|RAISE)(\s*\()#Ssi',
 		'#(\s*)(N?VARCHAR|TEXT|INTEGER|FLOAT|(?:BOOL)?EAN|CLOB|BLOB|TIMESTAMP|NUMERIC)(\s*)#Ssi',
 		'#((?:^|;\s+)(?:EXPLAIN )+(?:BEGIN|COMMIT|END|ROLLBACK) TRANSACTION|(?:AT|DE)TACH DATABASE|REINDEX|PRAGMA|ALTER TABLE|DELETE|VACUUM|EXPLAIN|SELECT(?: DISTINCT| UNION(?: ALL)?| INTERSECT| EXCEPT)?|BETWEEN|REPLACE|INSERT INTO|UPDATE|(?:CREATE |DROP )(?:(?:TEMP(?:ORARY)? |VIRTUAL )?TABLE| VIEW|(?: UNIQUE)? INDEX | TRIGGER))#Ssi',
 		'#(\s+)(WHERE|(?:PRIMARY|FOREIGN) KEY|IF NOT EXISTS|COLLATE|ON|OFF|YES|FILE|MEMORY|CASE|SET|(?:LEFT|RIGHT|FULL)(?: OUTER)? JOIN|UPDATE(?: OF)?|INSTEAD OF|CHECK|ON CONFLICT|(?:NOT )?LIKE|GLOB|HAVING|AFTER|BEFORE|FOR EACH(?:ROW|STATEMENT)|BEGIN|END|ELSE|NULL|AS SELECT|FROM|VALUES|ORDER BY|GROUP BY|WHEN|THEN|IN|LIMIT|OFFSET|AS|NO(?:T(?: ?)NULL?)|DEFAULT|UNIQUE|OR|AND|DESC|ASC)#Ssi',
 		'#((?:-\s*)?(?:\d+\.)?\d+)#S',
-		'#(?<!class|">|"|span)(:|;|-|\||\+|=|\*|!|~|\.|,|\(|\)|\/|@|\%|&lt;|&gt;|&amp;|\{|\}|\[|\])(?!/?span)#Ssi',
+		'#(?<!class|">|"|span)(:|;|-|\||\+|=|\*|!|~|\.|,|\/|@|\$|\%|&lt;|&gt;|&amp;)(?!/?span)#Ssi',
 		),
 	array(
 		'<span class="function">\\1</span>\\2',
@@ -1544,32 +1584,35 @@ static private function modeSql($code, $options)
 		),
 	$buffer
 	);
-			$notParse = 1;
-
-			if ($isComment)
-			{
-				$comment = 1;
 			}
-			else
+			else if ($oldState == self::STATE_COMMENT)
 			{
-				$value = $char;
+				if ($char == "\n")
+				{
+					$code = "\n".$code;
+					$char = '';
+				}
+
+				$output.= '<span class="comment">'.preg_replace('#\b(FIXME|NOTICE|NOTE|TODO|WARNING)\b#i', '<span class="notice">\\1</span>', $buffer.$char).'</span>';
+				$char = '';
+			}
+			else if ($oldState == self::STATE_VALUE)
+			{
+				$output.= '<span class="value">'.$buffer.$char.'</span>';
+				$char = '';
 			}
 
-			$buffer = $char;
-		}
-		else if ($notParse && (($value && $char == $value && $charOld != $char && ($charOld != '\\' || substr($buffer, -2) == '\\\\')) || ($comment && $char == "\n" || ($char == '/' && $charOld == '*'))))
-		{
-			$output.= '<span class="'.($comment ? 'comment' : 'value').'">'.$buffer.$char.'</span>';
 			$buffer = '';
-			$notParse = $comment = $value = 0;
-		}
-		else
-		{
-			$buffer.= $char;
 		}
 
-		$code = substr($code, 1);
-		$charOld = $char;
+		$buffer.= $char;
+
+		if (empty($code))
+		{
+			$output.= $buffer.str_repeat('</span>', (($options & self::FORMAT_RANGES) ? array_sum($levels) : 0));
+
+			break;
+		}
 	}
 
 	return self::formatCode($output, $options);
