@@ -923,41 +923,69 @@ static private function modeIni($code, $options)
 
 static private function modeJava($code, $options)
 {
-	$buffer = $output = $charOld = '';
-	$notParse = $comment = $value = $documentation = $finish = 0;
+	$buffer = $output = '';
+	$state = self::STATE_NONE;
+	$levels = array('{' => 0, '(' => 0, '[' => 0);
+	$map = array('}' => '{', ')' => '(', ']' => '[');
 
-	while (!$finish)
+	while (TRUE)
 	{
-		if (strlen($code) == 0)
+		$char = (empty($code) ? '' : substr($code, 0, 1));
+		$code = substr($code, 1);
+		$oldState = $state;
+
+		if ($state == self::STATE_NONE && !empty($code))
 		{
-			$finish = 1;
-		}
-		else
-		{
-			$char = substr($code, 0, 1);
+			$state = self::STATE_CODE;
 		}
 
-		if ($char == '/' && $charOld == '/')
+		if (empty($code))
 		{
-			$isComment = 1;
+			$buffer.= $char;
+			$char = '';
+			$state = self::STATE_NONE;
 		}
-		else if ($char == '*' && $charOld == '/')
+		else if ($state == self::STATE_CODE)
 		{
-			$isComment = 2;
-		}
-		else
-		{
-			$isComment = 0;
-		}
-
-		if ($finish || (!$notParse && ($isComment || (in_array($char, array('\'', '"')) && ($charOld != '\\' || substr($buffer, -2) == '\\\\')))))
-		{
-			if ($isComment)
+			if ($char == '/'&& (substr($code, 0, 1) == '/' || substr($code, 0, 1) == '*'))
 			{
-				$buffer = substr($buffer, 0, -1);
+				$state = (($char == '/' && substr($code, 0, 2) == '**') ? self::STATE_DOCUMENTATION : self::STATE_COMMENT);
 			}
+			else if (($char == '\'' || $char ==  '"') && (substr($buffer, -1) != '\\' || substr($buffer, -2) == '\\\\'))
+			{
+				$state = self::STATE_VALUE;
+			}
+			else if (isset($levels[$char]))
+			{
+				++$levels[$char];
 
-			$output.= preg_replace(
+				$char = (($options & self::FORMAT_RANGES || ($options & self::FORMAT_FOLDING && $char == '{')) ? '<span>' : '').'<span class="punctuation'.(($options & self::FORMAT_RANGES) ? ' range' : '').(($options & self::FORMAT_FOLDING && $char == '{') ? ' fold' : '').'">'.$char.'</span>';
+			}
+			else if (isset($map[$char]))
+			{
+				--$levels[$map[$char]];
+
+				$char = '<span class="punctuation'.(($options & self::FORMAT_RANGES && $levels[$map[$char]] >= 0) ? ' range' : '').'">'.$char.'</span>'.(((($options & self::FORMAT_RANGES || ($options & self::FORMAT_FOLDING && $char == '}')) && $levels[$map[$char]] >= 0)) ? '</span>' : '');
+			}
+		}
+		else if ($state == self::STATE_DOCUMENTATION && $char == '/' && substr($buffer, -1) == '*')
+		{
+			$state = self::STATE_CODE;
+		}
+		else if ($state == self::STATE_COMMENT && (($char == "\n" && substr($buffer, 0, 2) == '//') || ($char == '/' && substr($buffer, 0, 2) == '/*' && substr($buffer, -1) == '*')))
+		{
+			$state = self::STATE_CODE;
+		}
+		else if ($state == self::STATE_VALUE && ($char == '\'' || $char ==  '"') && $char == substr($buffer, 0, 1) && (substr($buffer, -1) != '\\' || substr($buffer, -2) == '\\\\'))
+		{
+			$state = self::STATE_CODE;
+		}
+
+		if ($state !== $oldState)
+		{
+			if ($oldState == self::STATE_CODE)
+			{
+				$output.= preg_replace(
 	array(
 		'#\b(abstract|class|continue|enum|extends|false|finally|implements|instanceof|@?interface|native|new|null|private|protected|public|super|static|strictfp|synchronized|this|throws|transient|true|volatile)\b#Ss',
 		'#^(package|import)(\s+)(.+);#Sm',
@@ -965,7 +993,7 @@ static private function modeJava($code, $options)
 		'#\b(break|case|catch|continue|default|do|else|for|goto|if|return|throw|try|while)\b#Ss',
 		'#\b(boolean|byte|char|const|double|final|float|int|long|short|void)\b#Ss',
 		'#(?<!">|[a-z-_])((?:-\s*)?(?:(?:\d+\.)?\d+))\b#Ssi',
-		'#(?<!class|">|"|span)(:|;|-|\||\+|=|\*|!|~|\.|,|\(|\)|\/|@|\%|&lt;|&gt;|&amp;|\{|\}|\[|\])(?!/?span)#Ssi',
+		'#(?<!class|">|"|span)(:|;|-|\||\+|=|\*|!|~|\.|,|\/|@|\%|&lt;|&gt;|&amp;)(?!/?span)#Ssi',
 		),
 	array(
 		'<span class="keyword">\\1</span>',
@@ -978,43 +1006,45 @@ static private function modeJava($code, $options)
 		),
 	$buffer
 	);
-			if ($isComment)
+			}
+			else if ($oldState == self::STATE_DOCUMENTATION)
 			{
-				$comment = $isComment;
-
-				if ($isComment == 2 && substr($code, 1, 1) == '*')
+				$output.= '<span class="documentation">'.self::modeJavadoc($buffer.$char, ($options | self::FORMAT_EMBEDDED)).'</span>';
+				$char = '';
+			}
+			else if ($oldState == self::STATE_COMMENT)
+			{
+				if ($char == "\n")
 				{
-					$documentation = 1;
+					$code = "\n".$code;
+					$char = '';
 				}
+
+				$output.= '<span class="comment">'.preg_replace('#\b(FIXME|NOTICE|NOTE|TODO|WARNING)\b#i', '<span class="notice">\\1</span>', $buffer.$char).'</span>';
+				$char = '';
 			}
-			else
+			else if ($oldState == self::STATE_VALUE)
 			{
-				$value = $char;
+				$output.= '<span class="value">'.$buffer.$char.'</span>';
+				$char = '';
 			}
 
-			$notParse = 1;
-			$buffer = ($isComment ? $charOld : '').$char;
+			$buffer = '';
 		}
-		else if ($notParse && (($value && $char == $value && ($charOld != '\\' || substr($buffer, -2) == '\\\\')) || ($comment && (($comment == 1 && $char == "\n") || ($char == '/' && $charOld == '*' && substr($buffer, -2, 1) != '/')))))
-		{
-			$buffer = $buffer.(($char == "\n") ? '' : $char);
 
-			if ($documentation)
+		$buffer.= $char;
+
+		if (empty($code))
+		{
+			if ($options & self::FORMAT_RANGES || $options & self::FORMAT_FOLDING)
 			{
-				$buffer = self::modeJavadoc($buffer, $options);
+				$buffer.= str_repeat('</span>', (($options & self::FORMAT_RANGES) ? array_sum($levels) : $levels['{']));
 			}
 
-			$output.= '<span class="'.($comment ? ($documentation ? 'documentation' : 'comment') : 'value').'">'.($value ? $buffer : preg_replace('#\b(FIXME|NOTICE|NOTE|TODO|WARNING)\b#i', '<span class="notice">\\1</span>', $buffer)).'</span>';
-			$buffer = (($char == "\n") ? $char : '');
-			$notParse = $comment = $value = $documentation = 0;
-		}
-		else
-		{
-			$buffer.= $char;
-		}
+			$output.= $buffer;
 
-		$code = substr($code, 1);
-		$charOld = $char;
+			break;
+		}
 	}
 
 	return self::formatCode($output, $options);
@@ -1384,6 +1414,11 @@ static private function modePhp($code, $options)
 					$buffer.= str_repeat('</span>', (($options & self::FORMAT_RANGES) ? array_sum($levels) : $levels['{']));
 				}
 			}
+			else if ($oldState == self::STATE_DOCUMENTATION)
+			{
+				$output.= '<span class="documentation">'.self::modePhpdoc($buffer.$char, ($options | self::FORMAT_EMBEDDED)).'</span>';
+				$char = '';
+			}
 			else if ($oldState == self::STATE_COMMENT)
 			{
 				if ($char == "\n")
@@ -1393,11 +1428,6 @@ static private function modePhp($code, $options)
 				}
 
 				$output.= '<span class="comment">'.preg_replace('#\b(FIXME|NOTICE|NOTE|TODO|WARNING)\b#i', '<span class="notice">\\1</span>', $buffer.$char).'</span>';
-				$char = '';
-			}
-			else if ($oldState == self::STATE_DOCUMENTATION)
-			{
-				$output.= '<span class="documentation">'.self::modePhpdoc($buffer.$char, ($options | self::FORMAT_EMBEDDED)).'</span>';
 				$char = '';
 			}
 			else if ($oldState == self::STATE_VALUE)
