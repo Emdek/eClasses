@@ -474,41 +474,65 @@ static private function modeCpp($code, $options)
 
 static private function modeCs($code, $options)
 {
-	$buffer = $output = $charOld = '';
-	$notParse = $comment = $value = $finish = 0;
+	$buffer = $output = '';
+	$state = self::STATE_NONE;
+	$levels = array('{' => 0, '(' => 0, '[' => 0);
+	$map = array('}' => '{', ')' => '(', ']' => '[');
 
-	while (!$finish)
+	while (TRUE)
 	{
-		if (strlen($code) == 0)
+		$char = (empty($code) ? '' : substr($code, 0, 1));
+		$code = substr($code, 1);
+		$oldState = $state;
+
+		if ($state == self::STATE_NONE && !empty($code))
 		{
-			$finish = 1;
-		}
-		else
-		{
-			$char = substr($code, 0, 1);
+			$state = self::STATE_CODE;
 		}
 
-		if ($char == '/' && $charOld == '/')
+		if (empty($code))
 		{
-			$isComment = 1;
+			$buffer.= $char;
+			$char = '';
+			$state = self::STATE_NONE;
 		}
-		else if ($char == '*' && $charOld == '/')
+		else if ($state == self::STATE_CODE)
 		{
-			$isComment = 2;
-		}
-		else
-		{
-			$isComment = 0;
-		}
-
-		if ($finish || (!$notParse && ($isComment || (in_array($char, array('\'', '"')) && ($charOld != '\\' || substr($buffer, -2) == '\\\\')))))
-		{
-			if ($isComment)
+			if ($char == '/' && substr($code, 0, 1) == '/')
 			{
-				$buffer = substr($buffer, 0, -1);
+				$state = ((substr($code, 0, 2) == '//') ? self::STATE_DOCUMENTATION : self::STATE_COMMENT);
 			}
+			else if (($char == '\'' || $char ==  '"') && (substr($buffer, -1) != '\\' || substr($buffer, -2) == '\\\\'))
+			{
+				$state = self::STATE_VALUE;
+			}
+			else if (isset($levels[$char]))
+			{
+				++$levels[$char];
 
-			$output.= preg_replace(
+				$char = (($options & self::FORMAT_RANGES || ($options & self::FORMAT_FOLDING && $char == '{')) ? '<span>' : '').'<span class="punctuation'.(($options & self::FORMAT_RANGES) ? ' range' : '').(($options & self::FORMAT_FOLDING && $char == '{') ? ' fold' : '').'">'.$char.'</span>';
+			}
+			else if (isset($map[$char]))
+			{
+				--$levels[$map[$char]];
+
+				$char = '<span class="punctuation'.(($options & self::FORMAT_RANGES && $levels[$map[$char]] >= 0) ? ' range' : '').'">'.$char.'</span>'.(((($options & self::FORMAT_RANGES || ($options & self::FORMAT_FOLDING && $char == '}')) && $levels[$map[$char]] >= 0)) ? '</span>' : '');
+			}
+		}
+		else if (($state == self::STATE_COMMENT || $state == self::STATE_DOCUMENTATION) && $char == "\n")
+		{
+			$state = self::STATE_CODE;
+		}
+		else if ($state == self::STATE_VALUE && ($char == '\'' || $char ==  '"') && $char == substr($buffer, 0, 1) && (substr($buffer, -1) != '\\' || substr($buffer, -2) == '\\\\'))
+		{
+			$state = self::STATE_CODE;
+		}
+
+		if ($state !== $oldState)
+		{
+			if ($oldState == self::STATE_CODE)
+			{
+				$output.= preg_replace(
 	array(
 		'#\b(abstract|base|class|checked|delegate|enum|event|explicit|extern|false|finally|fixed|implicit|interface|internal|is|lock|namespace|new|null|operator|out|override|params|private|protected|public|readonly|ref|sealed|sizeof|stackalloc|static|struct|this|true|typeof|unchecked|unsafe|virtual)\b#Ss',
 		'#(using)(\s+)(.+);#m',
@@ -531,31 +555,51 @@ static private function modeCs($code, $options)
 		),
 	$buffer
 	);
-			if ($isComment)
-			{
-				$comment = $isComment;
 			}
-			else
+			else if ($oldState == self::STATE_COMMENT)
 			{
-				$value = $char;
+				if ($char == "\n")
+				{
+					$code = "\n".$code;
+					$char = '';
+				}
+
+				$output.= '<span class="comment">'.preg_replace('#\b(FIXME|NOTICE|NOTE|TODO|WARNING)\b#i', '<span class="notice">\\1</span>', $buffer.$char).'</span>';
+				$char = '';
+			}
+			else if ($oldState == self::STATE_DOCUMENTATION)
+			{
+				if ($char == "\n")
+				{
+					$code = "\n".$code;
+					$char = '';
+				}
+
+				$output.= '<span class="documentation">'.$buffer.$char.'</span>';
+				$char = '';
+			}
+			else if ($oldState == self::STATE_VALUE)
+			{
+				$output.= '<span class="value">'.$buffer.$char.'</span>';
+				$char = '';
 			}
 
-			$notParse = 1;
-			$buffer = ($isComment ? $charOld : '').$char;
-		}
-		else if ($notParse && (($value && $char == $value && ($charOld != '\\' || substr($buffer, -2) == '\\\\')) || ($comment && (($comment == 1 && $char == "\n") || ($char == '/' && $charOld == '*' && substr($buffer, -2, 1) != '/')))))
-		{
-			$output.= '<span class="'.($comment ? 'comment' : 'value').'">'.($value ? $buffer.$char : preg_replace('#\b(FIXME|NOTICE|NOTE|TODO|WARNING)\b#i', '<span class="notice">\\1</span>', $buffer.(($char == "\n") ? '':$char))).'</span>';
-			$buffer = (($char == "\n") ? $char : '');
-			$notParse = $comment = $value = 0;
-		}
-		else
-		{
-			$buffer.= $char;
+			$buffer = '';
 		}
 
-		$code = substr($code, 1);
-		$charOld = $char;
+		$buffer.= $char;
+
+		if (empty($code))
+		{
+			if ($options & self::FORMAT_RANGES || $options & self::FORMAT_FOLDING)
+			{
+				$buffer.= str_repeat('</span>', (($options & self::FORMAT_RANGES) ? array_sum($levels) : $levels['{']));
+			}
+
+			$output.= $buffer;
+
+			break;
+		}
 	}
 
 	return self::formatCode($output, $options);
