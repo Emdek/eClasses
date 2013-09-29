@@ -327,7 +327,7 @@ static private function modeC($code, $options)
 static private function modeCpp($code, $options)
 {
 	$buffer = $output = '';
-	$state = self::STATE_NONE;
+	$state = self::STATE_CODE;
 	$levels = array('{' => 0, '(' => 0, '[' => 0);
 	$map = array('}' => '{', ')' => '(', ']' => '[');
 
@@ -336,11 +336,6 @@ static private function modeCpp($code, $options)
 		$char = (empty($code) ? '' : substr($code, 0, 1));
 		$code = substr($code, 1);
 		$oldState = $state;
-
-		if ($state == self::STATE_NONE && !empty($code))
-		{
-			$state = self::STATE_CODE;
-		}
 
 		if (empty($code))
 		{
@@ -452,7 +447,7 @@ static private function modeCpp($code, $options)
 static private function modeCs($code, $options)
 {
 	$buffer = $output = '';
-	$state = self::STATE_NONE;
+	$state = self::STATE_CODE;
 	$levels = array('{' => 0, '(' => 0, '[' => 0);
 	$map = array('}' => '{', ')' => '(', ']' => '[');
 
@@ -461,11 +456,6 @@ static private function modeCs($code, $options)
 		$char = (empty($code) ? '' : substr($code, 0, 1));
 		$code = substr($code, 1);
 		$oldState = $state;
-
-		if ($state == self::STATE_NONE && !empty($code))
-		{
-			$state = self::STATE_CODE;
-		}
 
 		if (empty($code))
 		{
@@ -592,7 +582,7 @@ static private function modeCs($code, $options)
 static private function modeCss($code, $options)
 {
 	$buffer = $output = '';
-	$state = self::STATE_NONE;
+	$state = self::STATE_SELECTORS;
 	$levels = array('{' => 0, '(' => 0,  '[' => 0, 'def' => 0);
 	$map = array('}' => '{', ')' => '(', ']' => '[');
 
@@ -601,11 +591,6 @@ static private function modeCss($code, $options)
 		$char = (empty($code) ? '' : substr($code, 0, 1));
 		$code = substr($code, 1);
 		$oldState = $state;
-
-		if ($state == self::STATE_NONE && !empty($code))
-		{
-			$state = self::STATE_SELECTORS;
-		}
 
 		if (empty($code) && $char !== '}')
 		{
@@ -738,18 +723,13 @@ static private function modeCss($code, $options)
 static private function modeGettext($code, $options)
 {
 	$buffer = $output = '';
-	$state = self::STATE_NONE;
+	$state = self::STATE_CODE;
 
 	while (TRUE)
 	{
 		$char = (empty($code) ? '' : substr($code, 0, 1));
 		$code = substr($code, 1);
 		$oldState = $state;
-
-		if ($state == self::STATE_NONE && !empty($code))
-		{
-			$state = self::STATE_CODE;
-		}
 
 		if (empty($code))
 		{
@@ -992,7 +972,7 @@ static private function modeIni($code, $options)
 static private function modeJava($code, $options)
 {
 	$buffer = $output = '';
-	$state = self::STATE_NONE;
+	$state = self::STATE_CODE;
 	$levels = array('{' => 0, '(' => 0, '[' => 0);
 	$map = array('}' => '{', ')' => '(', ']' => '[');
 
@@ -1001,11 +981,6 @@ static private function modeJava($code, $options)
 		$char = (empty($code) ? '' : substr($code, 0, 1));
 		$code = substr($code, 1);
 		$oldState = $state;
-
-		if ($state == self::STATE_NONE && !empty($code))
-		{
-			$state = self::STATE_CODE;
-		}
 
 		if (empty($code))
 		{
@@ -1153,7 +1128,7 @@ static private function modeJavadoc($code, $options)
 static private function modeJavascript($code, $options)
 {
 	$buffer = $output = '';
-	$state = self::STATE_NONE;
+	$state = self::STATE_CODE;
 	$levels = array('{' => 0, '(' => 0, '[' => 0);
 	$map = array('}' => '{', ')' => '(', ']' => '[');
 
@@ -1162,11 +1137,6 @@ static private function modeJavascript($code, $options)
 		$char = (empty($code) ? '' : substr($code, 0, 1));
 		$code = substr($code, 1);
 		$oldState = $state;
-
-		if ($state == self::STATE_NONE && !empty($code))
-		{
-			$state = self::STATE_CODE;
-		}
 
 		if (empty($code))
 		{
@@ -1282,7 +1252,7 @@ static private function modeJavascript($code, $options)
 static private function modePerl($code, $options)
 {
 	$buffer = $output = '';
-	$state = self::STATE_NONE;
+	$state = self::STATE_CODE;
 	$levels = array('{' => 0, '(' => 0, '[' => 0);
 	$map = array('}' => '{', ')' => '(', ']' => '[');
 
@@ -1291,11 +1261,6 @@ static private function modePerl($code, $options)
 		$char = (empty($code) ? '' : substr($code, 0, 1));
 		$code = substr($code, 1);
 		$oldState = $state;
-
-		if ($state == self::STATE_NONE && !empty($code))
-		{
-			$state = self::STATE_CODE;
-		}
 
 		if (empty($code))
 		{
@@ -1685,7 +1650,7 @@ static public function modePython($code, $options)
 static private function modeSql($code, $options)
 {
 	$buffer = $output = '';
-	$state = self::STATE_NONE;
+	$state = self::STATE_CODE;
 	$levels = array('{' => 0, '(' => 0,  '[' => 0);
 	$map = array('}' => '{', ')' => '(', ']' => '[');
 
@@ -1694,11 +1659,6 @@ static private function modeSql($code, $options)
 		$char = (empty($code) ? '' : substr($code, 0, 1));
 		$code = substr($code, 1);
 		$oldState = $state;
-
-		if ($state == self::STATE_NONE && !empty($code))
-		{
-			$state = self::STATE_CODE;
-		}
 
 		if (empty($code))
 		{
