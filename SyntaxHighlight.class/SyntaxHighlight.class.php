@@ -730,6 +730,97 @@ static private function modeCss($code, $options)
 }
 
 /**
+* Highlight for Gettext files
+* @param string $code
+* @return string
+*/
+
+static private function modeGettext($code, $options)
+{
+	$buffer = $output = '';
+	$state = self::STATE_NONE;
+
+	while (TRUE)
+	{
+		$char = (empty($code) ? '' : substr($code, 0, 1));
+		$code = substr($code, 1);
+		$oldState = $state;
+
+		if ($state == self::STATE_NONE && !empty($code))
+		{
+			$state = self::STATE_CODE;
+		}
+
+		if (empty($code))
+		{
+			$buffer.= $char;
+			$char = '';
+			$state = self::STATE_NONE;
+		}
+		else if ($state == self::STATE_CODE)
+		{
+			if ($char == '#')
+			{
+				$state = self::STATE_COMMENT;
+			}
+			else if ($char ==  '"' && (substr($buffer, -1) != '\\' || substr($buffer, -2) == '\\\\'))
+			{
+				$state = self::STATE_VALUE;
+			}
+		}
+		else if ($state == self::STATE_COMMENT && $char == "\n")
+		{
+			$state = self::STATE_CODE;
+		}
+		else if ($state == self::STATE_VALUE && $char ==  '"' && $char == substr($buffer, 0, 1) && (substr($buffer, -1) != '\\' || substr($buffer, -2) == '\\\\'))
+		{
+			$state = self::STATE_CODE;
+		}
+
+		if ($state !== $oldState)
+		{
+			if ($oldState == self::STATE_CODE)
+			{
+				$output.= preg_replace(
+	array(
+		'#(msgid(?:_plural)?|msgstr)#i',
+		'#(?<!">|[a-z-_])((?:-\s*)?(?:(?:\d+\.)?\d+))\b#Ssi',
+		'#(?<!class|">|"|span)(:|;|-|\||\+|=|\*|!|~|\.|,|\/|@|\%|&lt;|&gt;|&amp;|\(|\)|\{|\}|\[|\])(?!/?span)#Ssi',
+		),
+	array(
+		'<span class="keyword">\\1</span>',
+		'<span class="number">\\1</span>',
+		'<span class="punctuation">\\1</span>',
+		),
+	$buffer
+	);
+			}
+			else if ($oldState == self::STATE_COMMENT)
+			{
+				$output.= '<span class="comment">'.$buffer.'</span>'.$char;
+				$char = '';
+			}
+			else if ($oldState == self::STATE_VALUE)
+			{
+				$output.= '<span class="value">'.str_replace('\n', '<span class="punctuation">\n</span>', $buffer.$char).'</span>';
+				$char = '';
+			}
+
+			$buffer = '';
+		}
+
+		$buffer.= $char;
+
+		if (empty($code))
+		{
+			break;
+		}
+	}
+
+	return $output;
+}
+
+/**
 * Highlight for(X)HTML
 * @param string $code
 * @param integer $options
@@ -1489,73 +1580,6 @@ static private function modePhpdoc($code, $options)
 		'\\1<span class="documentationtag">\\2</span>\\3<span class="datatype">\\4</span>',
 		),
 	$code);
-}
-
-/**
-* Highlight for Gettext files
-* @param string $code
-* @return string
-*/
-
-static public function modeGettext($code, $options)
-{
-	$buffer = $output = $charOld = '';
-	$notParse = $comment = $value = $finish = 0;
-
-	while (!$finish)
-	{
-		if (strlen($code) == 0)
-		{
-			$finish = 1;
-		}
-		else
-		{
-			$char = substr($code, 0, 1);
-		}
-
-		if ($finish || (!$notParse && (($char == '#') || (in_array($char, array('\'', '"')) && ($charOld != '\\' || substr($buffer, -2) == '\\\\')))))
-		{
-			$output.= preg_replace(
-	array(
-		'#(msgid(?:_plural)?|msgstr)#i',
-		'#(?<!">|[a-z-_])((?:-\s*)?(?:(?:\d+\.)?\d+))\b#Ssi',
-		'#(?<!class|">|"|span)(:|;|-|\||\+|=|\*|!|~|\.|,|\(|\)|\/|@|\%|&lt;|&gt;|&amp;|\{|\}|\[|\])(?!/?span)#Ssi',
-		),
-	array(
-		'<span class="keyword">\\1</span>',
-		'<span class="number">\\1</span>',
-		'<span class="punctuation">\\1</span>',
-		),
-	$buffer
-	);
-			if ($char == '#')
-			{
-				$comment = $char;
-			}
-			else
-			{
-				$value = $char;
-			}
-
-			$notParse = 1;
-			$buffer = $char;
-		}
-		else if ($notParse && (($value && $char == $value && ($charOld != '\\' || substr($buffer, -2) == '\\\\')) || ($comment && $char == "\n")))
-		{
-			$output.= '<span class="'.($comment ? 'comment' : 'value').'">'.$buffer.($value ? $char : '').'</span>';
-			$buffer = ($comment ? $char : '');
-			$notParse = $comment = $value = 0;
-		}
-		else
-		{
-			$buffer.= $char;
-		}
-
-		$code = substr($code, 1);
-		$charOld = $char;
-	}
-
-	return $output;
 }
 
 /**
