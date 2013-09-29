@@ -52,22 +52,16 @@ const FORMAT_MARKLINES = 32;
 
 const FORMAT_ALL = 63;
 
-/**
- * Formatting: special case for embedding code of different type
- */
-
-const FORMAT_EMBEDDED = 64;
-
-/**
- * Variable for storing formatting options for embedded code
- */
-
 const STATE_NONE = 0;
 const STATE_CODE = 1;
 const STATE_VALUE = 2;
 const STATE_DOCUMENTATION = 3;
 const STATE_COMMENT = 4;
 const STATE_SELECTORS = 5;
+
+/**
+ * Variable for storing formatting options for embedded code
+ */
 
 static private $options = 0;
 
@@ -145,12 +139,63 @@ static public function highlightString($code, $mode = '', $options = self::FORMA
 	$code = str_replace(array('&', '<', '>', "\r\n", "\r"), array('&amp;', '&lt;', '&gt;', "\n", "\n"), $code);
 	$method = 'mode'.ucfirst(strtolower($mode));
 
-	if (!method_exists('SyntaxHighlight', $method))
+	if (method_exists('SyntaxHighlight', $method))
 	{
-		return $code;
+		$code = self::$method($code, $options);
 	}
 
-	return self::$method($code, $options);
+	$script = array();
+
+	if ($options & self::FORMAT_ACTIVELINE)
+	{
+		$script[] = 'activeline';
+	}
+
+	if ($options & self::FORMAT_MARKLINES)
+	{
+		$script[] = 'marklines';
+	}
+
+	if ($options & self::FORMAT_FOLDING)
+	{
+		$script[] = 'folding';
+	}
+
+	if ($options & self::FORMAT_RANGES)
+	{
+		$script[] = 'ranges';
+	}
+
+	if ($options & self::FORMAT_WHITESPACE)
+	{
+		$code = preg_replace_callback('#( |\t)+$#m', 'self::markStray', $code);
+		$code = preg_replace('#(?<!<span class="tab">)(\t)#', '<span class="tab">\\1</span>', $code);
+	}
+
+	if ($options & self::FORMAT_LINENUMBERS)
+	{
+		$numbers = '';
+		$lines = (substr_count($code, ((substr_count($code, "\r") > substr_count($code, "\n")) ? "\r" : "\n")) + 2);
+
+		for ($i = 1; $i < $lines; ++$i)
+		{
+			$numbers.= $i.'
+';
+		}
+
+		return '<div class="highlight" data-options="'.implode(',', $script).'">
+<pre class="numbers">'.$numbers.'</pre>
+<pre class="code">'.$code.'
+</pre>
+</div>
+';
+	}
+
+	return '<div class="highlight" data-options="'.implode(',', $script).'">
+<pre class="code">'.$code.'
+</pre>
+</div>
+';
 }
 
 /**
@@ -211,74 +256,6 @@ static private function removeHighlighting($code)
 }
 
 /**
- * Additional formatting for parsed code
- * @param string $code
- * @param integer $options
- * @return string
- */
-
-static private function formatCode($code, $options)
-{
-	$script = array();
-
-	if ($options & self::FORMAT_ACTIVELINE)
-	{
-		$script[] = 'activeline';
-	}
-
-	if ($options & self::FORMAT_MARKLINES)
-	{
-		$script[] = 'marklines';
-	}
-
-	if ($options & self::FORMAT_FOLDING)
-	{
-		$script[] = 'folding';
-	}
-
-	if ($options & self::FORMAT_RANGES)
-	{
-		$script[] = 'ranges';
-	}
-
-	if ($options & self::FORMAT_WHITESPACE)
-	{
-		$code = preg_replace_callback('#( |\t)+$#m', 'self::markStray', $code);
-		$code = preg_replace('#(?<!<span class="tab">)(\t)#', '<span class="tab">\\1</span>', $code);
-	}
-
-	if ($options & self::FORMAT_EMBEDDED)
-	{
-		return $code;
-	}
-
-	if ($options & self::FORMAT_LINENUMBERS)
-	{
-		$numbers = '';
-		$lines = (substr_count($code, ((substr_count($code, "\r") > substr_count($code, "\n")) ? "\r" : "\n")) + 2);
-
-		for ($i = 1; $i < $lines; ++$i)
-		{
-			$numbers.= $i.'
-';
-		}
-
-		return '<div class="highlight" data-options="'.implode(',', $script).'">
-<pre class="numbers">'.$numbers.'</pre>
-<pre class="code">'.$code.'
-</pre>
-</div>
-';
-	}
-
-	return '<div class="highlight" data-options="'.implode(',', $script).'">
-<pre class="code">'.$code.'
-</pre>
-</div>
-';
-}
-
-/**
  * Marks stray whitespace
  * @param array $matches
  * @return string
@@ -318,14 +295,14 @@ static private function highlightEmbedded($matches)
 {
 	if (count($matches) == 2)
 	{
-		return self::modePhp(self::removeHighlighting($matches[1]), (self::$options | self::FORMAT_EMBEDDED));
+		return self::modePhp(self::removeHighlighting($matches[1]), self::$options);
 	}
 	else if (substr($matches[1], 0, 34) == '&lt;<span class="tag">style</span>')
 	{
-		return '<span class="region">'.$matches[1].'</span>'.self::modeCss(self::removeHighlighting($matches[2]), (self::$options | self::FORMAT_EMBEDDED)).'<span class="region">'.$matches[3].'</span>';
+		return '<span class="region">'.$matches[1].'</span>'.self::modeCss(self::removeHighlighting($matches[2]), self::$options).'<span class="region">'.$matches[3].'</span>';
 	}
 
-	return '<span class="region">'.$matches[1].'</span>'.self::modeJavascript(self::removeHighlighting($matches[2]), (self::$options | self::FORMAT_EMBEDDED)).'<span class="region">'.$matches[3].'</span>';
+	return '<span class="region">'.$matches[1].'</span>'.self::modeJavascript(self::removeHighlighting($matches[2]), self::$options).'<span class="region">'.$matches[3].'</span>';
 }
 
 /**
@@ -462,7 +439,7 @@ static private function modeCpp($code, $options)
 		}
 	}
 
-	return self::formatCode($output, $options);
+	return $output;
 }
 
 /**
@@ -602,7 +579,7 @@ static private function modeCs($code, $options)
 		}
 	}
 
-	return self::formatCode($output, $options);
+	return $output;
 }
 
 /**
@@ -749,7 +726,7 @@ static private function modeCss($code, $options)
 		}
 	}
 
-	return self::formatCode($output, $options);
+	return $output;
 }
 
 /**
@@ -834,7 +811,7 @@ static private function modeHtml($code, $options)
 
 	$output = preg_replace_callback(array('#(&lt;<span class="tag">style</span>.*&gt;)(.*)(&lt;<span class="tag">/style</span>&gt;)#siU', '#(&lt;<span class="tag">script</span>.*&gt;)(.*)(&lt;<span class="tag">/script</span>&gt;)#siU', '#(&lt;\?(?:php)?(?!xml)(?U).+\?&gt;)#si'), 'self::highlightEmbedded', $output);
 
-	return self::formatCode($output, $options);
+	return $output;
 }
 
 /**
@@ -911,7 +888,7 @@ static private function modeIni($code, $options)
 		$charOld = $char;
 	}
 
-	return self::formatCode($output, $options);
+	return $output;
 }
 
 /**
@@ -1009,7 +986,7 @@ static private function modeJava($code, $options)
 			}
 			else if ($oldState == self::STATE_DOCUMENTATION)
 			{
-				$output.= '<span class="documentation">'.self::modeJavadoc($buffer.$char, ($options | self::FORMAT_EMBEDDED)).'</span>';
+				$output.= '<span class="documentation">'.self::modeJavadoc($buffer.$char, $options).'</span>';
 				$char = '';
 			}
 			else if ($oldState == self::STATE_COMMENT)
@@ -1047,7 +1024,7 @@ static private function modeJava($code, $options)
 		}
 	}
 
-	return self::formatCode($output, $options);
+	return $output;
 }
 
 /**
@@ -1201,7 +1178,7 @@ static private function modeJavascript($code, $options)
 		}
 	}
 
-	return self::formatCode($output, $options);
+	return $output;
 }
 
 /**
@@ -1326,7 +1303,7 @@ static private function modePerl($code, $options)
 		}
 	}
 
-	return self::formatCode($output, $options);
+	return $output;
 }
 
 /**
@@ -1449,7 +1426,7 @@ static private function modePhp($code, $options)
 			}
 			else if ($oldState == self::STATE_DOCUMENTATION)
 			{
-				$output.= '<span class="documentation">'.self::modePhpdoc($buffer.$char, ($options | self::FORMAT_EMBEDDED)).'</span>';
+				$output.= '<span class="documentation">'.self::modePhpdoc($buffer.$char, $options).'</span>';
 				$char = '';
 			}
 			else if ($oldState == self::STATE_COMMENT)
@@ -1482,7 +1459,7 @@ static private function modePhp($code, $options)
 		}
 	}
 
-	return self::formatCode($output, $options);
+	return $output;
 }
 
 /**
@@ -1578,7 +1555,7 @@ static public function modeGettext($code, $options)
 		$charOld = $char;
 	}
 
-	return self::formatCode($output, $options);
+	return $output;
 }
 
 /**
@@ -1671,7 +1648,7 @@ static public function modePython($code, $options)
 		$charOld = $char;
 	}
 
-	return self::formatCode($output, $options);
+	return $output;
 }
 
 /**
@@ -1791,7 +1768,7 @@ static private function modeSql($code, $options)
 		}
 	}
 
-	return self::formatCode($output, $options);
+	return $output;
 }
 
 /**
@@ -1871,7 +1848,7 @@ static private function modeXml($code, $options)
 
 	$output = preg_replace('#(&lt;\?xml .*\?&gt;|&lt;!DOCTYPE .*&gt;)+#siU', '<span class="doctype">\\1</span>', $output);
 
-	return self::formatCode($output, $options);
+	return $output;
 }
 
 }
