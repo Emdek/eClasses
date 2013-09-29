@@ -103,6 +103,10 @@
 {
 	color:#B08000;
 }
+.highlight .property
+{
+	color:#845B90;
+}
 .highlight .variable
 {
 	color:#6666FE;
@@ -126,10 +130,6 @@
 .highlight .package, .highlight .package *
 {
 	color:#B6B65E;
-}
-.highlight .event
-{
-	color:#D1AAC8;
 }
 .highlight .preprocessor
 {

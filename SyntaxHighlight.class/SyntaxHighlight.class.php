@@ -693,7 +693,7 @@ static private function modeCss($code, $options)
 		'#(\.[a-z]\w*)#Ssi',
 		'#(?<=\n|\r|\}|,\s|,)(\#[a-z]\w*)#Ssi',
 		'#(:{1,2})(link|visited|active|hover|focus|lang|nth-child|nth-last-child|nth-of-type|nth-last-of-type|first-child|last-child|first-of-type|last-of-type|only-child|only-of-type|root|empty|target|enabled|disabled|checked|not|first-line|first-letter|before|after|selection)#Ssi',
-		'#([a-z]+)(\s*'.(($options & self::FORMAT_RANGES) ? '<span>' : '').'<span class="punctuation'.(($options & self::FORMAT_RANGES) ? ' range' : '').'">\()#Ssi',
+		'#\b([a-z]+)\b(\s*'.(($options & self::FORMAT_RANGES) ? '<span>' : '').'<span class="punctuation'.(($options & self::FORMAT_RANGES) ? ' range' : '').'">\()#Ssi',
 		'#(?<!class|">|"|span)(~|\*|=|,|\(|\)|\/|&lt;|&gt;|\[|\])(?!/?span)#Ssi',
 		),
 	array(
@@ -711,7 +711,7 @@ static private function modeCss($code, $options)
 			{
 				$output.= preg_replace(
 	array(
-		'#([a-z]+)(\s*'.(($options & self::FORMAT_RANGES) ? '<span>' : '').'<span class="punctuation'.(($options & self::FORMAT_RANGES) ? ' range' : '').'">\()#Ssi',
+		'#\b([a-z]+)\b(\s*'.(($options & self::FORMAT_RANGES) ? '<span>' : '').'<span class="punctuation'.(($options & self::FORMAT_RANGES) ? ' range' : '').'">\()#Ssi',
 		'#((?<=^|;|\s)[a-z\-]+(?=:)|(?:!important))#Ssi',
 		'#(?<!">)((?:(?:\+|-)\s*)?(?:\#\w{6}|\#\w{3}|(?:\d+\.)?\d+(?:px|pt|pc|ex|em|in|cm|mm|deg|grad|rad|ms|s|k?hz|\%)?))#Ssi',
 		'#(?<!class|">|"|span)(:|;|=|\*|,|\(|\)|\/|&lt;|&gt;)(?!/?span)#Ssi',
@@ -1145,21 +1145,21 @@ static private function modeJavascript($code, $options)
 				$output.= preg_replace(
 	array(
 		'#\b(in|with|try|catch|finally|new|var|function|delete|true|false|void|throw|typeof|const)\b#Ss',
-		'#\b(onabort|onblur|onchange|onclick|onerror|onfocus|onkeypress|onkeydown|onkeyup|onload|onmousedown|onmousemove|onmouseout|onmouseover|onmouseup|onreset|onselect|onsubmit|onunload)\b#Ssi',
 		'#\b(as|case|default|if|else|elseif|while|do|for|foreach|break|continue|switch|return)\b#Ss',
 		'#\b(Anchor|Applet|Area|Array|Boolean|Button|Checkbox|Date|document|window|Image|FileUpload|Form|Frame|Function|Hidden|Link|MimeType|Math|Max|Min|Layer|navigator|Object|Password|Plugin|Radio|RegExp|Reset|Screen|Select|String|Text|Textarea|this|Window)\b#Ss',
-		'#(?<=\.)(above|action|alinkColor|alert|anchor|anchors|appCodeName|applets|apply|appName|appVersion|argument|arguments|arity|availHeight|availWidth|back|background|below|bgColor|border|big|blink|blur|bold|border|call|caller|charAt|charCodeAt|checked|clearInterval|clearTimeout|click|clip|close|closed|colorDepth|complete|compile|constructor|confirm|cookie|current|cursor|data|defaultChecked|defaultSelected|defaultStatus|defaultValue|description|disableExternalCapture|domain|elements|embeds|enabledPlugin|enableExternalCapture|encoding|eval|exec|fgColor|filename|find|fixed|focus|fontcolor|fontsize|form|forms|formName|forward|frames|fromCharCode|getDate|getDay|getHours|getMiliseconds|getMinutes|getMonth|getSeconds|getSelection|getTime|getTimezoneOffset|getUTCDate|getUTCDay|getUTCFullYear|getUTCHours|getUTCMilliseconds|getUTCMinutes|getUTCMonth|getUTCSeconds|getYear|global|go|hash|height|history|home|host|hostname|href|hspace|ignoreCase|images|index(?:Of)?|innerHeight|innerWidth|input|italics|javaEnabled|join|language|lastIndex|lastIndexOf|lastModified|lastParen|layers|layerX|layerY|left|leftContext|length|link|linkColor|links|location|locationbar|load|lowsrc|match|MAX_VALUE|menubar|method|mimeTypes|MIN_VALUE|modifiers|moveAbove|moveBelow|moveBy|moveTo|moveToAbsolute|multiline|name|NaN|NEGATIVE_INFINITY|negative_infinity|next|open|opener|options|outerHeight|outerWidth|pageX|pageY|pageXoffset|pageYoffset|parent|parse|pathname|personalbar|pixelDepth|platform|plugins|pop|port|POSITIVE_INFINITY|positive_infinity|preference|previous|print|prompt|protocol|prototype|push|referrer|refresh|releaseEvents|reload|replace|reset|resizeBy|resizeTo|reverse|rightContext|screenX|screenY|scroll|scrollbar|scrollBy|scrollTo|search|select|selected|selectedIndex|self|setDate|setHours|setInterval|setMinutes|setMonth|setSeconds|setTime(?:out)?|setUTCDate|setUTCDay|setUTCFullYear|setUTCHours|setUTCMilliseconds|setUTCMinutes|setUTCMonth|setUTCSeconds|setYear|shift|siblingAbove|siblingBelow|small|sort|source|splice|split|src|status|statusbar|strike|sub(?:str)?|submit|substring|suffixes|sup|taintEnabled|target|test|text|title|toGMTString|toLocaleString|toLowerCase|toolbar|toSource|toString|top|toUpperCase|toUTCString|type|URL|unshift|unwatch|userAgent|UTC|value|valueOf|visibility|vlinkColor|vspace|width|watch|which|width|write|writeln|x|y|zIndex)#Ss',
-		'#\b(clearInterval|clearTimeout|escape|isFinite|isNaN|Number|parseFloat|parseInt|reload|taint|unescape|untaint|write)\b#Ss',
+		'#(?<=\.)\b([a-z]+)\b(\s*'.(($options & self::FORMAT_RANGES) ? '<span>' : '').'<span class="punctuation'.(($options & self::FORMAT_RANGES) ? ' range' : '').'">\()#Ssi',
+		'#\b([a-z]+)\b(\s*'.(($options & self::FORMAT_RANGES) ? '<span>' : '').'<span class="punctuation'.(($options & self::FORMAT_RANGES) ? ' range' : '').'">\()#Ssi',
+		'#(?<=\.)\b([a-z]+)\b#Ssi',
 		'#(?<!">)((?:-\s*)?(?:\#\w{6}|\#\w{3}|(?:\d+\.)?\d+))\b#Ssi',
 		'#(?<!class|">|"|span)(:|;|-|\||\+|=|\*|!|~|\.|,|\/|@|\%|&lt;|&gt;|&amp;)(?!/?span)#Ssi',
 		),
 	array(
 		'<span class="keyword">\\1</span>',
-		'<span class="event">\\1</span>',
 		'<span class="control">\\1</span>',
 		'<span class="object">\\1</span>',
-		'<span class="method">\\1</span>',
-		'<span class="function">\\1</span>',
+		'<span class="method">\\1</span>\\2',
+		'<span class="function">\\1</span>\\2',
+		'<span class="property">\\1</span>',
 		'<span class="number">\\1</span>',
 		'<span class="punctuation">\\1</span>',
 		),
