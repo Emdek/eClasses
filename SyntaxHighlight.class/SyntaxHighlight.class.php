@@ -1554,34 +1554,70 @@ static private function modePhpdoc($code, $options)
 * @return string
 */
 
-static public function modePython($code, $options)
+static private function modePython($code, $options)
 {
-	$buffer = $output = $charOld = '';
-	$notParse = $comment = $value = $documentation = $finish = 0;
+	$buffer = $output = '';
+	$state = self::STATE_CODE;
+	$levels = array('{' => 0, '(' => 0, '[' => 0);
+	$map = array('}' => '{', ')' => '(', ']' => '[');
 
-	while (!$finish)
+	while (TRUE)
 	{
-		if (strlen($code) == 0)
+		$char = (empty($code) ? '' : substr($code, 0, 1));
+		$code = substr($code, 1);
+		$oldState = $state;
+
+		if (empty($code))
 		{
-			$finish = 1;
+			$buffer.= $char;
+			$char = '';
+			$state = self::STATE_NONE;
 		}
-		else
+		else if ($state == self::STATE_CODE)
 		{
-			$char = substr($code, 0, 1);
+			if (($char == '\'' || $char == '"') && substr($code, 0, 2) == $char.$char)
+			{
+				$state = self::STATE_DOCUMENTATION;
+			}
+			else if ($char == '#')
+			{
+				$state = self::STATE_COMMENT;
+			}
+			else if (($char == '\'' || $char ==  '"') && (substr($buffer, -1) != '\\' || substr($buffer, -2) == '\\\\'))
+			{
+				$state = self::STATE_VALUE;
+			}
+			else if (isset($levels[$char]))
+			{
+				++$levels[$char];
+
+				$char = (($options & self::FORMAT_RANGES) ? '<span>' : '').'<span class="punctuation'.(($options & self::FORMAT_RANGES) ? ' range' : '').'">'.$char.'</span>';
+			}
+			else if (isset($map[$char]))
+			{
+				--$levels[$map[$char]];
+
+				$char = '<span class="punctuation'.(($options & self::FORMAT_RANGES && $levels[$map[$char]] >= 0) ? ' range' : '').'">'.$char.'</span>'.((($options & self::FORMAT_RANGES && $levels[$map[$char]] >= 0)) ? '</span>' : '');
+			}
+		}
+		else if ($state == self::STATE_DOCUMENTATION && ($char == '\'' || $char == '"') && substr($buffer, -2) == $char.$char)
+		{
+			$state = self::STATE_CODE;
+		}
+		else if ($state == self::STATE_COMMENT && $char == "\n")
+		{
+			$state = self::STATE_CODE;
+		}
+		else if ($state == self::STATE_VALUE && ($char == '\'' || $char ==  '"') && $char == substr($buffer, 0, 1) && (substr($buffer, -1) != '\\' || substr($buffer, -2) == '\\\\'))
+		{
+			$state = self::STATE_CODE;
 		}
 
-		if ($char == '#' || (in_array($char, array('\'', '"')) && substr($code, 0, 3) == $char.$char.$char))
+		if ($state !== $oldState)
 		{
-			$isComment = 1;
-		}
-		else
-		{
-			$isComment = 0;
-		}
-
-		if ($finish || (!$notParse && ($isComment || (in_array($char, array('\'', '"')) && ($charOld != '\\' || substr($buffer, -2) == '\\\\')))))
-		{
-			$output.= preg_replace(
+			if ($oldState == self::STATE_CODE)
+			{
+				$output.= preg_replace(
 	array(
 		'#(?<!<span )\b(None|self|True|False|NotImplemented|Ellipsis|exec|print|and|assert|in|is|not|or|class|def|del|global|lambda)\b#S',
 		'#\b(break|continue|elif|else|except|finally|for|if|pass|raise|return|try|while|yield)\b#S',
@@ -1590,7 +1626,7 @@ static public function modePython($code, $options)
 		'#(?<!">)\b\.([\w_-]+)\b#Ssi',
 		'#\b(?<!\$)(__future__|__import__|__name__|abs|all|any|apply|basestring|bool|buffer|callable|chr|classmethod|close|cmp|coerce|compile|complex|delattr|dict|dir|divmod|enumerate|eval|execfile|exit|file|filter|float|frozenset|getattr|globals|hasattr|hash|hex|id|input|int|intern|isinstance|issubclass|iter|len|list|locals|long|map|max|min|object|oct|open|ord|pow|property|range|raw_input|reduce|reload|repr|reversed|round|set(?:attr)?|slice|sorted|staticmethod|str|sum|super|tuple|type|unichr|unicode|vars|xrange|zip)\b#S',
 		'#(?<!">|[a-z-_])((?:-\s*)?(?:(?:\d+\.)?\d+))\b#Si',
-		'#(?<!class|">|"|span|&lt|&gt)(:|;|-|\||\+|=|\*|!|~|\.|,|\(|\)|\/|@|\%|&lt;|&gt;|&amp;|\{|\}|\[|\])(?!/?span)#Ssi',
+		'#(?<!class|">|"|span|&lt|&gt)(:|;|-|\||\+|=|\*|!|~|\.|,|\/|@|\%|&lt;|&gt;|&amp;)(?!/?span)#Ssi',
 		),
 	array(
 		'<span class="keyword">\\1</span>',
@@ -1604,37 +1640,40 @@ static public function modePython($code, $options)
 		),
 	$buffer
 	);
-			if ($isComment)
-			{
-				$comment = $char;
-
-				if ($char != '#')
-				{
-					$documentation = 1;
-				}
 			}
-			else
+			else if ($oldState == self::STATE_DOCUMENTATION)
 			{
-				$value = $char;
+				$output.= '<span class="documentation">'.self::modeJavadoc($buffer.$char, $options).'</span>';
+				$char = '';
+			}
+			else if ($oldState == self::STATE_COMMENT)
+			{
+				$code = "\n".$code;
+				$output.= '<span class="comment">'.preg_replace('#\b(FIXME|NOTICE|NOTE|TODO|WARNING)\b#i', '<span class="notice">\\1</span>', $buffer).'</span>';
+				$char = '';
+			}
+			else if ($oldState == self::STATE_VALUE)
+			{
+				$output.= '<span class="value">'.$buffer.$char.'</span>';
+				$char = '';
 			}
 
-			$notParse = 1;
-			$buffer = $char;
-		}
-		else if ($notParse && (($value && $char == $value && ($charOld != '\\' || substr($buffer, -2) == '\\\\')) || ($comment && (($comment == '#' && $char == "\n") || ($documentation && $char == $comment && substr($buffer, -2) == $char.$char && strlen($buffer) > 2)))))
-		{
-			$buffer = $buffer.(($char == "\n") ? '' : $char);
-			$output.= '<span class="'.($comment ? ($documentation ? 'documentation' : 'comment') : 'value').'">'.($value ? $buffer : preg_replace('#\b(FIXME|NOTICE|NOTE|TODO|WARNING)\b#i', '<span class="notice">\\1</span>', $buffer)).'</span>';
-			$buffer = (($char == "\n") ? $char : '');
-			$notParse = $comment = $value = $documentation = 0;
-		}
-		else
-		{
-			$buffer.= $char;
+			$buffer = '';
 		}
 
-		$code = substr($code, 1);
-		$charOld = $char;
+		$buffer.= $char;
+
+		if (empty($code))
+		{
+			if ($options & self::FORMAT_RANGES)
+			{
+				$buffer.= str_repeat('</span>', array_sum($levels));
+			}
+
+			$output.= $buffer;
+
+			break;
+		}
 	}
 
 	return $output;
