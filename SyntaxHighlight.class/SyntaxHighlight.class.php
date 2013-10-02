@@ -1803,75 +1803,7 @@ static private function modeSql($code, $options)
 
 static private function modeXml($code, $options)
 {
-	$buffer = $output = $charOld = '';
-	$notParse = $comment = $value = $finish = 0;
-
-	while (!$finish)
-	{
-		if (strlen($code) == 0)
-		{
-			$finish = 1;
-		}
-		else
-		{
-			$char = substr($code, 0, 1);
-		}
-
-		$isComment = 0;
-
-		if ($finish || (!$notParse && (in_array($char, array('\'', '"'))  || ($isComment = ($char == '-' && substr($buffer, -6) == '&lt;!-')))))
-		{
-			if ($isComment)
-			{
-				$buffer = substr($buffer, 0, -6);
-			}
-
-			$output.= preg_replace(
-	array(
-		'#&lt;(.*)&gt;#iU',
-		'#&lt;(\w+)(\s+)([a-z0-9_\-:]+=)$#i',
-		'#(?<!span)(\s+)([a-z0-9_\-:]+=)$#i',
-		'#(&amp;\w{2,5};)#iU',
-		),
-	array(
-		'&lt;<span class="tag">\\1</span>&gt;',
-		'&lt;<span class="tag">\\1</span>\\2<span class="attribute">\\3</span>',
-		'\\1<span class="attribute">\\2</span>',
-		'<span class="entity">\\1</span>',
-		),
-	$buffer
-	);
-			$notParse = 1;
-
-			if ($isComment)
-			{
-				$comment = 1;
-			}
-			else
-			{
-				$value = $char;
-			}
-
-			$buffer = ($isComment ? '&lt;!-' : '').$char;
-		}
-		else if ($notParse && (($value && $char == $value) || ($comment && $char == ';' && substr($buffer, -5) == '--&gt')))
-		{
-			$output.= '<span class="'.($comment ? 'comment' : 'value').'">'.$buffer.$char.'</span>';
-			$buffer = '';
-			$notParse = $comment = $value = 0;
-		}
-		else
-		{
-			$buffer.= $char;
-		}
-
-		$code = substr($code, 1);
-		$charOld = $char;
-	}
-
-	$output = preg_replace('#(&lt;\?xml .*\?&gt;|&lt;!DOCTYPE .*&gt;)+#siU', '<span class="doctype">\\1</span>', $output);
-
-	return $output;
+	return self::modeHtml($code, $options);
 }
 
 }
