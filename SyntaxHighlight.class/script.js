@@ -117,11 +117,11 @@ window.addEventListener('load', function()
 				});
 				fold.addEventListener('mouseover', function(event)
 				{
-					this.parentNode.parentNode.getElementsByClassName('fold')[parseInt(this.getAttribute('data-range'))].parentNode.className = 'highlightrange';
+					this.parentNode.parentNode.getElementsByClassName('fold')[parseInt(this.getAttribute('data-range'))].parentNode.classList.add('highlightrange');
 				});
 				fold.addEventListener('mouseout', function(event)
 				{
-					this.parentNode.parentNode.getElementsByClassName('fold')[parseInt(this.getAttribute('data-range'))].parentNode.className = '';
+					this.parentNode.parentNode.getElementsByClassName('fold')[parseInt(this.getAttribute('data-range'))].parentNode.classList.remove('highlightrange');
 				});
 
 				container.appendChild(fold);
@@ -136,11 +136,11 @@ window.addEventListener('load', function()
 			{
 				ranges[j].addEventListener('mouseover', function()
 				{
-					this.parentNode.className = 'highlightrange';
+					this.parentNode.classList.add('highlightrange');
 				});
 				ranges[j].addEventListener('mouseout', function()
 				{
-					this.parentNode.className = '';
+					this.parentNode.classList.remove('highlightrange');
 				});
 			}
 		}
