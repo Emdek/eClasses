@@ -386,7 +386,7 @@ static private function modeCpp($code, $options)
 		'#^(\#\s*(?:endif|if (?:def|ndef)?(?=\s+\S)|(?:el(?:se|if)|include(?:_next)?|define|undef|line|error|warning|pragma|static)|define.*|[0-9]+))#im',
 		'#\b(auto|bool|const|double|float|long|mutable|register|short|(?:un)?signed|void|volatile|(?:w|u)?char(?:_t)?|u?int(?:(?:8|16|32|64)_t)?|_Imaginary|_Complex|_Bool)\b#Ss',
 		'#(?<!">|[a-z-_])((?:-\s*)?(?:(?:\d+\.)?\d+))\b#Ssi',
-		'#(?<!class|">|"|span)(:|;|-|\||\+|=|\*|!|~|\.|,|\/|@|\%|&lt;|&gt;|&amp;)(?!/?span)#Ssi',
+		'#(?<!class|">|"|span)((?::|;|-|\||\+|=|\*|!|~|\.|,|\/|@|\%|&lt;|&gt;|&amp;)+)(?!/?span)#Ssi',
 		),
 	array(
 		'<span class="keyword">\\1</span>',
@@ -508,7 +508,7 @@ static private function modeCs($code, $options)
 		'#^(\#(?:else|elif|(?:end)?if|in|define|undef|warning|error|line))#Sim',
 		'#\b(bool|char|const|decimal|double|float|object|u?int|u?short|u?long|s?byte|string|void)\b#Ss',
 		'#(?<!">|[a-z-_])((?:-\s*)?(?:(?:\d+\.)?\d+))\b#Ssi',
-		'#(?<!class|">|"|span)(:|;|-|\||\+|=|\*|!|~|\.|,|\(|\)|\/|@|\%|&lt;|&gt;|&amp;|\{|\}|\[|\])(?!/?span)#Ssi',
+		'#(?<!class|">|"|span)((?::|;|-|\||\+|=|\*|!|~|\.|,|\(|\)|\/|@|\%|&lt;|&gt;|&amp;|\{|\}|\[|\])+)(?!/?span)#Ssi',
 		),
 	array(
 		'<span class="keyword">\\1</span>',
@@ -656,7 +656,7 @@ static private function modeCss($code, $options)
 		'#(?<=\n|\r|\}|,\s|,)(\#[a-z]\w*)#Ssi',
 		'#(:{1,2})(link|visited|active|hover|focus|lang|nth-child|nth-last-child|nth-of-type|nth-last-of-type|first-child|last-child|first-of-type|last-of-type|only-child|only-of-type|root|empty|target|enabled|disabled|checked|not|first-line|first-letter|before|after|selection)#Ssi',
 		'#\b([a-z]+)\b(\s*'.(($options & self::FORMAT_RANGES) ? '<span>' : '').'<span class="punctuation'.(($options & self::FORMAT_RANGES) ? ' range' : '').'">\()#Ssi',
-		'#(?<!class|">|"|span)(~|\*|=|,|\(|\)|\/|&lt;|&gt;|\[|\])(?!/?span)#Ssi',
+		'#(?<!class|">|"|span)((?:~|\*|=|,|\(|\)|\/|&lt;|&gt;|\[|\])+)(?!/?span)#Ssi',
 		),
 	array(
 		'<span class="control">@\\1</span>',
@@ -676,7 +676,7 @@ static private function modeCss($code, $options)
 		'#\b([a-z]+)\b(\s*'.(($options & self::FORMAT_RANGES) ? '<span>' : '').'<span class="punctuation'.(($options & self::FORMAT_RANGES) ? ' range' : '').'">\()#Ssi',
 		'#((?<=^|;|\s)[a-z\-]+(?=:)|(?:!important))#Ssi',
 		'#(?<!">)((?:(?:\+|-)\s*)?(?:\#\w{6}|\#\w{3}|(?:\d+\.)?\d+(?:px|pt|pc|ex|em|in|cm|mm|deg|grad|rad|ms|s|k?hz|\%)?))#Ssi',
-		'#(?<!class|">|"|span)(:|;|=|\*|,|\(|\)|\/|&lt;|&gt;)(?!/?span)#Ssi',
+		'#(?<!class|">|"|span)((?::|;|=|\*|,|\(|\)|\/|&lt;|&gt;)+)(?!/?span)#Ssi',
 		),
 	array(
 		'<span class="function">\\1</span>\\2',
@@ -765,7 +765,7 @@ static private function modeGettext($code, $options)
 	array(
 		'#(msgid(?:_plural)?|msgstr)#i',
 		'#(?<!">|[a-z-_])((?:-\s*)?(?:(?:\d+\.)?\d+))\b#Ssi',
-		'#(?<!class|">|"|span)(:|;|-|\||\+|=|\*|!|~|\.|,|\/|@|\%|&lt;|&gt;|&amp;|\(|\)|\{|\}|\[|\])(?!/?span)#Ssi',
+		'#(?<!class|">|"|span)((?::|;|-|\||\+|=|\*|!|~|\.|,|\/|@|\%|&lt;|&gt;|&amp;|\(|\)|\{|\}|\[|\])+)(?!/?span)#Ssi',
 		),
 	array(
 		'<span class="keyword">\\1</span>',
@@ -1036,7 +1036,7 @@ static private function modeJava($code, $options)
 		'#\b(break|case|catch|continue|default|do|else|for|goto|if|return|throw|try|while)\b#Ss',
 		'#\b(boolean|byte|char|const|double|final|float|int|long|short|void)\b#Ss',
 		'#(?<!">|[a-z-_])((?:-\s*)?(?:(?:\d+\.)?\d+))\b#Ssi',
-		'#(?<!class|">|"|span)(:|;|-|\||\+|=|\*|!|~|\.|,|\/|@|\%|&lt;|&gt;|&amp;)(?!/?span)#Ssi',
+		'#(?<!class|">|"|span)((?::|;|-|\||\+|=|\*|!|~|\.|,|\/|@|\%|&lt;|&gt;|&amp;)+)(?!/?span)#Ssi',
 		),
 	array(
 		'<span class="keyword">\\1</span>',
@@ -1189,7 +1189,7 @@ static private function modeJavascript($code, $options)
 		'#\b([a-z]+)\b(\s*'.(($options & self::FORMAT_RANGES) ? '<span>' : '').'<span class="punctuation'.(($options & self::FORMAT_RANGES) ? ' range' : '').'">\()#Ssi',
 		'#(?<=\.)\b([a-z]+)\b#Ssi',
 		'#(?<!">)((?:-\s*)?(?:\#\w{6}|\#\w{3}|(?:\d+\.)?\d+))\b#Ssi',
-		'#(?<!class|">|"|span)(:|;|-|\||\+|=|\*|!|~|\.|,|\/|@|\%|&lt;|&gt;|&amp;)(?!/?span)#Ssi',
+		'#(?<!class|">|"|span)((?::|;|-|\||\+|=|\*|!|~|\.|,|\/|@|\%|&lt;|&gt;|&amp;)+)(?!/?span)#Ssi',
 		),
 	array(
 		'<span class="keyword">\\1</span>',
@@ -1311,7 +1311,7 @@ static private function modePerl($code, $options)
 		'#\b(?<!\$)(abs|accept|alarm|atan2|bind|binmode|bless|caller|chdir|chmod|chomp|chop|chown|chr|chroot|close|closedir|connect|cos|crypt|dbmclose|dbmopen|defined|delete|die|dump|endgrent|endhostent|endnetent|endprotoent|endpwent|endservent|eof|eval|exec|exists|exit|exp|fcntl|fileno|flock|fork|format|formline|getc|getgrent|getgrgid|getgrnam|gethostbyaddr|gethostbyname|gethostent|getlogin|getnetbyaddr|getnetbyname|getnetent|getpeername|getpgrp|getppid|getpriority|getprotobyname|getprotobynumber|getprotoent|getpwent|getpwnam|getpwuid|getservbyname|getservbyport|getservent|getsockname|getsockopt|glob|gmtime|goto|grep|hex|import|index|int|ioctl|join|keys|kill|last|lc|lcfirst|length|link|listen|localtime|lock|log|lstat|map|mkdir|msgctl|msgget|msgrcv|msgsnd|oct|open|opendir|ord|pack|package|pipe|pop|pos|print|printf|prototype|push|quotemeta|rand|read|readdir|readline|readlink|recv|redo|ref|rename|reset|return|reverse|rewinddir|rindex|rmdir|scalar|seek(?:dir)?|select|semctl|semget|semop|send|setgrent|sethostent|setnetent|setpgrp|setpriority|setprotoent|setpwent|setservent|setsockopt|shift|shmctl|shmget|shmread|shmwrite|shutdown|sin|sleep|socket|socketpair|sort|splice|split|sprintf|sqrt|srand|stat|study|sub|substr|symlink|syscall|sysread|sysseek|system|syswrite|tell|telldir|tie|time|times|truncate|uc(?:first)?|umask|undef|unlink|unpack|unshift|untie|utime|values|vec|wait|waitpid|wantarray|warn|write)\b#i',
 		'#((?:\$|%|&|@)(?!lt;|gt;)[a-z_][\w-]*)\b#i',
 		'#(?<!">|[a-z-_])((?:-\s*)?(?:(?:\d+\.)?\d+)|0x[0-9a-f]+)\b#Ssi',
-		'#(?<!class|">|"|span|&lt|&gt)(:|;|-|\||\\|\+|=|\*|!|~|\.|,|\/|@|\%|&lt;|&gt;|&amp;|::|\band\b|\bor\b|\bnot\b|\beq\b|\bne\b)(?!/?span)#Ssi',
+		'#(?<!class|">|"|span|&lt|&gt)((?::|;|-|\||\\|\+|=|\*|!|~|\.|,|\/|@|\%|&lt;|&gt;|&amp;|::|\band\b|\bor\b|\bnot\b|\beq\b|\bne\b)+)(?!/?span)#Ssi',
 		),
 	array(
 		'<span class="keyword">\\1</span>',
@@ -1626,7 +1626,7 @@ static private function modePython($code, $options)
 		'#(?<!">)\b\.([\w_-]+)\b#Ssi',
 		'#\b(?<!\$)(__future__|__import__|__name__|abs|all|any|apply|basestring|bool|buffer|callable|chr|classmethod|close|cmp|coerce|compile|complex|delattr|dict|dir|divmod|enumerate|eval|execfile|exit|file|filter|float|frozenset|getattr|globals|hasattr|hash|hex|id|input|int|intern|isinstance|issubclass|iter|len|list|locals|long|map|max|min|object|oct|open|ord|pow|property|range|raw_input|reduce|reload|repr|reversed|round|set(?:attr)?|slice|sorted|staticmethod|str|sum|super|tuple|type|unichr|unicode|vars|xrange|zip)\b#S',
 		'#(?<!">|[a-z-_])((?:-\s*)?(?:(?:\d+\.)?\d+))\b#Si',
-		'#(?<!class|">|"|span|&lt|&gt)(:|;|-|\||\+|=|\*|!|~|\.|,|\/|@|\%|&lt;|&gt;|&amp;)(?!/?span)#Ssi',
+		'#(?<!class|">|"|span|&lt|&gt)((?::|;|-|\||\+|=|\*|!|~|\.|,|\/|@|\%|&lt;|&gt;|&amp;)+)(?!/?span)#Ssi',
 		),
 	array(
 		'<span class="keyword">\\1</span>',
@@ -1748,7 +1748,7 @@ static private function modeSql($code, $options)
 		'#((?:^|;\s+)(?:EXPLAIN )+(?:BEGIN|COMMIT|END|ROLLBACK) TRANSACTION|(?:AT|DE)TACH DATABASE|REINDEX|PRAGMA|ALTER TABLE|DELETE|VACUUM|EXPLAIN|SELECT(?: DISTINCT| UNION(?: ALL)?| INTERSECT| EXCEPT)?|BETWEEN|REPLACE|INSERT INTO|UPDATE|(?:CREATE |DROP )(?:(?:TEMP(?:ORARY)? |VIRTUAL )?TABLE| VIEW|(?: UNIQUE)? INDEX | TRIGGER))#Ssi',
 		'#(\s+)(WHERE|(?:PRIMARY|FOREIGN) KEY|IF NOT EXISTS|COLLATE|ON|OFF|YES|FILE|MEMORY|CASE|SET|(?:LEFT|RIGHT|FULL)(?: OUTER)? JOIN|UPDATE(?: OF)?|INSTEAD OF|CHECK|ON CONFLICT|(?:NOT )?LIKE|GLOB|HAVING|AFTER|BEFORE|FOR EACH(?:ROW|STATEMENT)|BEGIN|END|ELSE|NULL|AS SELECT|FROM|VALUES|ORDER BY|GROUP BY|WHEN|THEN|IN|LIMIT|OFFSET|AS|NO(?:T(?: ?)NULL?)|DEFAULT|UNIQUE|OR|AND|DESC|ASC)#Ssi',
 		'#((?:-\s*)?(?:\d+\.)?\d+)#S',
-		'#(?<!class|">|"|span)(:|;|-|\||\+|=|\*|!|~|\.|,|\/|@|\$|\%|&lt;|&gt;|&amp;)(?!/?span)#Ssi',
+		'#(?<!class|">|"|span)((?::|;|-|\||\+|=|\*|!|~|\.|,|\/|@|\$|\%|&lt;|&gt;|&amp;)+)(?!/?span)#Ssi',
 		),
 	array(
 		'<span class="function">\\1</span>\\2',
