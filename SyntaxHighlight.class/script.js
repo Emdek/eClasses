@@ -93,20 +93,20 @@ window.addEventListener('load', function()
 
 		if (options.indexOf('folding') >= 0)
 		{
-			var folds = elements[i].getElementsByClassName('foldable');
+			var foldables = elements[i].getElementsByClassName('foldable');
  			var container = elements[i].getElementsByClassName('numbers')[0];
  			var offset = getOffset(container);
 
-			for (var j = 0; j < folds.length; ++j)
+			for (var j = 0; j < foldables.length; ++j)
 			{
 				var fold = document.createElement('span');
 				fold.setAttribute('data-range', j);
 				fold.className = 'fold';
-				fold.style.top = ((getOffset(folds[j]) - offset) + 'px');
+				fold.style.top = ((getOffset(foldables[j]) - offset) + 'px');
 
 				fold.addEventListener('click', function(event)
 				{
-					var range = this.parentNode.parentNode.getElementsByClassName('foldable')[parseInt(this.getAttribute('data-range'))].parentNode;
+					var range = this.parentNode.parentNode.getElementsByClassName('foldable')[parseInt(this.getAttribute('data-range'))];
 					var show = (range.style.visibility == 'hidden');
 
 					range.style.visibility = (show ? 'inherit' : 'hidden');
@@ -117,11 +117,11 @@ window.addEventListener('load', function()
 				});
 				fold.addEventListener('mouseover', function(event)
 				{
-					this.parentNode.parentNode.getElementsByClassName('foldable')[parseInt(this.getAttribute('data-range'))].parentNode.classList.add('highlightrange');
+					this.parentNode.parentNode.getElementsByClassName('foldable')[parseInt(this.getAttribute('data-range'))].classList.add('highlightrange');
 				});
 				fold.addEventListener('mouseout', function(event)
 				{
-					this.parentNode.parentNode.getElementsByClassName('foldable')[parseInt(this.getAttribute('data-range'))].parentNode.classList.remove('highlightrange');
+					this.parentNode.parentNode.getElementsByClassName('foldable')[parseInt(this.getAttribute('data-range'))].classList.remove('highlightrange');
 				});
 
 				container.appendChild(fold);
@@ -130,7 +130,7 @@ window.addEventListener('load', function()
 
 		if (options.indexOf('ranges') >= 0)
 		{
-			var ranges = elements[i].getElementsByClassName('range');
+			var ranges = elements[i].querySelectorAll('.range > span:first-child, .range > span:last-child');
 
 			for (var j = 0; j < ranges.length; ++j)
 			{
