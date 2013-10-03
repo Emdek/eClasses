@@ -295,14 +295,14 @@ static private function highlightEmbedded($matches)
 {
 	if (count($matches) == 2)
 	{
-		return self::modePhp(self::removeHighlighting($matches[1]), self::$options);
+		return ((self::$options & self::FORMAT_FOLDING) ? '<span class="foldable">' : '').self::modePhp(self::removeHighlighting($matches[1]), self::$options).((self::$options & self::FORMAT_FOLDING) ? '</span>' : '');
 	}
 	else if (substr($matches[1], 0, 34) == '&lt;<span class="tag">style</span>')
 	{
-		return '<span class="region">'.$matches[1].'</span>'.self::modeCss(self::removeHighlighting($matches[2]), self::$options).'<span class="region">'.$matches[3].'</span>';
+		return ((self::$options & self::FORMAT_FOLDING) ? '<span class="foldable">' : '').'<span class="region">'.$matches[1].'</span>'.self::modeCss(self::removeHighlighting($matches[2]), self::$options).'<span class="region">'.$matches[3].'</span>'.((self::$options & self::FORMAT_FOLDING) ? '</span>' : '');
 	}
 
-	return '<span class="region">'.$matches[1].'</span>'.self::modeJavascript(self::removeHighlighting($matches[2]), self::$options).'<span class="region">'.$matches[3].'</span>';
+	return ((self::$options & self::FORMAT_FOLDING) ? '<span class="foldable">' : '').'<span class="region">'.$matches[1].'</span>'.self::modeJavascript(self::removeHighlighting($matches[2]), self::$options).'<span class="region">'.$matches[3].'</span>'.((self::$options & self::FORMAT_FOLDING) ? '</span>' : '');
 }
 
 /**
