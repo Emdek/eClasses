@@ -357,7 +357,7 @@ static private function modeCpp($code, $options)
 			{
 				++$levels[$char];
 
-				$char = (($options & self::FORMAT_RANGES || ($options & self::FORMAT_FOLDING && $char == '{')) ? '<span>' : '').'<span class="punctuation'.(($options & self::FORMAT_RANGES) ? ' range' : '').(($options & self::FORMAT_FOLDING && $char == '{') ? ' fold' : '').'">'.$char.'</span>';
+				$char = (($options & self::FORMAT_RANGES || ($options & self::FORMAT_FOLDING && $char == '{')) ? '<span>' : '').'<span class="punctuation'.(($options & self::FORMAT_RANGES) ? ' range' : '').(($options & self::FORMAT_FOLDING && $char == '{') ? ' foldable' : '').'">'.$char.'</span>';
 			}
 			else if (isset($map[$char]))
 			{
@@ -477,7 +477,7 @@ static private function modeCs($code, $options)
 			{
 				++$levels[$char];
 
-				$char = (($options & self::FORMAT_RANGES || ($options & self::FORMAT_FOLDING && $char == '{')) ? '<span>' : '').'<span class="punctuation'.(($options & self::FORMAT_RANGES) ? ' range' : '').(($options & self::FORMAT_FOLDING && $char == '{') ? ' fold' : '').'">'.$char.'</span>';
+				$char = (($options & self::FORMAT_RANGES || ($options & self::FORMAT_FOLDING && $char == '{')) ? '<span>' : '').'<span class="punctuation'.(($options & self::FORMAT_RANGES) ? ' range' : '').(($options & self::FORMAT_FOLDING && $char == '{') ? ' foldable' : '').'">'.$char.'</span>';
 			}
 			else if (isset($map[$char]))
 			{
@@ -619,7 +619,7 @@ static private function modeCss($code, $options)
 					$state = self::STATE_CODE;
 				}
 
-				$char = (($options & self::FORMAT_RANGES || ($options & self::FORMAT_FOLDING && $char == '{')) ? '<span>' : '').'<span class="punctuation'.(($options & self::FORMAT_RANGES) ? ' range' : '').(($options & self::FORMAT_FOLDING && $char == '{') ? ' fold' : '').'">'.$char.'</span>'.(($char == '{' && $levels['def'] == 1) ? '<span class="definition">' : '');
+				$char = (($options & self::FORMAT_RANGES || ($options & self::FORMAT_FOLDING && $char == '{')) ? '<span>' : '').'<span class="punctuation'.(($options & self::FORMAT_RANGES) ? ' range' : '').(($options & self::FORMAT_FOLDING && $char == '{') ? ' foldable' : '').'">'.$char.'</span>'.(($char == '{' && $levels['def'] == 1) ? '<span class="definition">' : '');
 			}
 			else if (isset($map[$char]))
 			{
@@ -1002,7 +1002,7 @@ static private function modeJava($code, $options)
 			{
 				++$levels[$char];
 
-				$char = (($options & self::FORMAT_RANGES || ($options & self::FORMAT_FOLDING && $char == '{')) ? '<span>' : '').'<span class="punctuation'.(($options & self::FORMAT_RANGES) ? ' range' : '').(($options & self::FORMAT_FOLDING && $char == '{') ? ' fold' : '').'">'.$char.'</span>';
+				$char = (($options & self::FORMAT_RANGES || ($options & self::FORMAT_FOLDING && $char == '{')) ? '<span>' : '').'<span class="punctuation'.(($options & self::FORMAT_RANGES) ? ' range' : '').(($options & self::FORMAT_FOLDING && $char == '{') ? ' foldable' : '').'">'.$char.'</span>';
 			}
 			else if (isset($map[$char]))
 			{
@@ -1158,7 +1158,7 @@ static private function modeJavascript($code, $options)
 			{
 				++$levels[$char];
 
-				$char = (($options & self::FORMAT_RANGES || ($options & self::FORMAT_FOLDING && $char == '{')) ? '<span>' : '').'<span class="punctuation'.(($options & self::FORMAT_RANGES) ? ' range' : '').(($options & self::FORMAT_FOLDING && $char == '{') ? ' fold' : '').'">'.$char.'</span>';
+				$char = (($options & self::FORMAT_RANGES || ($options & self::FORMAT_FOLDING && $char == '{')) ? '<span>' : '').'<span class="punctuation'.(($options & self::FORMAT_RANGES) ? ' range' : '').(($options & self::FORMAT_FOLDING && $char == '{') ? ' foldable' : '').'">'.$char.'</span>';
 			}
 			else if (isset($map[$char]))
 			{
@@ -1282,7 +1282,7 @@ static private function modePerl($code, $options)
 			{
 				++$levels[$char];
 
-				$char = (($options & self::FORMAT_RANGES || ($options & self::FORMAT_FOLDING && $char == '{')) ? '<span>' : '').'<span class="punctuation'.(($options & self::FORMAT_RANGES) ? ' range' : '').(($options & self::FORMAT_FOLDING && $char == '{') ? ' fold' : '').'">'.$char.'</span>';
+				$char = (($options & self::FORMAT_RANGES || ($options & self::FORMAT_FOLDING && $char == '{')) ? '<span>' : '').'<span class="punctuation'.(($options & self::FORMAT_RANGES) ? ' range' : '').(($options & self::FORMAT_FOLDING && $char == '{') ? ' foldable' : '').'">'.$char.'</span>';
 			}
 			else if (isset($map[$char]))
 			{
@@ -1421,7 +1421,7 @@ static private function modePhp($code, $options)
 			{
 				++$levels[$char];
 
-				$char = (($options & self::FORMAT_RANGES || ($options & self::FORMAT_FOLDING && $char == '{')) ? '<span>' : '').'<span class="punctuation'.(($options & self::FORMAT_RANGES) ? ' range' : '').(($options & self::FORMAT_FOLDING && $char == '{') ? ' fold' : '').'">'.$char.'</span>';
+				$char = (($options & self::FORMAT_RANGES || ($options & self::FORMAT_FOLDING && $char == '{')) ? '<span>' : '').'<span class="punctuation'.(($options & self::FORMAT_RANGES) ? ' range' : '').(($options & self::FORMAT_FOLDING && $char == '{') ? ' foldable' : '').'">'.$char.'</span>';
 			}
 			else if (isset($map[$char]))
 			{

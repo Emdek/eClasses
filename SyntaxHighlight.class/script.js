@@ -93,7 +93,7 @@ window.addEventListener('load', function()
 
 		if (options.indexOf('folding') >= 0)
 		{
-			var folds = elements[i].getElementsByClassName('fold');
+			var folds = elements[i].getElementsByClassName('foldable');
  			var container = elements[i].getElementsByClassName('numbers')[0];
  			var offset = getOffset(container);
 
@@ -101,27 +101,27 @@ window.addEventListener('load', function()
 			{
 				var fold = document.createElement('span');
 				fold.setAttribute('data-range', j);
-				fold.className = 'foldrange';
+				fold.className = 'fold';
 				fold.style.top = ((getOffset(folds[j]) - offset) + 'px');
 
 				fold.addEventListener('click', function(event)
 				{
-					var range = this.parentNode.parentNode.getElementsByClassName('fold')[parseInt(this.getAttribute('data-range'))].parentNode;
+					var range = this.parentNode.parentNode.getElementsByClassName('foldable')[parseInt(this.getAttribute('data-range'))].parentNode;
 					var show = (range.style.visibility == 'hidden');
 
 					range.style.visibility = (show ? 'inherit' : 'hidden');
 
-					this.className = (show ? 'foldrange' : 'unfoldrange');
+					this.className = (show ? 'fold' : 'unfold');
 
 					event.stopPropagation();
 				});
 				fold.addEventListener('mouseover', function(event)
 				{
-					this.parentNode.parentNode.getElementsByClassName('fold')[parseInt(this.getAttribute('data-range'))].parentNode.classList.add('highlightrange');
+					this.parentNode.parentNode.getElementsByClassName('foldable')[parseInt(this.getAttribute('data-range'))].parentNode.classList.add('highlightrange');
 				});
 				fold.addEventListener('mouseout', function(event)
 				{
-					this.parentNode.parentNode.getElementsByClassName('fold')[parseInt(this.getAttribute('data-range'))].parentNode.classList.remove('highlightrange');
+					this.parentNode.parentNode.getElementsByClassName('foldable')[parseInt(this.getAttribute('data-range'))].parentNode.classList.remove('highlightrange');
 				});
 
 				container.appendChild(fold);

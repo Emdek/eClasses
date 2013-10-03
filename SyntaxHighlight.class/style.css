@@ -175,7 +175,7 @@
 {
 	color:red;
 }
-.highlight .foldrange, .highlight .unfoldrange
+.highlight .numbers .fold, .highlight .numbers .unfold
 {
 	display:block;
 	width:7px;
@@ -188,7 +188,7 @@
 	background:#FFF url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAcAAAAHCAYAAADEUlfTAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAACHRFWHRDb21tZW50APbMlr8AAAAiSURBVAiZYzh5fNd/XJgBTGABGJJANnZJNCNJ0InTTlwYANBkX5JGluSOAAAAAElFTkSuQmCC') no-repeat;
 	cursor:pointer;
 }
-.highlight .unfoldrange
+.highlight .numbers .unfold
 {
 	background:#FFF url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAcAAAAHCAYAAADEUlfTAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAACHRFWHRDb21tZW50APbMlr8AAAAiSURBVAiZYzh5fNd/XJgBTGABGJIYbJgAmpEk6MRpJy4MAJerYZCLE/AyAAAAAElFTkSuQmCC') no-repeat;
 }
