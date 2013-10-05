@@ -4,7 +4,7 @@
 <meta http-equiv="Content-type" content="text/html; charset=utf-8">
 <meta name="author" content="Emdek">
 <link href="../style.css" rel="stylesheet" type="text/css">
-<title>SyntaxHighlight.class :: example</title>
+<title>SyntaxHighlight.class :: examples</title>
 <script type="text/javascript" src="../script.js"></script>
 </head>
 <body>
