@@ -1737,7 +1737,7 @@ static private function modeSql($code, $options)
 		}
 		else if ($state == self::STATE_CODE)
 		{
-			if (($char == '/' && substr($code, 0, 1) == '*') || ($char == '-' && substr($code, 0, 1) == '-'))
+			if ($char == '#' || ($char == '/' && substr($code, 0, 1) == '*') || ($char == '-' && substr($code, 0, 1) == '-'))
 			{
 				$state = self::STATE_COMMENT;
 			}
@@ -1758,7 +1758,7 @@ static private function modeSql($code, $options)
 				$char = '<span class="punctuation'.(($options & self::FORMAT_RANGES && $levels[$map[$char]] >= 0) ? ' range' : '').'">'.$char.'</span>'.(((($options & self::FORMAT_RANGES) && $levels[$map[$char]] >= 0)) ? '</span>' : '');
 			}
 		}
-		else if ($state == self::STATE_COMMENT && $char == '/' && substr($buffer, -1) == '*')
+		else if ($state == self::STATE_COMMENT && (($char == "\n" && substr($buffer, 0, 1) != '/') || ($char == '/' && substr($buffer, -1) == '*')))
 		{
 			$state = self::STATE_CODE;
 		}
