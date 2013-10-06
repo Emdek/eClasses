@@ -45,12 +45,27 @@ window.addEventListener('load', function()
 		element.getElementsByClassName('code')[0].style.background = backgrounds.join(',');
 	}
 
+	function updateSize(element)
+	{
+		element.getElementsByClassName('numbers')[0].style.height = ((element.clientHeight - 6) + 'px');
+	}
+
 	var background = 'url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAAgCAYAAADT5RIaAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAACHRFWHRDb21tZW50APbMlr8AAAARSURBVAhbY2CgNsj9zE5FAgB9dRZxBYoY7AAAAABJRU5ErkJggg==\') 0 0';
 	var elements = document.getElementsByClassName('highlight');
 
 	for (var i = 0; i < elements.length; ++i)
 	{
 		var options = (elements[i].hasAttribute('data-options') ? elements[i].getAttribute('data-options').split(',') : []);
+
+		if (options.indexOf('linenumbers') >= 0)
+		{
+			updateSize(elements[i]);
+
+			elements[i].addEventListener('resize', function()
+			{
+				updateSize(this);
+			});
+		}
 
 		if (options.indexOf('marklines') >= 0)
 		{

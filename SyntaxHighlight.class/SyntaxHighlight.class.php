@@ -174,6 +174,7 @@ static public function highlightString($code, $mode = '', $options = self::FORMA
 
 	if ($options & self::FORMAT_LINENUMBERS)
 	{
+		$script[] = 'linenumbers';
 		$numbers = '';
 		$lines = (substr_count($code, ((substr_count($code, "\r") > substr_count($code, "\n")) ? "\r" : "\n")) + 2);
 
