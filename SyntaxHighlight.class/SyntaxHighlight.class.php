@@ -912,69 +912,80 @@ static private function modeHtml($code, $options)
 
 static private function modeIni($code, $options)
 {
-	$buffer = $output = $charOld = '';
-	$notParse = $comment = $value = $finish = 0;
+	$buffer = $output = '';
+	$state = self::STATE_CODE;
 
-	while (!$finish)
+	while (TRUE)
 	{
-		if (strlen($code) == 0)
+		$char = (empty($code) ? '' : substr($code, 0, 1));
+		$code = substr($code, 1);
+		$oldState = $state;
+
+		if (empty($code))
 		{
-			$finish = 1;
+			$buffer.= $char;
+			$char = '';
+			$state = self::STATE_NONE;
 		}
-		else
+		else if ($state == self::STATE_CODE)
 		{
-			$char = substr($code, 0, 1);
+			if ($char == '/' || $char == ';')
+			{
+				$state = self::STATE_COMMENT;
+			}
+			else if (($char == '\'' || $char ==  '"') && (substr($buffer, -1) != '\\' || substr($buffer, -2) == '\\\\'))
+			{
+				$state = self::STATE_VALUE;
+			}
+		}
+		else if ($state == self::STATE_COMMENT && $char == "\n")
+		{
+			$state = self::STATE_CODE;
+		}
+		else if ($state == self::STATE_VALUE && ($char == '\'' || $char ==  '"') && $char == substr($buffer, 0, 1) && (substr($buffer, -1) != '\\' || substr($buffer, -2) == '\\\\'))
+		{
+			$state = self::STATE_CODE;
 		}
 
-		if ($char == '#' || $char == ';')
+		if ($state !== $oldState)
 		{
-			$isComment = 1;
-		}
-		else
-		{
-			$isComment = 0;
-		}
-
-		if ($finish || (!$notParse && ($isComment || in_array($char, array('\'', '"')))))
-		{
-			$output.= preg_replace(
+			if ($oldState == self::STATE_CODE)
+			{
+				$output.= preg_replace(
 	array(
 		'#^(\[\w+\])$#SsiUm',
 		'#^([^\#;]+)(?<!<span class)= (.+)$#SsiUm',
-		'#^\s*([\#;].*)$#SsiUm',
 		),
 	array(
 		'<span class="tag">\\1</span>',
 		'<span class="keyword">\\1</span><span class="punctuation">=</span><span class="value">\\2</span>',
-		'<span class="comment">\\1</span>',
 		),
 	$buffer
 	);
-			if ($isComment)
-			{
-				$comment = 1;
 			}
-			else
+			else if ($oldState == self::STATE_COMMENT)
 			{
-				$value = $char;
+				$code = "\n".$code;
+				$output.= '<span class="comment">'.preg_replace('#\b(FIXME|NOTICE|NOTE|TODO|WARNING)\b#i', '<span class="notice">\\1</span>', $buffer).'</span>';
+				$char = '';
+			}
+			else if ($oldState == self::STATE_VALUE)
+			{
+				$output.= '<span class="value">'.$buffer.$char.'</span>';
+				$char = '';
 			}
 
-			$notParse = 1;
-			$buffer = (($isComment && $char != '#') ? $charOld : '').$char;
-		}
-		else if ($notParse && (($value && $char == $value) || ($comment && $char == "\n")))
-		{
-			$output.= '<span class="'.($comment ? 'comment' : 'value').'">'.($value ? $buffer.$char : preg_replace('#\b(FIXME|NOTICE|NOTE|TODO|WARNING)\b#i', '<span class="notice">\\1</span>', $buffer.(($char == "\n") ? '' : $char))).'</span>';
-			$buffer = (($char == "\n") ? $char : '');
-			$notParse = $comment = $value = 0;
-		}
-		else
-		{
-			$buffer.= $char;
+			$buffer = '';
 		}
 
-		$code = substr($code, 1);
-		$charOld = $char;
+		$buffer.= $char;
+
+		if (empty($code))
+		{
+			$output.= $buffer;
+
+			break;
+		}
 	}
 
 	return $output;
