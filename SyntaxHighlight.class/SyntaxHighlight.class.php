@@ -656,7 +656,7 @@ static private function modeCss($code, $options)
 		'#(\.[a-z]\w*)#Ssi',
 		'#(?<=\n|\r|\}|,\s|,)(\#[a-z]\w*)#Ssi',
 		'#(:{1,2})(link|visited|active|hover|focus|lang|nth-child|nth-last-child|nth-of-type|nth-last-of-type|first-child|last-child|first-of-type|last-of-type|only-child|only-of-type|root|empty|target|enabled|disabled|checked|not|first-line|first-letter|before|after|selection)#Ssi',
-		'#\b([a-z]+)\b(\s*'.(($options & self::FORMAT_RANGES) ? '<span>' : '').'<span class="punctuation'.(($options & self::FORMAT_RANGES) ? ' range' : '').'">\()#Ssi',
+		'#\b([a-z]+)\b(\s*'.(($options & self::FORMAT_RANGES) ? '<span class="range">' : '').'<span class="punctuation">\()#Ssi',
 		'#(?<!class|">|"|span)((?:~|\*|=|,|\(|\)|\/|&lt;|&gt;|\[|\])+)(?!/?span)#Ssi',
 		),
 	array(
@@ -674,7 +674,7 @@ static private function modeCss($code, $options)
 			{
 				$output.= preg_replace(
 	array(
-		'#\b([a-z]+)\b(\s*'.(($options & self::FORMAT_RANGES) ? '<span>' : '').'<span class="punctuation'.(($options & self::FORMAT_RANGES) ? ' range' : '').'">\()#Ssi',
+		'#\b([a-z]+)\b(\s*'.(($options & self::FORMAT_RANGES) ? '<span class="range">' : '').'<span class="punctuation">\()#Ssi',
 		'#((?<=^|;|\s)[a-z\-]+(?=:)|(?:!important))#Ssi',
 		'#(?<!">)((?:(?:\+|-)\s*)?(?:\#\w{6}|\#\w{3}|(?:\d+\.)?\d+(?:px|pt|pc|ex|em|in|cm|mm|deg|grad|rad|ms|s|k?hz|\%)?))#Ssi',
 		'#(?<!class|">|"|span)((?::|;|=|\*|,|\(|\)|\/|&lt;|&gt;)+)(?!/?span)#Ssi',
@@ -1215,8 +1215,8 @@ static private function modeJavascript($code, $options)
 		'#\b(in|with|try|catch|finally|new|var|function|delete|true|false|void|throw|typeof|const)\b#Ss',
 		'#\b(as|case|default|if|else|elseif|while|do|for|foreach|break|continue|switch|return)\b#Ss',
 		'#\b(Anchor|Applet|Area|Array|Boolean|Button|Checkbox|Date|document|window|Image|FileUpload|Form|Frame|Function|Hidden|Link|MimeType|Math|Max|Min|Layer|navigator|Object|Password|Plugin|Radio|RegExp|Reset|Screen|Select|String|Text|Textarea|this|Window)\b#Ss',
-		'#(?<=\.)\b([a-z]+)\b(\s*'.(($options & self::FORMAT_RANGES) ? '<span>' : '').'<span class="punctuation'.(($options & self::FORMAT_RANGES) ? ' range' : '').'">\()#Ssi',
-		'#\b([a-z]+)\b(\s*'.(($options & self::FORMAT_RANGES) ? '<span>' : '').'<span class="punctuation'.(($options & self::FORMAT_RANGES) ? ' range' : '').'">\()#Ssi',
+		'#(?<=\.)\b([a-z]+)\b(\s*'.(($options & self::FORMAT_RANGES) ? '<span class="range">' : '').'<span class="punctuation">\()#Ssi',
+		'#\b([a-z]+)\b(\s*'.(($options & self::FORMAT_RANGES) ? '<span class="range">' : '').'<span class="punctuation">\()#Ssi',
 		'#(?<=\.)\b([a-z]+)\b#Ssi',
 		'#(?<!">)((?:-\s*)?(?:\#\w{6}|\#\w{3}|(?:\d+\.)?\d+))\b#Ssi',
 		'#(?<!class|">|"|span)((?::|;|-|\||\+|=|\*|!|~|\.|,|\/|@|\%|&lt;|&gt;|&amp;)+)(?!/?span)#Ssi',
@@ -1482,8 +1482,8 @@ static private function modePhp($code, $options)
 		'#(?<!\$)\b(abstract|(?<!<span )class|clone|const|exception|extends|final|function|implements|instanceof|interface|new|self|static|parent|private|protected|public|use|and|x?or|var|FALSE|TRUE|NULL|DEFAULT_INCLUDE_PATH|__(?:FILE|LINE|DIR|FUNCTION|CLASS|TRAIT|NAMESPACE|COMPILER_HALT_OFFSET)__|E_(?:ERROR|WARNING|PARSE|NOTICE|DEPRECATED|STRICT|ALL|CORE_(?:ERROR|WARNING)|COMPILE_(?:ERROR|WARNING)|USER_(ERROR|WARNING|NOTICE|DEPRECATED))|(?:PHP|PEAR)_[A-Z0-9_]+)\b#Si',
 		'#\b(as|case|catch|default|if|isset|die|exit|else|elseif|unset|empty|while|do|for(?:each)?|break|continue|switch|throw|try|finally|yield|declare|return|require(?:_once)?|include(?:_once)?|endif|endwhile|endfor|endforeach|endswitch)\b#S',
 		'#\b(Exception)\b#S',
-		'#(?<!\$|->|::)(\s*)\b([a-z0-9_\-]+)\b(\s*'.(($options & self::FORMAT_RANGES) ? '<span>' : '').'<span class="punctuation'.(($options & self::FORMAT_RANGES) ? ' range' : '').'">\()#Ssi',
-		'#(?<=->|::)(\s*)\b([a-z0-9_\-]+)\b(\s*'.(($options & self::FORMAT_RANGES) ? '<span>' : '').'<span class="punctuation'.(($options & self::FORMAT_RANGES) ? ' range' : '').'">\()#Ssi',
+		'#(?<!\$|->|::)(\s*)\b([a-z0-9_\-]+)\b(\s*'.(($options & self::FORMAT_RANGES) ? '<span class="range">' : '').'<span class="punctuation">\()#Ssi',
+		'#(?<=->|::)(\s*)\b([a-z0-9_\-]+)\b(\s*'.(($options & self::FORMAT_RANGES) ? '<span class="range">' : '').'<span class="punctuation">\()#Ssi',
 		'#(\(\s*)(int(?:teger)?|bool(?:ean)?|float|real|double|string|binary|array|object|unset)(\s*\))#Si',
 		'#(\$[a-z_][\w-]*)\b#Si',
 		'#(?<!">|[a-z-_])((?:-\s*)?(?:(?:\d+\.)?\d+)|0x[0-9a-f]+)\b#Si',
@@ -1773,7 +1773,7 @@ static private function modeSql($code, $options)
 			{
 				$output.= preg_replace(
 	array(
-		'#(\s*FOREIGN_KEY_LIST|INDEX_INFO|INDEX_LIST|TABLE_INFO|COUNT|MIN|MAX|SUM|ABS|COALESCE|GLOB|IFNULL|LAST_INSERT_ROWID|LENGTH|LIKE|LOAD_EXTENSION|LOWER|NULLIF|QUOTE|RANDOM|ROUND|SOUNDEX|SQLITE_VERSION|SUBSTR|TYPEOF|UPPER|AVG|TOTAL|RAISE)(\s*'.(($options & self::FORMAT_RANGES) ? '<span>' : '').'<span class="punctuation'.(($options & self::FORMAT_RANGES) ? ' range' : '').'">\()#Ssi',
+		'#(\s*FOREIGN_KEY_LIST|INDEX_INFO|INDEX_LIST|TABLE_INFO|COUNT|MIN|MAX|SUM|ABS|COALESCE|GLOB|IFNULL|LAST_INSERT_ROWID|LENGTH|LIKE|LOAD_EXTENSION|LOWER|NULLIF|QUOTE|RANDOM|ROUND|SOUNDEX|SQLITE_VERSION|SUBSTR|TYPEOF|UPPER|AVG|TOTAL|RAISE)(\s*'.(($options & self::FORMAT_RANGES) ? '<span class="range">' : '').'<span class="punctuation">\()#Ssi',
 		'#(\s*)(N?VARCHAR|TEXT|INTEGER|FLOAT|(?:BOOL)?EAN|CLOB|BLOB|TIMESTAMP|NUMERIC)(\s*)#Ssi',
 		'#((?:^|;\s+)(?:EXPLAIN )+(?:BEGIN|COMMIT|END|ROLLBACK) TRANSACTION|(?:AT|DE)TACH DATABASE|REINDEX|PRAGMA|ALTER TABLE|DELETE|VACUUM|EXPLAIN|SELECT(?: DISTINCT| UNION(?: ALL)?| INTERSECT| EXCEPT)?|BETWEEN|REPLACE|INSERT INTO|UPDATE|(?:CREATE |DROP )(?:(?:TEMP(?:ORARY)? |VIRTUAL )?TABLE| VIEW|(?: UNIQUE)? INDEX | TRIGGER))#Ssi',
 		'#(\s+)(WHERE|(?:PRIMARY|FOREIGN) KEY|IF NOT EXISTS|COLLATE|ON|OFF|YES|FILE|MEMORY|CASE|SET|(?:LEFT|RIGHT|FULL)(?: OUTER)? JOIN|UPDATE(?: OF)?|INSTEAD OF|CHECK|ON CONFLICT|(?:NOT )?LIKE|GLOB|HAVING|AFTER|BEFORE|FOR EACH(?:ROW|STATEMENT)|BEGIN|END|ELSE|NULL|AS SELECT|FROM|VALUES|ORDER BY|GROUP BY|WHEN|THEN|IN|LIMIT|OFFSET|AS|NO(?:T(?: ?)NULL?)|DEFAULT|UNIQUE|OR|AND|DESC|ASC)#Ssi',
