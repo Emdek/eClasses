@@ -120,13 +120,13 @@ window.addEventListener('load', function()
 					var range = this.parentNode.parentNode.getElementsByClassName('foldable')[parseInt(this.getAttribute('data-range'))];
 					range.classList.add('highlightrange');
 
-					this.style.height = ((range.getBoundingClientRect().height - 5) + 'px');
+					this.style.height = (range.getBoundingClientRect().height + 'px');
 					this.classList.add('indicator');
 				});
 				fold.addEventListener('mouseout', function(event)
 				{
 					this.parentNode.parentNode.getElementsByClassName('foldable')[parseInt(this.getAttribute('data-range'))].classList.remove('highlightrange');
-					this.style.height = '7px';
+					this.style.height = '12px';
 					this.classList.remove('indicator');
 				});
 
