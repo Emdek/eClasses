@@ -111,17 +111,23 @@ window.addEventListener('load', function()
 
 					range.style.visibility = (show ? 'inherit' : 'hidden');
 
-					this.className = (show ? 'fold' : 'unfold');
+					this.className = ((show ? 'fold' : 'unfold') + ' indicator');
 
 					event.stopPropagation();
 				});
 				fold.addEventListener('mouseover', function(event)
 				{
-					this.parentNode.parentNode.getElementsByClassName('foldable')[parseInt(this.getAttribute('data-range'))].classList.add('highlightrange');
+					var range = this.parentNode.parentNode.getElementsByClassName('foldable')[parseInt(this.getAttribute('data-range'))];
+					range.classList.add('highlightrange');
+
+					this.style.height = ((range.getBoundingClientRect().height - 5) + 'px');
+					this.classList.add('indicator');
 				});
 				fold.addEventListener('mouseout', function(event)
 				{
 					this.parentNode.parentNode.getElementsByClassName('foldable')[parseInt(this.getAttribute('data-range'))].classList.remove('highlightrange');
+					this.style.height = '7px';
+					this.classList.remove('indicator');
 				});
 
 				container.appendChild(fold);
