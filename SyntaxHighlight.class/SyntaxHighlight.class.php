@@ -1612,13 +1612,13 @@ static private function modePython($code, $options)
 			{
 				++$levels[$char];
 
-				$char = (($options & self::FORMAT_RANGES) ? '<span>' : '').'<span class="punctuation'.(($options & self::FORMAT_RANGES) ? ' range' : '').'">'.$char.'</span>';
+				$char = (($options & self::FORMAT_RANGES) ? '<span class="range">' : '').'<span class="punctuation">'.$char.'</span>';
 			}
 			else if (isset($map[$char]))
 			{
 				--$levels[$map[$char]];
 
-				$char = '<span class="punctuation'.(($options & self::FORMAT_RANGES && $levels[$map[$char]] >= 0) ? ' range' : '').'">'.$char.'</span>'.((($options & self::FORMAT_RANGES && $levels[$map[$char]] >= 0)) ? '</span>' : '');
+				$char = '<span class="punctuation">'.$char.'</span>'.((($options & self::FORMAT_RANGES && $levels[$map[$char]] >= 0)) ? '</span>' : '');
 			}
 		}
 		else if ($state == self::STATE_DOCUMENTATION && ($char == '\'' || $char == '"') && substr($buffer, -2) == $char.$char)
@@ -1644,8 +1644,8 @@ static private function modePython($code, $options)
 		'#\b(break|continue|elif|else|except|finally|for|if|pass|raise|return|try|while|yield)\b#S',
 		'#^(import)(\s+)(.+)$#Sm',
 		'#^(from)(\s+)(.+)(\s+)(import)(\s+)(.+)$#Sm',
-		'#(?<!">)\b\.([\w_-]+)\b#Ssi',
-		'#\b(?<!\$)(__future__|__import__|__name__|abs|all|any|apply|basestring|bool|buffer|callable|chr|classmethod|close|cmp|coerce|compile|complex|delattr|dict|dir|divmod|enumerate|eval|execfile|exit|file|filter|float|frozenset|getattr|globals|hasattr|hash|hex|id|input|int|intern|isinstance|issubclass|iter|len|list|locals|long|map|max|min|object|oct|open|ord|pow|property|range|raw_input|reduce|reload|repr|reversed|round|set(?:attr)?|slice|sorted|staticmethod|str|sum|super|tuple|type|unichr|unicode|vars|xrange|zip)\b#S',
+		'#(?<!\.)(\s*)\b([a-z0-9_\-]+)\b(\s*'.(($options & self::FORMAT_RANGES) ? '<span class="range">' : '').'<span class="punctuation">\()#Ssi',
+		'#(?<=\.)(\s*)\b([a-z0-9_\-]+)\b(\s*'.(($options & self::FORMAT_RANGES) ? '<span class="range">' : '').'<span class="punctuation">\()#Ssi',
 		'#(?<!">|[a-z-_])((?:-\s*)?(?:(?:\d+\.)?\d+))\b#Si',
 		'#(?<!class|">|"|span|&lt|&gt)((?::|;|-|\||\+|=|\*|!|~|\.|,|\/|@|\%|&lt;|&gt;|&amp;)+)(?!/?span)#Ssi',
 		),
@@ -1654,8 +1654,8 @@ static private function modePython($code, $options)
 		'<span class="control">\\1</span>',
 		'<span class="keyword">\\1</span>\\2<span class="package">\\3</span>\\4<span class="keyword">\\5</span>\\6<span class="package">\\7</span>',
 		'<span class="keyword">\\1</span>\\2<span class="package">\\3</span>',
-		'.<span class="method">\\1</span>',
-		'<span class="function">\\1</span>',
+		'\\1<span class="function">\\2</span>\\3',
+		'\\1<span class="method">\\2</span>\\3',
 		'<span class="number">\\1</span>',
 		'<span class="punctuation">\\1</span>',
 		),
