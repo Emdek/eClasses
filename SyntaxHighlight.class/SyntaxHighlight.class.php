@@ -253,7 +253,7 @@ static public function getModes()
 
 static private function removeHighlighting($code)
 {
-	return preg_replace('#<(?:span|a href=".*") class="(?:[a-z]*)">(.*)</(?:span|a)>#sU', '\\1', $code);
+	return preg_replace('#<span class="(?:[a-z]*)">(.*)</span>#sU', '\\1', $code);
 }
 
 /**
