@@ -246,17 +246,6 @@ static public function getModes()
 }
 
 /**
- * Removes highlighting
- * @param string $code
- * @return string
- */
-
-static private function removeHighlighting($code)
-{
-	return preg_replace('#<span class="(?:[a-z]*)">(.*)</span>#sU', '\\1', $code);
-}
-
-/**
  * Marks stray whitespace
  * @param array $matches
  * @return string
@@ -294,16 +283,18 @@ static private function markStray($matches)
 
 static private function highlightEmbedded($matches)
 {
-	if (count($matches) == 2)
+	$code = &$matches[1];
+	$region = NULL;
+	$method = 'modePhp';
+
+	if (count($matches) == 4)
 	{
-		return ((self::$options & self::FORMAT_FOLDING) ? '<span class="foldable">' : '').self::modePhp(self::removeHighlighting($matches[1]), self::$options).((self::$options & self::FORMAT_FOLDING) ? '</span>' : '');
-	}
-	else if (substr($matches[1], 0, 34) == '&lt;<span class="tag">style</span>')
-	{
-		return ((self::$options & self::FORMAT_FOLDING) ? '<span class="foldable">' : '').'<span class="region">'.$matches[1].'</span>'.self::modeCss(self::removeHighlighting($matches[2]), self::$options).'<span class="region">'.$matches[3].'</span>'.((self::$options & self::FORMAT_FOLDING) ? '</span>' : '');
+		$code = &$matches[2];
+		$region = array(&$matches[1], $matches[3]);
+		$method = ((substr($matches[1], 0, 34) == '&lt;<span class="tag">style</span>') ? 'modeCss' : 'modeJavascript');
 	}
 
-	return ((self::$options & self::FORMAT_FOLDING) ? '<span class="foldable">' : '').'<span class="region">'.$matches[1].'</span>'.self::modeJavascript(self::removeHighlighting($matches[2]), self::$options).'<span class="region">'.$matches[3].'</span>'.((self::$options & self::FORMAT_FOLDING) ? '</span>' : '');
+	return ($region ? ((self::$options & self::FORMAT_FOLDING) ? '<span class="foldable">' : '').'<span class="region">'.$region[0].'</span>' : '').self::$method(preg_replace('#<span class="(?:[a-z]*)">(.*)</span>#sU', '\\1', $code), self::$options).($region ? '<span class="region">'.$region[1].'</span>'.((self::$options & self::FORMAT_FOLDING) ? '</span>' : '') : '');
 }
 
 /**
