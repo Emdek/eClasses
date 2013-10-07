@@ -172,10 +172,11 @@ static public function highlightString($code, $mode = '', $options = self::FORMA
 		$code = preg_replace('#(?<!<span class="tab">)(\t)#', '<span class="tab">\\1</span>', $code);
 	}
 
+	$numbers = '';
+
 	if ($options & self::FORMAT_LINENUMBERS)
 	{
 		$script[] = 'linenumbers';
-		$numbers = '';
 		$lines = (substr_count($code, ((substr_count($code, "\r") > substr_count($code, "\n")) ? "\r" : "\n")) + 2);
 
 		for ($i = 1; $i < $lines; ++$i)
@@ -184,16 +185,12 @@ static public function highlightString($code, $mode = '', $options = self::FORMA
 ';
 		}
 
-		return '<div class="highlight" data-options="'.implode(',', $script).'">
-<pre class="numbers">'.$numbers.'</pre>
-<pre class="code">'.$code.'
-</pre>
-</div>
+		$numbers = '<pre class="numbers">'.$numbers.'</pre>
 ';
 	}
 
-	return '<div class="highlight" data-options="'.implode(',', $script).'">
-<pre class="code">'.$code.'
+	return '<div class="code" data-options="'.implode(',', $script).'">
+'.$numbers.'<pre>'.$code.'
 </pre>
 </div>
 ';

@@ -42,7 +42,8 @@ window.addEventListener('load', function()
 
 		backgrounds.push(background);
 
-		element.getElementsByClassName('code')[0].style.background = backgrounds.join(',');
+		var elements = element.getElementsByTagName('pre');
+		elements[elements.length - 1].style.background = backgrounds.join(',');
 	}
 
 	function updateSize(element)
@@ -51,7 +52,7 @@ window.addEventListener('load', function()
 	}
 
 	var background = 'url(\'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAAgCAYAAADT5RIaAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAACHRFWHRDb21tZW50APbMlr8AAAARSURBVAhbY2CgNsj9zE5FAgB9dRZxBYoY7AAAAABJRU5ErkJggg==\') 0 0';
-	var elements = document.getElementsByClassName('highlight');
+	var elements = document.getElementsByClassName('code');
 
 	for (var i = 0; i < elements.length; ++i)
 	{
@@ -133,14 +134,14 @@ window.addEventListener('load', function()
 				fold.addEventListener('mouseover', function(event)
 				{
 					var range = this.parentNode.parentNode.getElementsByClassName('foldable')[parseInt(this.getAttribute('data-range'))];
-					range.classList.add('highlightrange');
+					range.classList.add('highlight');
 
 					this.style.height = (range.getBoundingClientRect().height + 'px');
 					this.classList.add('indicator');
 				});
 				fold.addEventListener('mouseout', function(event)
 				{
-					this.parentNode.parentNode.getElementsByClassName('foldable')[parseInt(this.getAttribute('data-range'))].classList.remove('highlightrange');
+					this.parentNode.parentNode.getElementsByClassName('foldable')[parseInt(this.getAttribute('data-range'))].classList.remove('highlight');
 					this.style.height = '12px';
 					this.classList.remove('indicator');
 				});
@@ -157,11 +158,11 @@ window.addEventListener('load', function()
 			{
 				ranges[j].addEventListener('mouseover', function()
 				{
-					this.parentNode.classList.add('highlightrange');
+					this.parentNode.classList.add('highlight');
 				});
 				ranges[j].addEventListener('mouseout', function()
 				{
-					this.parentNode.classList.remove('highlightrange');
+					this.parentNode.classList.remove('highlight');
 				});
 			}
 		}
