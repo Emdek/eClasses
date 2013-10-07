@@ -58,7 +58,11 @@ CREATE TABLE "table3" ("field" TEXT, "field2" INTEGER(1, 2), "field3" FLOAT DEFA
 ?>
 <h2>Example: (X)HTML</h2>
 <?php
-echo SyntaxHighlight::highlightFile('test.html', 'html');
+echo SyntaxHighlight::highlightFile('./test.html', 'html');
+?>
+<h2>Example: Python</h2>
+<?php
+echo SyntaxHighlight::highlightFile('./test.py', 'python');
 ?>
 <h2>Example: PHP</h2>
 <?php
