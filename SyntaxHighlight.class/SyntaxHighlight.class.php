@@ -168,7 +168,29 @@ static public function highlightString($code, $mode = '', $options = self::FORMA
 
 	if ($options & self::FORMAT_WHITESPACE)
 	{
-		$code = preg_replace_callback('#( |\t)+$#m', 'self::markStray', $code);
+		$code = preg_replace_callback('#( |\t)+$#m', function ($matches)
+{
+	$array = str_split($matches[0]);
+	$string = '';
+
+	for ($i = 0, $c = count($array); $i < $c; ++$i)
+	{
+		if ($array[$i] == ' ')
+		{
+			$string.= '<span class="space"> </span>';
+		}
+		else if ($array[$i] == "\t")
+		{
+			$string.= '<span class="tab">	</span>';
+		}
+		else
+		{
+			$string.= $array[$i];
+		}
+	}
+
+	return '<span class="stray">'.$string.'</span>';
+}, $code);
 		$code = preg_replace('#(?<!<span class="tab">)(\t)#', '<span class="tab">\\1</span>', $code);
 	}
 
@@ -240,58 +262,6 @@ static public function getModes()
 	'sql' => 'SQL',
 	'xml' => 'XML',
 	);
-}
-
-/**
- * Marks stray whitespace
- * @param array $matches
- * @return string
- */
-
-static private function markStray($matches)
-{
-	$array = str_split($matches[0]);
-	$string = '';
-
-	for ($i = 0, $c = count($array); $i < $c; ++$i)
-	{
-		if ($array[$i] == ' ')
-		{
-			$string.= '<span class="space"> </span>';
-		}
-		else if ($array[$i] == "\t")
-		{
-			$string.= '<span class="tab">	</span>';
-		}
-		else
-		{
-			$string.= $array[$i];
-		}
-	}
-
-	return '<span class="stray">'.$string.'</span>';
-}
-
-/**
- * Highlight for embedded code
- * @param array $matches
- * @return string
- */
-
-static private function highlightEmbedded($matches)
-{
-	$code = &$matches[1];
-	$region = NULL;
-	$method = 'modePhp';
-
-	if (count($matches) == 4)
-	{
-		$code = &$matches[2];
-		$region = array(&$matches[1], $matches[3]);
-		$method = ((substr($matches[1], 0, 34) == '&lt;<span class="tag">style</span>') ? 'modeCss' : 'modeJavascript');
-	}
-
-	return ($region ? ((self::$options & self::FORMAT_FOLDING) ? '<span class="foldable">' : '').'<span class="region">'.$region[0].'</span>' : '').self::$method(preg_replace('#<span class="(?:[a-z]*)">(.*)</span>#sU', '\\1', $code), self::$options).($region ? '<span class="region">'.$region[1].'</span>'.((self::$options & self::FORMAT_FOLDING) ? '</span>' : '') : '');
 }
 
 /**
@@ -887,7 +857,21 @@ static private function modeHtml($code, $options)
 
 	self::$options = &$options;
 
-	$output = preg_replace_callback(array('#(&lt;<span class="tag">style</span>.*&gt;)(.*)(&lt;<span class="tag">/style</span>&gt;)#siU', '#(&lt;<span class="tag">script</span>.*&gt;)(.*)(&lt;<span class="tag">/script</span>&gt;)#siU', '#(&lt;\?(?:php)?(?!xml)(?U).+\?&gt;)#si'), 'self::highlightEmbedded', $output);
+	$output = preg_replace_callback(array('#(&lt;<span class="tag">style</span>.*&gt;)(.*)(&lt;<span class="tag">/style</span>&gt;)#siU', '#(&lt;<span class="tag">script</span>.*&gt;)(.*)(&lt;<span class="tag">/script</span>&gt;)#siU', '#(&lt;\?(?:php)?(?!xml)(?U).+\?&gt;)#si'), function ($matches)
+{
+	$code = &$matches[1];
+	$region = NULL;
+	$method = 'modePhp';
+
+	if (count($matches) == 4)
+	{
+		$code = &$matches[2];
+		$region = array(&$matches[1], $matches[3]);
+		$method = ((substr($matches[1], 0, 34) == '&lt;<span class="tag">style</span>') ? 'modeCss' : 'modeJavascript');
+	}
+
+	return ($region ? ((self::$options & self::FORMAT_FOLDING) ? '<span class="foldable">' : '').'<span class="region">'.$region[0].'</span>' : '').self::$method(preg_replace('#<span class="(?:[a-z]*)">(.*)</span>#sU', '\\1', $code), self::$options).($region ? '<span class="region">'.$region[1].'</span>'.((self::$options & self::FORMAT_FOLDING) ? '</span>' : '') : '');
+}, $output);
 
 	return $output;
 }
