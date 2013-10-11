@@ -11,6 +11,10 @@
 <?php
 require ('../SyntaxHighlight.class.php');
 ?>
+<h2>Example: (X)HTML</h2>
+<?php
+echo SyntaxHighlight::highlightFile('./test.html', 'html');
+?>
 <h2>Example: CSS</h2>
 <?php
 echo SyntaxHighlight::highlightString('.highlight 		'."\n".'{    '."\n".'	margin:5px auto;
@@ -55,10 +59,6 @@ echo SyntaxHighlight::highlightString('.highlight 		'."\n".'{    '."\n".'	margin
 echo SyntaxHighlight::highlightString('SELECT "test", SUM("test2") FROM "table" WHERE "name" LIKE \'value%\' ORDER BY "test" DESC;
 INSERT INTO "table2" VALUES(\'value\');
 CREATE TABLE "table3" ("field" TEXT, "field2" INTEGER(1, 2), "field3" FLOAT DEFAULT 3.3);', 'sql');
-?>
-<h2>Example: (X)HTML</h2>
-<?php
-echo SyntaxHighlight::highlightFile('./test.html', 'html');
 ?>
 <h2>Example: Python</h2>
 <?php
