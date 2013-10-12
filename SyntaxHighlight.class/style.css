@@ -60,7 +60,7 @@
 }
 .code .number
 {
-	color:#095DB1;
+	color:#099;
 }
 .code .punctuation
 {
@@ -80,7 +80,7 @@
 }
 .code .definition
 {
-	color:#549FA3;
+	color:#6CB6C5;
 }
 .code .doctype, .code .doctype *
 {
