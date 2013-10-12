@@ -109,16 +109,28 @@ window.addEventListener('load', function()
 
 		if (options.indexOf('folding') >= 0)
 		{
-			var foldables = elements[i].getElementsByClassName('foldable');
  			var container = elements[i].getElementsByClassName('numbers')[0];
  			var offset = getOffset(container);
+			var ranges = elements[i].getElementsByClassName('foldable');
+			var foldables = {};
 
-			for (var j = 0; j < foldables.length; ++j)
+			for (var j = 0; j < ranges.length; ++j)
+			{
+				var line = ((getOffset(ranges[j]) - offset) / 16);
+				var rectangle = ranges[j].getBoundingClientRect();
+
+				if (foldables[line] === undefined || rectangle.height > foldables[line][1].height || (rectangle.height == foldables[line][1].height && rectangle.width > foldables[line][1].width))
+				{
+					foldables[line] = [j, rectangle];
+				}
+			}
+
+			for (var line in foldables)
 			{
 				var fold = document.createElement('span');
-				fold.setAttribute('data-range', j);
+				fold.setAttribute('data-range', foldables[line][0]);
 				fold.className = 'fold';
-				fold.style.top = ((getOffset(foldables[j]) - offset) + 'px');
+				fold.style.top = ((line * 16) + 'px');
 
 				fold.addEventListener('click', function(event)
 				{
