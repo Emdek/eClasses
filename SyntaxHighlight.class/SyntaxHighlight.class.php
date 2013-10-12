@@ -63,17 +63,18 @@ const STATE_SELECTORS = 5;
  * Variable for storing formatting options for embedded code
  */
 
-static private $options = 0;
+static public $options = 0;
 
 /**
  * Highlights string for given type
  * @param string $code
  * @param string $mode
  * @param integer $options
+ * @param boolean $raw
  * @return string
  */
 
-static public function highlightString($code, $mode = '', $options = self::FORMAT_ALL)
+static public function highlightString($code, $mode = '', $options = self::FORMAT_ALL, $raw = FALSE)
 {
 	if (empty($mode))
 	{
@@ -142,6 +143,11 @@ static public function highlightString($code, $mode = '', $options = self::FORMA
 	if (method_exists('SyntaxHighlight', $method))
 	{
 		$code = self::$method($code, $options);
+	}
+
+	if ($raw)
+	{
+		return $code;
 	}
 
 	$script = array();
@@ -223,18 +229,19 @@ static public function highlightString($code, $mode = '', $options = self::FORMA
  * @param string $path
  * @param string $mode
  * @param integer $options
+ * @param boolean $raw
  * @return string
  * @throws Exception
  */
 
-static public function highlightFile($path, $mode = '', $options = self::FORMAT_ALL)
+static public function highlightFile($path, $mode = '', $options = self::FORMAT_ALL, $raw = FALSE)
 {
 	if (!file_exists($path))
 	{
 		throw new Exception('File does not exists!');
 	}
 
-	return self::highlightString(file_get_contents($path), $mode, $options);
+	return self::highlightString(file_get_contents($path), $mode, $options, $raw);
 }
 
 /**
@@ -861,16 +868,16 @@ static private function modeHtml($code, $options)
 {
 	$code = &$matches[1];
 	$region = NULL;
-	$method = 'modePhp';
+	$mode = 'php';
 
 	if (count($matches) == 4)
 	{
 		$code = &$matches[2];
 		$region = array(&$matches[1], $matches[3]);
-		$method = ((substr($matches[1], 0, 34) == '&lt;<span class="tag">style</span>') ? 'modeCss' : 'modeJavascript');
+		$mode = ((substr($matches[1], 0, 34) == '&lt;<span class="tag">style</span>') ? 'css' : 'javascript');
 	}
 
-	return ($region ? ((self::$options & self::FORMAT_FOLDING) ? '<span class="foldable">' : '').'<span class="region">'.$region[0].'</span>' : '').self::$method(preg_replace('#<span class="(?:[a-z]*)">(.*)</span>#sU', '\\1', $code), self::$options).($region ? '<span class="region">'.$region[1].'</span>'.((self::$options & self::FORMAT_FOLDING) ? '</span>' : '') : '');
+	return ($region ? ((SyntaxHighlight::$options & SyntaxHighlight::FORMAT_FOLDING) ? '<span class="foldable">' : '').'<span class="region">'.$region[0].'</span>' : '').SyntaxHighlight::highlightString(str_replace(array('&amp;', '&lt;', '&gt;'), array('&', '<', '>'), preg_replace('#<span class="(?:[a-z]*)">(.*)</span>#sU', '\\1', $code)), $mode, SyntaxHighlight::$options, TRUE).($region ? '<span class="region">'.$region[1].'</span>'.((SyntaxHighlight::$options & SyntaxHighlight::FORMAT_FOLDING) ? '</span>' : '') : '');
 }, $output);
 
 	return $output;
