@@ -1730,13 +1730,13 @@ static private function modeSql($code, $options)
 			{
 				++$levels[$char];
 
-				$char = (($options & self::FORMAT_RANGES) ? '<span>' : '').'<span class="punctuation'.(($options & self::FORMAT_RANGES) ? ' range' : '').'">'.$char.'</span>';
+				$char = (($options & self::FORMAT_RANGES) ? '<span class="range">' : '').'<span class="punctuation">'.$char.'</span>';
 			}
 			else if (isset($map[$char]))
 			{
 				--$levels[$map[$char]];
 
-				$char = '<span class="punctuation'.(($options & self::FORMAT_RANGES && $levels[$map[$char]] >= 0) ? ' range' : '').'">'.$char.'</span>'.(((($options & self::FORMAT_RANGES) && $levels[$map[$char]] >= 0)) ? '</span>' : '');
+				$char = '<span class="punctuation">'.$char.'</span>'.(((($options & self::FORMAT_RANGES) && $levels[$map[$char]] >= 0)) ? '</span>' : '');
 			}
 		}
 		else if ($state == self::STATE_COMMENT && (($char == "\n" && substr($buffer, 0, 1) != '/') || ($char == '/' && substr($buffer, -1) == '*')))
