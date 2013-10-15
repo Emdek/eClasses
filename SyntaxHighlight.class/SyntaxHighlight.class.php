@@ -137,8 +137,17 @@ static public function highlightString($code, $mode = '', $options = self::FORMA
 		}
 	}
 
+	if ($mode == 'c')
+	{
+		$mode = 'cpp';
+	}
+	else if ($mode == 'xml')
+	{
+		$mode = 'html';
+	}
+
 	$code = str_replace(array('&', '<', '>', "\r\n", "\r"), array('&amp;', '&lt;', '&gt;', "\n", "\n"), $code);
-	$method = 'mode'.ucfirst(strtolower($mode));
+	$method = 'mode'.ucfirst($mode);
 
 	if (method_exists('SyntaxHighlight', $method))
 	{
@@ -269,18 +278,6 @@ static public function getModes()
 	'sql' => 'SQL',
 	'xml' => 'XML',
 	);
-}
-
-/**
- * Highlight for C
- * @param string $code
- * @param integer $options
- * @return string
- */
-
-static private function modeC($code, $options)
-{
-	return self::modeCpp($code, $options);
 }
 
 /**
@@ -1803,18 +1800,6 @@ static private function modeSql($code, $options)
 	}
 
 	return $output;
-}
-
-/**
-* Highlight for XML
-* @param string $code
-* @param integer $options
-* @return string
-*/
-
-static private function modeXml($code, $options)
-{
-	return self::modeHtml($code, $options);
 }
 
 }
