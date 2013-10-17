@@ -139,10 +139,9 @@
 	font-weight:bold;
 	color:#008000;
 }
-.code .documentationtag
+.code .documentation .tag
 {
 	font-style:normal;
-	font-weight:bold;
 	color:#CA60CA;
 }
 .code .notice

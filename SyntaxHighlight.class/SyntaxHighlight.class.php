@@ -1116,10 +1116,10 @@ static private function modeJavadoc($code, $options)
 		'#(\s*\*?\s*)\{(@link)\}(\s+)(.+)#i',
 		),
 	array(
-		'\\1<span class="documentationtag">\\2</span>\\3<span class="value">\\4</span>',
-		'\\1<span class="documentationtag">\\2</span>\\3<span class="value">\\4</span>',
-		'\\1<span class="documentationtag">\\2</span>',
-		'\\1{<span class="documentationtag">\\2</span>\\3<span class="value">\\4</span>}',
+		'\\1<span class="tag">\\2</span>\\3<span class="value">\\4</span>',
+		'\\1<span class="tag">\\2</span>\\3<span class="value">\\4</span>',
+		'\\1<span class="tag">\\2</span>',
+		'\\1{<span class="tag">\\2</span>\\3<span class="value">\\4</span>}',
 		),
 	$code);
 }
@@ -1543,12 +1543,12 @@ static private function modePhpdoc($code, $options)
 		'#(\s*\*?\s*)(@return)(\s+)(\w+)#i',
 		),
 	array(
-		'\\1<span class="documentationtag">\\2</span>\\3<span class="value">\\4</span>',
-		'\\1<span class="documentationtag">\\2</span>\\3<span class="keyword">\\4</span>',
-		'\\1<span class="documentationtag">\\2</span>',
-		'\\1<span class="documentationtag">\\2</span>\\3<span class="datatype">\\4</span>\\5<span class="variable">\\6</span>',
-		'\\1<span class="documentationtag">\\2</span>\\3<span class="variable">\\4</span>',
-		'\\1<span class="documentationtag">\\2</span>\\3<span class="datatype">\\4</span>',
+		'\\1<span class="tag">\\2</span>\\3<span class="value">\\4</span>',
+		'\\1<span class="tag">\\2</span>\\3<span class="keyword">\\4</span>',
+		'\\1<span class="tag">\\2</span>',
+		'\\1<span class="tag">\\2</span>\\3<span class="datatype">\\4</span>\\5<span class="variable">\\6</span>',
+		'\\1<span class="tag">\\2</span>\\3<span class="variable">\\4</span>',
+		'\\1<span class="tag">\\2</span>\\3<span class="datatype">\\4</span>',
 		),
 	$code);
 }
