@@ -139,6 +139,15 @@ window.addEventListener('load', function()
 
 					range.style.visibility = (show ? 'inherit' : 'hidden');
 
+					var sibling = range.previousSibling;
+
+					while (sibling && (sibling.className == 'space' || sibling.className == 'tab'))
+					{
+						sibling.style.visibility = (show ? 'inherit' : 'hidden');
+
+						sibling = sibling.previousSibling;
+					}
+
 					this.className = ((show ? 'fold' : 'unfold') + ' indicator');
 
 					event.stopPropagation();
