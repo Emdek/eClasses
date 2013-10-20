@@ -344,7 +344,7 @@ static private function modeCpp($code, $options)
 			{
 				$output.= preg_replace(
 	array(
-		'#\b(asm|class|const_cast|dynamic_cast|enum|explicit|export|extern|false|friend|inline|namespace|new|NULL|operator|private|protected|public|reinterpret_cast|restrict|sizeof|static_cast|struct|template|this|true|typedef|typeid|type_info|typename|union|using|virtual)\b#Ss',
+		'#\b(asm|(?<!<span )class|const_cast|dynamic_cast|enum|explicit|export|extern|false|friend|inline|namespace|new|NULL|operator|private|protected|public|reinterpret_cast|restrict|sizeof|static_cast|struct|template|this|true|typedef|typeid|type_info|typename|union|using|virtual)\b#Ss',
 		'#\b(as|case|catch|default|if|else|elseif|do|goto|for|break|continue|switch|throw|try|delete|return|while)\b#Ss',
 		'#^(\#\s*(?:endif|if (?:def|ndef)?(?=\s+\S)|(?:el(?:se|if)|include(?:_next)?|define|undef|line|error|warning|pragma|static)|define.*|[0-9]+))#im',
 		'#\b(auto|bool|const|double|float|long|mutable|register|short|(?:un)?signed|void|volatile|(?:w|u)?char(?:_t)?|u?int(?:(?:8|16|32|64)_t)?|_Imaginary|_Complex|_Bool)\b#Ss',
@@ -464,7 +464,7 @@ static private function modeCs($code, $options)
 			{
 				$output.= preg_replace(
 	array(
-		'#\b(abstract|base|class|checked|delegate|enum|event|explicit|extern|false|finally|fixed|implicit|interface|internal|is|lock|namespace|new|null|operator|out|override|params|private|protected|public|readonly|ref|sealed|sizeof|stackalloc|static|struct|this|true|typeof|unchecked|unsafe|virtual)\b#Ss',
+		'#\b(abstract|base|(?<!<span )class|checked|delegate|enum|event|explicit|extern|false|finally|fixed|implicit|interface|internal|is|lock|namespace|new|null|operator|out|override|params|private|protected|public|readonly|ref|sealed|sizeof|stackalloc|static|struct|this|true|typeof|unchecked|unsafe|virtual)\b#Ss',
 		'#(using)(\s+)(.+);#m',
 		'#(?<!">)\b\.([\w_-]+)\b#Ssi',
 		'#\b(as|case|catch|default|if|else|elseif|do|goto|for(?:each)?|break|continue|switch|throw|try|delete|return|while)\b#Ss',
@@ -1036,7 +1036,7 @@ static private function modeJava($code, $options)
 			{
 				$output.= preg_replace(
 	array(
-		'#\b(abstract|class|continue|enum|extends|false|finally|implements|instanceof|@?interface|native|new|null|private|protected|public|super|static|strictfp|synchronized|this|throws|transient|true|volatile)\b#Ss',
+		'#\b(abstract|(?<!<span )class|continue|enum|extends|false|finally|implements|instanceof|@?interface|native|new|null|private|protected|public|super|static|strictfp|synchronized|this|throws|transient|true|volatile)\b#Ss',
 		'#^(package|import)(\s+)(.+);#Sm',
 		'#(?<!">)\b\.([\w_-]+)\b#Ssi',
 		'#\b(break|case|catch|continue|default|do|else|for|goto|if|return|throw|try|while)\b#Ss',
