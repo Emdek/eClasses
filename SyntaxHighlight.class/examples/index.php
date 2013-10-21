@@ -60,6 +60,17 @@ echo SyntaxHighlight::highlightString('SELECT "test", SUM("test2") FROM "table" 
 INSERT INTO "table2" VALUES(\'value\');
 CREATE TABLE "table3" ("field" TEXT, "field2" INTEGER(1, 2), "field3" FLOAT DEFAULT 3.3);', 'sql');
 ?>
+<h2>Example: C++</h2>
+<?php
+echo SyntaxHighlight::highlightString('#include <iostream>
+
+using namespace std;
+
+void main()
+{
+	cout << "Hello World!" << endl;
+}', 'cpp');
+?>
 <h2>Example: Python</h2>
 <?php
 echo SyntaxHighlight::highlightFile('./test.py', 'python');
